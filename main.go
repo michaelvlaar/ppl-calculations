@@ -7,7 +7,8 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
-	"ppl-calculations/domain/state"
+	"ppl-calculations/adapters/templator/models"
+	"ppl-calculations/adapters/templator/parsing"
 )
 
 //go:embed templates/*
@@ -36,25 +37,22 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 
-		s, err := state.NewFromWeightRequest(r)
+		s, err := parsing.NewFromWeightRequest(r)
 		if err != nil {
-			_ = tmpl.ExecuteTemplate(w, "index.html", s.WeightState())
+			_ = tmpl.ExecuteTemplate(w, "index.html", models.WeightFromState(*s))
 			return
 		}
 
-		_ = s.WriteState(w)
+		_ = parsing.WriteState(s, w)
 
 		if r.Header.Get("HX-Request") == "true" && r.URL.Query().Get("submit") == "weight" {
 			w.Header().Set("HX-Push-Url", "/")
-			_ = tmpl.ExecuteTemplate(w, "wb_form", s.WeightState())
+			_ = tmpl.ExecuteTemplate(w, "wb_form", models.WeightFromState(*s))
 		} else if r.Header.Get("HX-Request") == "true" && r.URL.Query().Get("submit") == "Volgende" {
 			w.Header().Set("HX-Push-Url", "/fuel")
-			_ = tmpl.ExecuteTemplate(w, "fuel_form", s.FuelState())
+			_ = tmpl.ExecuteTemplate(w, "fuel_form", models.FuelFromState(*s))
 		} else {
-			err = tmpl.ExecuteTemplate(w, "index.html", s.WeightState())
-			if err != nil {
-				panic(err)
-			}
+			_ = tmpl.ExecuteTemplate(w, "index.html", models.WeightFromState(*s))
 		}
 
 	})
@@ -62,71 +60,74 @@ func main() {
 	http.HandleFunc("/fuel", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 
-		s, err := state.NewFromFuelRequest(r)
+		s, err := parsing.NewFromFuelRequest(r)
 		if err != nil {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
 
-		_ = s.WriteState(w)
+		_ = parsing.WriteState(s, w)
 
 		if r.Header.Get("HX-Request") == "true" && r.URL.Query().Get("submit") == "Vorige" {
 			w.Header().Set("HX-Push-Url", "/")
-			_ = tmpl.ExecuteTemplate(w, "wb_form", s.WeightState())
+			_ = tmpl.ExecuteTemplate(w, "wb_form", models.WeightFromState(*s))
 		} else if r.Header.Get("HX-Request") == "true" && r.URL.Query().Get("submit") == "Volgende" {
 			w.Header().Set("HX-Push-Url", "/stats")
-			_ = tmpl.ExecuteTemplate(w, "calculations_form", s.StatsState())
+			_ = tmpl.ExecuteTemplate(w, "calculations_form", models.StatsFromState(*s))
 		} else {
-			_ = tmpl.ExecuteTemplate(w, "index.html", s.FuelState())
+			_ = tmpl.ExecuteTemplate(w, "index.html", models.FuelFromState(*s))
 		}
 	})
 
 	http.HandleFunc("/stats", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 
-		s, err := state.NewFromStatsRequest(r)
+		s, err := parsing.NewFromStatsRequest(r)
 		if err != nil {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
 
-		_ = s.WriteState(w)
+		_ = parsing.WriteState(s, w)
 
 		if r.Header.Get("HX-Request") == "true" && r.URL.Query().Get("submit") == "Vorige" {
 			w.Header().Set("HX-Push-Url", "/fuel")
-			_ = tmpl.ExecuteTemplate(w, "fuel_form", s.FuelState())
+			_ = tmpl.ExecuteTemplate(w, "fuel_form", models.FuelFromState(*s))
 		} else if r.Header.Get("HX-Request") == "true" && r.URL.Query().Get("submit") == "Volgende" {
 			w.Header().Set("HX-Push-Url", "/export")
-			_ = tmpl.ExecuteTemplate(w, "calculations_form", s.StatsState())
+			_ = tmpl.ExecuteTemplate(w, "calculations_form", models.StatsFromState(*s))
 		} else {
-			_ = tmpl.ExecuteTemplate(w, "index.html", s.StatsState())
+			_ = tmpl.ExecuteTemplate(w, "index.html", models.StatsFromState(*s))
 		}
 	})
 
 	http.HandleFunc("/wind-option", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 
-		s, err := state.NewFromWeightRequest(r)
+		s, err := parsing.NewFromWeightRequest(r)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		err = tmpl.ExecuteTemplate(w, "wb_form_wind_option", s.WeightState())
+		err = tmpl.ExecuteTemplate(w, "wb_form_wind_option", models.WeightFromState(*s))
 	})
 
 	http.HandleFunc("/fuel-option", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 
-		s, err := state.NewFromFuelRequest(r)
+		s, err := parsing.NewFromFuelRequest(r)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		err = tmpl.ExecuteTemplate(w, "fuel_form_max_fuel_option", s.FuelState())
+		err = tmpl.ExecuteTemplate(w, "fuel_form_max_fuel_option", models.FuelFromState(*s))
 	})
 
 	fmt.Println("Server gestart op :80")
-	http.ListenAndServe(":80", nil)
+	err = http.ListenAndServe(":80", nil)
+	if err != nil {
+		return
+	}
 }
