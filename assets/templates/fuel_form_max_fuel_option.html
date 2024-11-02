@@ -1,0 +1,19 @@
+{{ define "fuel_form_max_fuel_option" }}
+<div class="mb-4 flex w-full flex-col" id="max-fuel-container">
+    <div class="uppercase block text-gray-700 font-bold mb-2">Beschikbare Brandstof</div>
+    <div class="flex items-center mb-2">
+        <input type="checkbox" id="max-fuel" name="fuel_max" hx-target="#max-fuel-container" hx-swap="outerHTML"
+            value="max" {{ if .FuelMax }}checked{{ end }}
+            class="h-5 w-5 text-white bg-indigo-600 border-none rounded focus:ring-indigo-500"
+            hx-option="input[name=fuel_max]" hx-include="select[name=fuel_unit]{{ if not .FuelMax }},input[name=fuel_volume]{{ end }}" hx-get="/fuel-option" hx-trigger="change, change from:#fuel-quantity-type">
+        <label for="max-fuel" class="ml-2 block text-gray-700 font-bold">Aanvullen tot
+            maximum</label>
+    </div>
+
+    {{ if not .FuelMax }}
+    <input required min="0" step=".1" {{ if eq .FuelVolumeUnit "gallon" }}max="28.95"{{ else }}max="109.6"{{ end }}
+        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        {{ if .FuelVolume }}value="{{ .FuelVolume }}"{{ end }} type="number" name="fuel_volume" placeholder="Totaal brandstof">
+    {{ end }}
+</div>
+{{ end }}
