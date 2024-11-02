@@ -42,12 +42,20 @@ func Add(volumes ...Volume) Volume {
 	return MustNew(amount, TypeLiter)
 }
 
-func (v Volume) String() string {
+func (v Volume) String(t Type) string {
+	var amount float64
 	switch v.Type {
 	case TypeLiter:
-		return fmt.Sprintf("%.2fL", v.Amount)
+		amount = v.Amount
 	case TypeGallon:
-		return fmt.Sprintf("%.2fgal", v.Amount)
+		amount = v.Amount * LitersInGallon
+	}
+
+	switch t {
+	case TypeLiter:
+		return fmt.Sprintf("%.2fL", amount)
+	case TypeGallon:
+		return fmt.Sprintf("%.2fgal", amount/LitersInGallon)
 	default:
 		panic("invalid volume type")
 	}

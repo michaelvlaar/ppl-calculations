@@ -33,14 +33,14 @@ func StatsFromState(s state.State) interface{} {
 		}
 
 		template.FuelSufficient = planning.Sufficient
-		template.FuelTaxi = planning.Taxi.Volume.String()
-		template.FuelTrip = planning.Trip.Volume.String()
-		template.FuelAlternate = planning.Alternate.Volume.String()
-		template.FuelContingency = planning.Contingency.Volume.String()
-		template.FuelReserve = planning.Reserve.Volume.String()
-		template.FuelTotal = planning.Total.Volume.String()
-		template.FuelExtra = planning.Extra.Volume.String()
-		template.FuelExtraAbs = planning.Extra.Volume.String()
+		template.FuelTaxi = planning.Taxi.Volume.String(*s.FuelVolumeType)
+		template.FuelTrip = planning.Trip.Volume.String(*s.FuelVolumeType)
+		template.FuelAlternate = planning.Alternate.Volume.String(*s.FuelVolumeType)
+		template.FuelContingency = planning.Contingency.Volume.String(*s.FuelVolumeType)
+		template.FuelReserve = planning.Reserve.Volume.String(*s.FuelVolumeType)
+		template.FuelTotal = planning.Total.Volume.String(*s.FuelVolumeType)
+		template.FuelExtra = planning.Extra.Volume.String(*s.FuelVolumeType)
+		template.FuelExtraAbs = planning.Extra.Volume.String(*s.FuelVolumeType)
 
 	} else {
 		panic("not implemented")
