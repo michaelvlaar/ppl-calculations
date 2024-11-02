@@ -1,0 +1,102 @@
+{{ define "stepper" }}
+<div id="stepper" class="flex w-full mb-4">
+    <div class="flex w-full">
+        <ul class="w-full relative flex flex-row">
+            <li class="flex items-center gap-x-2 shrink basis-0 flex-1 group">
+                <div class="min-h-7 inline-flex justify-center items-center text-xs align-middle">
+                    {{ if ne .Step "weight" }}
+                    <form class="flex w-full" hx-get="/" hx-target="#content-container"
+                          hx-swap="outerHTML show:top">
+                        <input type="hidden" name="submit" value="weight" />
+                        <button type="submit"
+                                class="bg-indigo-600 flex justify-center items-center shrink-0 bg-white border border-gray-400 font-medium text-gray-800 rounded-full dark:bg-neutral-900 dark:border-neutral-700 dark:text-white">
+                            <span class="material-icons text-white p-2">create</span>
+                        </button>
+                        <button type="submit"
+                                class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800 dark:text-white">
+                            Invoeren
+                        </button>
+                    </form>
+                    {{ else }}
+                    <span
+                            class="bg-indigo-600 flex justify-center items-center shrink-0 bg-white border border-gray-400 font-medium text-gray-800 rounded-full dark:bg-neutral-900 dark:border-neutral-700 dark:text-white">
+                        <span class="material-icons text-white p-2">create</span>
+                    </span>
+                    <span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800 dark:text-white">
+                        Invoeren
+                    </span>
+                    {{ end }}
+                </div>
+                <div class="mr-2 w-full h-px flex-1 bg-gray-400 group-last:hidden dark:bg-neutral-700"></div>
+            </li>
+            <li class="flex items-center gap-x-2 shrink basis-0 flex-1 group">
+                <div class="min-w-7 min-h-7 inline-flex justify-center items-center text-xs align-middle">
+                    {{ if or (eq .Step "stats") (eq .Step "export") }}
+                    <form class="flex w-full" hx-get="/stats" hx-target="#content-container"
+                          hx-swap="outerHTML show:top">
+                        <input type="hidden" name="submit" value="Vorige" />
+                        <button type="submit"
+                                class="bg-indigo-600 size-7 flex justify-center items-center shrink-0 bg-white border border-gray-400 font-medium text-gray-800 rounded-full dark:bg-neutral-900 dark:border-neutral-700 dark:text-white">
+                            <span class="material-icons text-white p-2">local_gas_station</span>
+                        </button>
+                        <button type="submit"
+                                class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800 dark:text-white">
+                            Brandstof
+                        </button>
+                    </form>
+                    {{ else }}
+                    <span
+                            class="{{ if or (eq .Step "fuel") (eq .Step "stats") (eq .Step "export") }}bg-indigo-600{{ end }} size-7 flex justify-center items-center shrink-0 bg-white border border-gray-400 font-medium text-gray-800 rounded-full dark:bg-neutral-900 dark:border-neutral-700 dark:text-white">
+                        <span
+                                class="{{ if or (eq .Step "fuel") (eq .Step "stats") (eq .Step "export") }}text-white{{ end }} material-icons p-2">local_gas_station</span>
+                    </span>
+                    <span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800 dark:text-white">
+                        Brandstof
+                    </span>
+                    {{ end }}
+                </div>
+                <div class="mr-2 w-full h-px flex-1 bg-gray-400 group-last:hidden dark:bg-neutral-700"></div>
+            </li>
+            <li class="flex items-center gap-x-2 shrink basis-0 flex-1 group">
+                <div class="min-w-7 min-h-7 inline-flex justify-center items-center text-xs align-middle">
+                    {{ if or (eq .Step "stats") (eq .Step "export") }}
+                    <form class="flex w-full" hx-get="/stats" hx-target="#content-container" hx-swap="outerHTML shop:top">
+                        <input type="hidden" name="submit" value="stats" />
+                        <button type="submit"
+                                class="bg-indigo-600 size-7 flex justify-center items-center shrink-0 bg-white border border-gray-400 font-medium text-gray-800 rounded-full dark:bg-neutral-900 dark:border-neutral-700 dark:text-white">
+                            <span class="material-icons text-white p-2">bar_chart</span>
+                        </button>
+                        <button type="submit"
+                                class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800 dark:text-white">
+                            Berekeningen
+                        </button>
+                    </form>
+                    {{ else }}
+                    <span
+                            class="size-7 flex justify-center items-center shrink-0 bg-white border border-gray-400 font-medium text-gray-800 rounded-full dark:bg-neutral-900 dark:border-neutral-700 dark:text-white">
+                        <span
+                                class="material-icons p-2">bar_chart</span>
+                    </span>
+                    <span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800 dark:text-white">
+                        Berekeningen
+                    </span>
+                    {{ end }}
+                </div>
+                <div class="mr-2 w-full h-px flex-1 bg-gray-400 group-last:hidden dark:bg-neutral-700"></div>
+            </li>
+            <li class="flex items-center shrink basis-0 group">
+                <div class="min-w-7 min-h-7 inline-flex justify-center items-center text-xs align-middle">
+                    <span class="{{ if eq .Step "export" }}bg-indigo-600 {{ end }}size-7 flex justify-center
+                    items-center shrink-0 bg-white border border-gray-400 font-medium text-gray-800 rounded-full
+                    dark:bg-neutral-900 dark:border-neutral-700 dark:text-white">
+                    <span class="material-icons p-2 {{ if eq .Step "export" }}text-white{{ end }}">save_alt</span>
+                    </span>
+                    <span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800 dark:text-white">
+                        Opslaan
+                    </span>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+{{ end }}
