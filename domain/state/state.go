@@ -9,7 +9,7 @@ import (
 	"ppl-calculations/domain/seat"
 	"ppl-calculations/domain/temperature"
 	"ppl-calculations/domain/volume"
-	"ppl-calculations/domain/weight"
+	"ppl-calculations/domain/weight_balance"
 	"ppl-calculations/domain/wind"
 	"time"
 )
@@ -17,11 +17,11 @@ import (
 type State struct {
 	// Weight
 	CallSign              *callsign.CallSign       `json:"callSign,omitempty"`
-	Pilot                 *weight.Weight           `json:"pilot,omitempty"`
+	Pilot                 *weight_balance.Mass     `json:"pilot,omitempty"`
 	PilotSeat             *seat.Position           `json:"pilotSeat,omitempty"`
-	Passenger             *weight.Weight           `json:"passenger,omitempty"`
+	Passenger             *weight_balance.Mass     `json:"passenger,omitempty"`
 	PassengerSeat         *seat.Position           `json:"passengerSeat,omitempty"`
-	Baggage               *weight.Weight           `json:"baggage,omitempty"`
+	Baggage               *weight_balance.Mass     `json:"baggage,omitempty"`
 	OutsideAirTemperature *temperature.Temperature `json:"outsideAirTemperature,omitempty"`
 	PressureAltitude      *pressure.Altitude       `json:"pressureAltitude,omitempty"`
 	Wind                  *wind.Wind               `json:"wind,omitempty"`

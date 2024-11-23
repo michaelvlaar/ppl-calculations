@@ -11,8 +11,8 @@ import (
 	"ppl-calculations/adapters/templator/parsing"
 )
 
-//go:embed templates/*
-var content embed.FS
+//go:embed assets/*
+var assets embed.FS
 
 func derefString(s *string) string {
 	if s == nil {
@@ -22,17 +22,27 @@ func derefString(s *string) string {
 }
 
 func main() {
-	templatesFS, err := fs.Sub(content, "templates")
+	templatesFS, err := fs.Sub(assets, "assets/templates")
 	if err != nil {
 		log.Fatalf("Fout bij het strippen van templates folder: %v", err)
 	}
 
 	tmpl, err := template.New("base").Funcs(template.FuncMap{
 		"derefString": derefString,
+		"mod": func(i, j int) bool {
+			return i%j != 0
+		},
 	}).ParseFS(templatesFS, "*.html")
 	if err != nil {
 		log.Fatalf("Fout bij het parsen van de templates: %v", err)
 	}
+
+	cssFs, err := fs.Sub(assets, "assets/css")
+	if err != nil {
+		log.Fatalf("Fout bij het parsen van css: %v", err)
+	}
+
+	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.FS(cssFs))))
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")

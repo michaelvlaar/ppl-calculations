@@ -4,6 +4,9 @@ import "fmt"
 
 const (
 	LitersInGallon = 3.78541
+
+	VolumeDescriptionLiter  = "L"
+	VolumeDescriptionGallon = "gal"
 )
 
 type Volume struct {
@@ -42,6 +45,23 @@ func Add(volumes ...Volume) Volume {
 	return MustNew(amount, TypeLiter)
 }
 
+func (v Volume) Subtract(other Volume) Volume {
+	return Subtract(v, other)
+}
+
+func Subtract(base Volume, volumes ...Volume) Volume {
+	amount := base.Amount
+	for _, v := range volumes {
+		switch v.Type {
+		case TypeLiter:
+			amount -= v.Amount
+		case TypeGallon:
+			amount -= v.Amount * LitersInGallon
+		}
+	}
+
+	return MustNew(amount, TypeLiter)
+}
 func (v Volume) String(t Type) string {
 	var amount float64
 	switch v.Type {
@@ -53,9 +73,9 @@ func (v Volume) String(t Type) string {
 
 	switch t {
 	case TypeLiter:
-		return fmt.Sprintf("%.2fL", amount)
+		return fmt.Sprintf("%.2f%s", amount, VolumeDescriptionLiter)
 	case TypeGallon:
-		return fmt.Sprintf("%.2fgal", amount/LitersInGallon)
+		return fmt.Sprintf("%.2f%s", amount/LitersInGallon, VolumeDescriptionGallon)
 	default:
 		panic("invalid volume type")
 	}

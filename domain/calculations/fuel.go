@@ -26,20 +26,23 @@ type FuelPlanning struct {
 	Sufficient bool
 }
 
-func NewMaxFuelPlanning(fuelType fuel.Type, tripDuration time.Duration, alternateDuration time.Duration) (*FuelPlanning, error) {
+func NewFuelPlanning(tripDuration time.Duration, alternateDuration time.Duration, f fuel.Fuel) (*FuelPlanning, error) {
 	fp := &FuelPlanning{
-		Taxi:        fuel.MustNew(volume.MustNew(TaxiFuelLiters, volume.TypeLiter), fuelType),
-		Trip:        fuel.MustNew(volume.MustNew(AquilaFuelLiterConsumptionPerHour*tripDuration.Hours(), volume.TypeLiter), fuelType),
-		Alternate:   fuel.MustNew(volume.MustNew(AquilaFuelLiterConsumptionPerHour*alternateDuration.Hours(), volume.TypeLiter), fuelType),
-		Contingency: fuel.MustNew(volume.MustNew(AquilaFuelLiterConsumptionPerHour*tripDuration.Hours()*ContingencyFuelTripPercentage, volume.TypeLiter), fuelType),
-		Reserve:     fuel.MustNew(volume.MustNew(AquilaReserveFuelLiters, volume.TypeLiter), fuelType),
-		// TODO: calculate max fuel based on weight and balance maximum
-		Extra: fuel.MustNew(volume.MustNew(0, volume.TypeLiter), fuelType),
+		Taxi:        fuel.MustNew(volume.MustNew(TaxiFuelLiters, volume.TypeLiter), f.Type),
+		Trip:        fuel.MustNew(volume.MustNew(AquilaFuelLiterConsumptionPerHour*tripDuration.Hours(), volume.TypeLiter), f.Type),
+		Alternate:   fuel.MustNew(volume.MustNew(AquilaFuelLiterConsumptionPerHour*alternateDuration.Hours(), volume.TypeLiter), f.Type),
+		Contingency: fuel.MustNew(volume.MustNew(AquilaFuelLiterConsumptionPerHour*tripDuration.Hours()*ContingencyFuelTripPercentage, volume.TypeLiter), f.Type),
+		Reserve:     fuel.MustNew(volume.MustNew(AquilaReserveFuelLiters, volume.TypeLiter), f.Type),
 	}
 
+	fp.Extra = fuel.Subtract(f, fp.Taxi, fp.Trip, fp.Alternate, fp.Contingency, fp.Reserve)
 	fp.Total = fuel.Add(fp.Taxi, fp.Trip, fp.Alternate, fp.Contingency, fp.Reserve, fp.Extra)
 
-	fp.Sufficient = false
+	if fp.Extra.Volume.Amount > 0.0 {
+		fp.Sufficient = true
+	} else {
+		fp.Sufficient = false
+	}
 
 	return fp, nil
 }

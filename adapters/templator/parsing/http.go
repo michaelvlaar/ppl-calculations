@@ -10,7 +10,7 @@ import (
 	"ppl-calculations/domain/state"
 	"ppl-calculations/domain/temperature"
 	"ppl-calculations/domain/volume"
-	"ppl-calculations/domain/weight"
+	"ppl-calculations/domain/weight_balance"
 	"ppl-calculations/domain/wind"
 	"strconv"
 	"time"
@@ -73,7 +73,7 @@ func NewFromWeightRequest(r *http.Request) (*state.State, error) {
 	}
 
 	if urlPilot := r.URL.Query().Get("pilot"); urlPilot != "" {
-		pilot, err := weight.NewFromString(urlPilot)
+		pilot, err := weight_balance.NewMassFromString(urlPilot)
 		if err != nil {
 			return nil, err
 		}
@@ -91,7 +91,7 @@ func NewFromWeightRequest(r *http.Request) (*state.State, error) {
 	}
 
 	if urlPassenger := r.URL.Query().Get("passenger"); urlPassenger != "" {
-		passenger, err := weight.NewFromString(urlPassenger)
+		passenger, err := weight_balance.NewMassFromString(urlPassenger)
 		if err != nil {
 			return nil, err
 		}
@@ -109,7 +109,7 @@ func NewFromWeightRequest(r *http.Request) (*state.State, error) {
 	}
 
 	if urlBaggage := r.URL.Query().Get("baggage"); urlBaggage != "" {
-		baggage, err := weight.NewFromString(urlBaggage)
+		baggage, err := weight_balance.NewMassFromString(urlBaggage)
 		if err != nil {
 			return nil, err
 		}

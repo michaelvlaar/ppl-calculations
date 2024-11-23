@@ -32,3 +32,16 @@ func Add(fuels ...Fuel) Fuel {
 
 	return MustNew(v, fuels[0].Type)
 }
+
+func Subtract(base Fuel, fuels ...Fuel) Fuel {
+	v := base.Volume
+	for _, f := range fuels {
+		if fuels[0].Type != f.Type {
+			panic("fuel types must match")
+		}
+
+		v = v.Subtract(f.Volume)
+	}
+
+	return MustNew(v, fuels[0].Type)
+}

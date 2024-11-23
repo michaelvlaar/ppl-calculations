@@ -1,0 +1,32 @@
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    body {
+        margin: 20mm;
+        font-size: 12pt;
+    }
+}
+
+.custom-select {
+    appearance: none;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding-right: 2.5rem;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1.5rem;
+}
+
+.vertical-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.table-row:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
