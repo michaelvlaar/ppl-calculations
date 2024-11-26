@@ -24,7 +24,6 @@ type WeightAndBalanceState struct {
 type Stats struct {
 	Base
 
-	FuelSufficient  bool
 	FuelTaxi        string
 	FuelTrip        string
 	FuelAlternate   string
@@ -33,8 +32,12 @@ type Stats struct {
 	FuelTotal       string
 	FuelExtra       string
 	FuelExtraAbs    string
+	FuelSufficient  bool
 
-	WeightAndBalance WeightAndBalanceState
+	ChartUrl string
+
+	WeightAndBalanceTakeOff WeightAndBalanceState
+	WeightAndBalanceLanding WeightAndBalanceState
 }
 
 func parseNumber(number string) string {
@@ -65,6 +68,11 @@ func StatsFromState(s state.State) interface{} {
 	}
 
 	planning, err := calculations.NewFuelPlanning(*s.TripDuration, *s.AlternateDuration, f)
+	if err != nil {
+		panic(err)
+	}
+
+	landingWb, err := calculations.NewWeightAndBalance(*s.CallSign, *s.Pilot, *s.PilotSeat, s.Passenger, s.PassengerSeat, *s.Baggage, fuel.Subtract(f, planning.Trip, planning.Taxi))
 	if err != nil {
 		panic(err)
 	}
@@ -103,6 +111,33 @@ func StatsFromState(s state.State) interface{} {
 
 	wbState.WithinLimits = wb.WithinLimits
 
-	template.WeightAndBalance = wbState
+	wbLandingState := WeightAndBalanceState{}
+
+	for _, i := range landingWb.Moments {
+		m := parseNumber(fmt.Sprintf("%.2f", i.Mass.Kilo()))
+		if strings.HasPrefix(i.Name, "Fuel") {
+			m = fmt.Sprintf("(%s) %s", parseNumber(planning.Total.Volume.Subtract(planning.Trip.Volume).String(*s.FuelVolumeType)), m)
+		}
+
+		wbLandingState.Items = append(wbLandingState.Items, WeightAndBalanceItem{
+			Name:       parseNumber(i.Name),
+			LeverArm:   parseNumber(fmt.Sprintf("%.4f", i.Arm)),
+			Mass:       m,
+			MassMoment: parseNumber(fmt.Sprintf("%.2f", i.KGM())),
+		})
+	}
+
+	wbLandingState.Total = WeightAndBalanceItem{
+		Name:       parseNumber(landingWb.Total.Name),
+		LeverArm:   parseNumber(fmt.Sprintf("%.4f", landingWb.Total.Arm)),
+		Mass:       parseNumber(fmt.Sprintf("%.2f", landingWb.Total.Mass.Kilo())),
+		MassMoment: parseNumber(fmt.Sprintf("%.2f", landingWb.Total.KGM())),
+	}
+
+	wbState.WithinLimits = wb.WithinLimits
+	template.ChartUrl = fmt.Sprintf("/aquila-wb?takeoff-mass=%.2f&takeoff-mass-moment=%.2f&landing-mass=%.2f&landing-mass-moment=%.2f&limits=%t", wb.Total.Mass, wb.Total.KGM(), landingWb.Total.Mass, landingWb.Total.KGM(), wb.WithinLimits)
+
+	template.WeightAndBalanceTakeOff = wbState
+	template.WeightAndBalanceLanding = wbLandingState
 	return template
 }

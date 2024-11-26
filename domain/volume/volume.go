@@ -50,7 +50,14 @@ func (v Volume) Subtract(other Volume) Volume {
 }
 
 func Subtract(base Volume, volumes ...Volume) Volume {
-	amount := base.Amount
+	var amount float64
+	switch base.Type {
+	case TypeLiter:
+		amount = base.Amount
+	case TypeGallon:
+		amount = base.Amount * LitersInGallon
+	}
+
 	for _, v := range volumes {
 		switch v.Type {
 		case TypeLiter:

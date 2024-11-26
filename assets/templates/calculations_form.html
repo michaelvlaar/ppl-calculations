@@ -82,17 +82,23 @@
             <h1 class="text-xl font-bold uppercase">Gewicht en Balans</h1>
         </div>
 
-        {{ if not .WeightAndBalance.WithinLimits }}
+        {{ if not .WeightAndBalanceTakeOff.WithinLimits }}
         <div class="mt-4 mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
             <p class="text-sm">
                 De huidige gewichts- en balansberekening geeft aan dat de belading van het vliegtuig buiten de
                 toegestane limieten valt. Controleer en herbereken de gewichts- en balansverdeling zorgvuldig om te
                 voldoen aan de veiligheidsvoorschriften.
             </p>
-
         </div>
        {{ end }}
-        <table class="border border-gray min-w-full divide-y divide-gray-200">
+        <img src="{{ .ChartUrl }}" alt="Chart" class="w-full mb-2 sm:w-1/2">
+
+        <div class="flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0">
+        <div class="w-full lg:w-1/2">
+            <div class="text-center mb-2 mt-2">
+                <h2 class="text-xl font-bold uppercase">Take-off</h2>
+            </div>
+            <table class="border border-gray min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-200">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">NAME</th>
@@ -102,7 +108,7 @@
                 </tr>
             </thead>
             <tbody>
-                {{ range $index, $item := .WeightAndBalance.Items }}
+                {{ range $index, $item := .WeightAndBalanceTakeOff.Items }}
                 <tr class="table-row {{ if mod $index 2 }}bg-gray-50{{ end }}">
                     <td class="px-6 py-4 whitespace-nowrap text-xs font-medium text-gray-900">{{ $item.Name }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-xs font-medium text-gray-900 text-right hidden md:block">{{ $item.LeverArm }}</td>
@@ -114,12 +120,52 @@
             <tfoot class="bg-gray-200">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">Total</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-900 uppercase tracking-wider hidden md:block">{{ .WeightAndBalance.Total.LeverArm }}</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-900 uppercase tracking-wider">{{ .WeightAndBalance.Total.Mass }}</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-900 uppercase tracking-wider">{{ .WeightAndBalance.Total.MassMoment }}</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-900 uppercase tracking-wider hidden md:block">{{ .WeightAndBalanceTakeOff.Total.LeverArm }}</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-900 uppercase tracking-wider">{{ .WeightAndBalanceTakeOff.Total.Mass }}</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-900 uppercase tracking-wider">{{ .WeightAndBalanceTakeOff.Total.MassMoment }}</th>
                 </tr>
             </tfoot>
         </table>
+        </div>
+        <div class="mt-4 md:hidden p-4 bg-blue-100 border-l-4 border-blue-500 text-blue-700">
+            <p class="text-sm">
+                Sommige gegevens zijn verborgen vanwege beperkte ruimte. Draai uw apparaat naar landschapsmodus om alle informatie te bekijken.
+            </p>
+        </div>
+        <div class="w-full lg:w-1/2">
+            <div class="text-center mb-2 mt-2">
+                <h2 class="text-xl font-bold uppercase">Landing</h2>
+            </div>
+        <table class="border border-gray min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-200">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">NAME</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-900 uppercase tracking-wider hidden md:block">LEVER ARM [M]</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-900 uppercase tracking-wider">MASS [KG]</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-900 uppercase tracking-wider">MASS MOMENT [KG M]</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{ range $index, $item := .WeightAndBalanceLanding.Items }}
+            <tr class="table-row {{ if mod $index 2 }}bg-gray-50{{ end }}">
+                <td class="px-6 py-4 whitespace-nowrap text-xs font-medium text-gray-900">{{ $item.Name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-xs font-medium text-gray-900 text-right hidden md:block">{{ $item.LeverArm }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-xs font-medium text-gray-900 text-right">{{ $item.Mass }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-xs font-medium text-gray-900 text-right">{{ $item.MassMoment }}</td>
+            </tr>
+            {{ end }}
+            </tbody>
+            <tfoot class="bg-gray-200">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-900 uppercase tracking-wider">Total</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-900 uppercase tracking-wider hidden md:block">{{ .WeightAndBalanceLanding.Total.LeverArm }}</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-900 uppercase tracking-wider">{{ .WeightAndBalanceLanding.Total.Mass }}</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-900 uppercase tracking-wider">{{ .WeightAndBalanceLanding.Total.MassMoment }}</th>
+            </tr>
+            </tfoot>
+        </table>
+        </div>
+        </div>
         <div class="mt-4 md:hidden p-4 bg-blue-100 border-l-4 border-blue-500 text-blue-700">
             <p class="text-sm">
                 Sommige gegevens zijn verborgen vanwege beperkte ruimte. Draai uw apparaat naar landschapsmodus om alle informatie te bekijken.

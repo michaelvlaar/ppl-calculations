@@ -3,12 +3,22 @@ package main
 import (
 	"embed"
 	"fmt"
+	"github.com/tdewolff/canvas"
+	"github.com/tdewolff/canvas/renderers"
+	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
 	"html/template"
+	"image/color"
 	"io/fs"
 	"log"
 	"net/http"
 	"ppl-calculations/adapters/templator/models"
 	"ppl-calculations/adapters/templator/parsing"
+	"ppl-calculations/domain/calculations"
+	"strconv"
+
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/plotter"
 )
 
 //go:embed assets/*
@@ -19,6 +29,20 @@ func derefString(s *string) string {
 		return ""
 	}
 	return *s
+}
+
+func TickGenerator(min, max float64) plot.Ticker {
+	return plot.ConstantTicks(func() []plot.Tick {
+		var ticks []plot.Tick
+		step := 20.0 // Ticks per 10 units
+		for val := min; val <= max; val += step {
+			ticks = append(ticks, plot.Tick{
+				Value: val,
+				Label: fmt.Sprintf("%.0f", val),
+			})
+		}
+		return ticks
+	}())
 }
 
 func main() {
@@ -41,6 +65,125 @@ func main() {
 	if err != nil {
 		log.Fatalf("Fout bij het parsen van css: %v", err)
 	}
+
+	http.HandleFunc("/aquila-wb", func(w http.ResponseWriter, r *http.Request) {
+		urlTakeOffMass := r.URL.Query().Get("takeoff-mass")
+		urlTakeOffMassMoment := r.URL.Query().Get("takeoff-mass-moment")
+
+		urlLandingMass := r.URL.Query().Get("landing-mass")
+		urlLandingMassMoment := r.URL.Query().Get("landing-mass-moment")
+
+		if urlTakeOffMass == "" || urlTakeOffMassMoment == "" || urlLandingMass == "" || urlLandingMassMoment == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		takeOffMass, err := strconv.ParseFloat(urlTakeOffMass, 64)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		takeOffMassMoment, err := strconv.ParseFloat(urlTakeOffMassMoment, 64)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		landingMass, err := strconv.ParseFloat(urlLandingMass, 64)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		landingMassMoment, err := strconv.ParseFloat(urlLandingMassMoment, 64)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		p := plot.New()
+		p.Title.Text = "Gewicht en Balans (PHDHA)"
+		p.X.Label.Text = "Mass Moment [kg m]"
+		p.Y.Label.Text = "Mass [kg]"
+
+		p.X.Min = 230
+		p.X.Max = 430
+		p.Y.Min = 550
+		p.Y.Max = 770
+
+		p.X.Tick.Marker = TickGenerator(p.X.Min, p.X.Max)
+		p.Y.Tick.Marker = TickGenerator(p.Y.Min, p.Y.Max)
+
+		grid := plotter.NewGrid()
+		p.Add(grid)
+
+		polygonData := plotter.XYs{
+			{X: calculations.AquilaMinWeight * calculations.AquilaForwardCgLimit, Y: calculations.AquilaMinWeight},
+			{X: calculations.AquilaMinWeight * calculations.AquilaBackwardCgLimit, Y: calculations.AquilaMinWeight},
+			{X: calculations.AquilaMTOW * calculations.AquilaBackwardCgLimit, Y: calculations.AquilaMTOW},
+			{X: calculations.AquilaMTOW * calculations.AquilaForwardCgLimit, Y: calculations.AquilaMTOW},
+		}
+
+		polygon, err := plotter.NewPolygon(polygonData)
+		if err != nil {
+			log.Fatalf("Error creating polygon: %v", err)
+		}
+
+		polygon.LineStyle.Color = color.RGBA{R: 255, A: 0}
+		polygon.Color = color.RGBA{R: 255, A: 128}
+		p.Add(polygon)
+
+		points := plotter.XYs{
+			{X: takeOffMassMoment, Y: takeOffMass},
+		}
+
+		points2 := plotter.XYs{
+			{X: landingMassMoment, Y: landingMass},
+		}
+
+		scatter, err := plotter.NewScatter(points)
+		if err != nil {
+			log.Fatalf("Error creating scatter: %v", err)
+		}
+
+		scatter.GlyphStyle.Shape = draw.CircleGlyph{}
+		scatter.GlyphStyle.Color = color.RGBA{G: 255, A: 255}
+		scatter.GlyphStyle.Radius = vg.Points(5)
+
+		p.Add(scatter)
+
+		scatter2, err := plotter.NewScatter(points2)
+		if err != nil {
+			log.Fatalf("Error creating scatter: %v", err)
+		}
+
+		scatter2.GlyphStyle.Shape = draw.CircleGlyph{}
+		scatter2.GlyphStyle.Color = color.RGBA{B: 255, A: 255}
+		scatter2.GlyphStyle.Radius = vg.Points(5)
+
+		p.Add(scatter2)
+
+		p.Legend.Top = false
+		p.Legend.XOffs = vg.Centimeter * -1.5
+		p.Legend.YOffs = vg.Centimeter * 1.5
+		p.Legend.Padding = vg.Points(5)
+
+		p.Legend.Add("CG Envelope", polygon)
+		p.Legend.Add("Take-off Point", scatter)
+		p.Legend.Add("Landing Point", scatter2)
+
+		c := canvas.New(150.0, 150.0)
+		gonumCanvas := renderers.NewGonumPlot(c)
+
+		p.Draw(gonumCanvas)
+
+		w.Header().Set("content-type", "image/svg+xml")
+		err = c.Write(w, renderers.SVG())
+		if err != nil {
+			panic(err)
+		}
+	})
 
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.FS(cssFs))))
 

@@ -16,6 +16,7 @@ const (
 	AquilaForwardCgLimit  = 0.427
 	AquilaBackwardCgLimit = 0.523
 	AquilaMTOW            = 750.0
+	AquilaMinWeight       = 558.0
 	AquilaMaxFuel         = 109.6
 
 	PilotMassName     = "Pilot"
@@ -72,8 +73,9 @@ func NewWeightAndBalanceMaxFuel(callSign callsign.CallSign, pilot weight_balance
 	wb.Moments = append(wb.Moments, weight_balance.NewMassMoment(PilotMassName, pilotSeatMassArm, pilot))
 
 	if passenger == nil || passengerSeat == nil {
+		// Add empty mass
 		wb.Moments = append(wb.Moments, weight_balance.NewMassMoment(PassengerMassName, pilotSeatMassArm, weight_balance.Mass(0)))
-	} else if passenger != nil && passengerSeat != nil {
+	} else {
 		var passengerSeatMassArm float64
 		switch pilotSeat {
 		case seat.PositionFront:
@@ -87,8 +89,6 @@ func NewWeightAndBalanceMaxFuel(callSign callsign.CallSign, pilot weight_balance
 		}
 
 		wb.Moments = append(wb.Moments, weight_balance.NewMassMoment(PassengerMassName, passengerSeatMassArm, *passenger))
-	} else {
-		panic("invalid weight and balance input")
 	}
 
 	wb.Moments = append(wb.Moments, weight_balance.NewMassMoment(BagageMassName, BagageMassArm, bagage))
@@ -184,7 +184,7 @@ func NewWeightAndBalance(callSign callsign.CallSign, pilot weight_balance.Mass, 
 
 	if passenger == nil || passengerSeat == nil {
 		wb.Moments = append(wb.Moments, weight_balance.NewMassMoment(PassengerMassName, pilotSeatMassArm, weight_balance.Mass(0)))
-	} else if passenger != nil && passengerSeat != nil {
+	} else {
 		var passengerSeatMassArm float64
 		switch pilotSeat {
 		case seat.PositionFront:
@@ -198,8 +198,6 @@ func NewWeightAndBalance(callSign callsign.CallSign, pilot weight_balance.Mass, 
 		}
 
 		wb.Moments = append(wb.Moments, weight_balance.NewMassMoment(PassengerMassName, passengerSeatMassArm, *passenger))
-	} else {
-		panic("invalid weight and balance input")
 	}
 
 	wb.Moments = append(wb.Moments, weight_balance.NewMassMoment(BagageMassName, BagageMassArm, bagage))
