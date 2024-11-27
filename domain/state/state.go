@@ -1,8 +1,6 @@
 package state
 
 import (
-	"encoding/base64"
-	"encoding/json"
 	"ppl-calculations/domain/callsign"
 	"ppl-calculations/domain/fuel"
 	"ppl-calculations/domain/pressure"
@@ -15,51 +13,26 @@ import (
 )
 
 type State struct {
-	// Weight
-	CallSign              *callsign.CallSign       `json:"callSign,omitempty"`
-	Pilot                 *weight_balance.Mass     `json:"pilot,omitempty"`
-	PilotSeat             *seat.Position           `json:"pilotSeat,omitempty"`
-	Passenger             *weight_balance.Mass     `json:"passenger,omitempty"`
-	PassengerSeat         *seat.Position           `json:"passengerSeat,omitempty"`
-	Baggage               *weight_balance.Mass     `json:"baggage,omitempty"`
-	OutsideAirTemperature *temperature.Temperature `json:"outsideAirTemperature,omitempty"`
-	PressureAltitude      *pressure.Altitude       `json:"pressureAltitude,omitempty"`
-	Wind                  *wind.Wind               `json:"wind,omitempty"`
+	// Load Sheet
+	CallSign              *callsign.CallSign
+	Pilot                 *weight_balance.Mass
+	PilotSeat             *seat.Position
+	Passenger             *weight_balance.Mass
+	PassengerSeat         *seat.Position
+	Baggage               *weight_balance.Mass
+	OutsideAirTemperature *temperature.Temperature
+	PressureAltitude      *pressure.Altitude
+	Wind                  *wind.Wind
 
-	// Fuel
-	FuelType          *fuel.Type     `json:"fuelType,omitempty"`
-	FuelVolumeType    *volume.Type   `json:"fuelVolumeType,omitempty"`
-	Fuel              *fuel.Fuel     `json:"fuel,omitempty"`
-	MaxFuel           *bool          `json:"maxFuel,omitempty"`
-	TripDuration      *time.Duration `json:"tripDuration,omitempty"`
-	AlternateDuration *time.Duration `json:"alternateDuration,omitempty"`
-}
-
-func (state *State) String() string {
-	jsonState, err := json.Marshal(state)
-	if err != nil {
-		panic(err)
-	}
-
-	return base64.StdEncoding.EncodeToString(jsonState)
+	// Fuel Sheet
+	FuelType          *fuel.Type
+	FuelVolumeType    *volume.Type
+	Fuel              *fuel.Fuel
+	MaxFuel           *bool
+	TripDuration      *time.Duration
+	AlternateDuration *time.Duration
 }
 
 func MustNew() *State {
 	return &State{}
-}
-
-func NewFromString(state string) (*State, error) {
-	s := &State{}
-
-	base64DecodedState, err := base64.StdEncoding.DecodeString(state)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(base64DecodedState, &s)
-	if err != nil {
-		return nil, err
-	}
-
-	return s, nil
 }

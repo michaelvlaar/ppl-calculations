@@ -1,6 +1,8 @@
 package models
 
-import "ppl-calculations/domain/state"
+import (
+	"ppl-calculations/app/queries"
+)
 
 type Weight struct {
 	Base
@@ -17,48 +19,48 @@ type Weight struct {
 	WindDirection         *string
 }
 
-func WeightFromState(s state.State) interface{} {
+func WeightFromLoadSheet(loadSheet queries.LoadSheetResponse) interface{} {
 	is := Weight{
 		Base: Base{
 			Step: string(StepWeight),
 		},
 	}
 
-	if s.CallSign != nil {
-		is.CallSign = StringPointer(s.CallSign.String())
+	if loadSheet.CallSign != nil {
+		is.CallSign = StringPointer(loadSheet.CallSign.String())
 	}
 
-	if s.Pilot != nil {
-		is.Pilot = StringPointer(s.Pilot.String())
+	if loadSheet.Pilot != nil {
+		is.Pilot = StringPointer(loadSheet.Pilot.String())
 	}
 
-	if s.PilotSeat != nil {
-		is.PilotSeat = StringPointer(s.PilotSeat.String())
+	if loadSheet.PilotSeat != nil {
+		is.PilotSeat = StringPointer(loadSheet.PilotSeat.String())
 	}
 
-	if s.Passenger != nil {
-		is.Passenger = StringPointer(s.Passenger.String())
+	if loadSheet.Passenger != nil {
+		is.Passenger = StringPointer(loadSheet.Passenger.String())
 	}
 
-	if s.PassengerSeat != nil {
-		is.PassengerSeat = StringPointer(s.PassengerSeat.String())
+	if loadSheet.PassengerSeat != nil {
+		is.PassengerSeat = StringPointer(loadSheet.PassengerSeat.String())
 	}
 
-	if s.Baggage != nil {
-		is.Baggage = StringPointer(s.Baggage.String())
+	if loadSheet.Baggage != nil {
+		is.Baggage = StringPointer(loadSheet.Baggage.String())
 	}
 
-	if s.OutsideAirTemperature != nil {
-		is.OutsideAirTemperature = StringPointer(s.OutsideAirTemperature.String())
+	if loadSheet.OutsideAirTemperature != nil {
+		is.OutsideAirTemperature = StringPointer(loadSheet.OutsideAirTemperature.String())
 	}
 
-	if s.PressureAltitude != nil {
-		is.PressureAltitude = StringPointer(s.PressureAltitude.String())
+	if loadSheet.PressureAltitude != nil {
+		is.PressureAltitude = StringPointer(loadSheet.PressureAltitude.String())
 	}
 
-	if s.Wind != nil {
-		is.Wind = StringPointer(s.Wind.Speed.String())
-		is.WindDirection = StringPointer(s.Wind.Direction.String())
+	if loadSheet.Wind != nil {
+		is.Wind = StringPointer(loadSheet.Wind.Speed.String())
+		is.WindDirection = StringPointer(loadSheet.Wind.Direction.String())
 	}
 
 	return is

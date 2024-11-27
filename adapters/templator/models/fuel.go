@@ -2,7 +2,7 @@ package models
 
 import (
 	"fmt"
-	"ppl-calculations/domain/state"
+	"ppl-calculations/app/queries"
 )
 
 type Fuel struct {
@@ -16,7 +16,7 @@ type Fuel struct {
 	FuelMax           bool
 }
 
-func FuelFromState(s state.State) interface{} {
+func FuelFromFuelSheet(s queries.FuelSheetResponse) interface{} {
 	fs := Fuel{
 		Base: Base{
 			Step: string(StepFuel),

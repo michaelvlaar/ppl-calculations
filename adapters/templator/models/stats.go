@@ -135,7 +135,7 @@ func StatsFromState(s state.State) interface{} {
 	}
 
 	wbState.WithinLimits = wb.WithinLimits
-	template.ChartUrl = fmt.Sprintf("/aquila-wb?takeoff-mass=%.2f&takeoff-mass-moment=%.2f&landing-mass=%.2f&landing-mass-moment=%.2f&limits=%t", wb.Total.Mass, wb.Total.KGM(), landingWb.Total.Mass, landingWb.Total.KGM(), wb.WithinLimits)
+	template.ChartUrl = fmt.Sprintf("/aquila-wb?callsign=%s&takeoff-mass=%.2f&takeoff-mass-moment=%.2f&landing-mass=%.2f&landing-mass-moment=%.2f&limits=%t", s.CallSign.String(), wb.Total.Mass, wb.Total.KGM(), landingWb.Total.Mass, landingWb.Total.KGM(), wb.WithinLimits)
 
 	template.WeightAndBalanceTakeOff = wbState
 	template.WeightAndBalanceLanding = wbLandingState

@@ -3,6 +3,7 @@ package parsing
 import (
 	"errors"
 	"net/http"
+	"ppl-calculations/app/commands"
 	"ppl-calculations/domain/callsign"
 	"ppl-calculations/domain/fuel"
 	"ppl-calculations/domain/pressure"
@@ -13,31 +14,14 @@ import (
 	"ppl-calculations/domain/weight_balance"
 	"ppl-calculations/domain/wind"
 	"strconv"
-	"time"
 )
 
 var (
 	ErrInvalidState = errors.New("invalid state")
 )
 
-func WriteState(s *state.State, w http.ResponseWriter) error {
-	cookie := &http.Cookie{
-		Name:     "state",
-		Value:    s.String(),
-		Path:     "/",
-		Expires:  time.Now().Add(24 * time.Hour),
-		HttpOnly: true,
-		Secure:   true,
-	}
-
-	http.SetCookie(w, cookie)
-
-	return nil
-}
-
 func NewFromRequest(r *http.Request) (*state.State, error) {
-	if c, err := r.Cookie("state"); err == nil {
-		return state.NewFromString(c.Value)
+	if _, err := r.Cookie("state"); err == nil {
 	}
 
 	return state.MustNew(), nil
@@ -57,104 +41,101 @@ func NewFromStatsRequest(r *http.Request) (*state.State, error) {
 	return s, nil
 }
 
-func NewFromWeightRequest(r *http.Request) (*state.State, error) {
-	s, err := NewFromRequest(r)
-	if err != nil {
-		return nil, err
-	}
+func UpdateLoadSheetRequest(r *http.Request) (commands.UpdateLoadSheetRequest, error) {
+	req := commands.UpdateLoadSheetRequest{}
 
 	if urlCS := r.URL.Query().Get("callsign"); urlCS != "" {
 		cs, err := callsign.New(urlCS)
 		if err != nil {
-			return nil, err
+			return req, err
 		}
 
-		s.CallSign = &cs
+		req.CallSign = &cs
 	}
 
 	if urlPilot := r.URL.Query().Get("pilot"); urlPilot != "" {
 		pilot, err := weight_balance.NewMassFromString(urlPilot)
 		if err != nil {
-			return nil, err
+			return req, err
 		}
 
-		s.Pilot = &pilot
+		req.Pilot = &pilot
 	}
 
 	if urlPilotSeat := r.URL.Query().Get("pilot_seat"); urlPilotSeat != "" {
 		pilotSeatPosition, err := seat.NewFromString(urlPilotSeat)
 		if err != nil {
-			return nil, err
+			return req, err
 		}
 
-		s.PilotSeat = &pilotSeatPosition
+		req.PilotSeat = &pilotSeatPosition
 	}
 
 	if urlPassenger := r.URL.Query().Get("passenger"); urlPassenger != "" {
 		passenger, err := weight_balance.NewMassFromString(urlPassenger)
 		if err != nil {
-			return nil, err
+			return req, err
 		}
 
-		s.Passenger = &passenger
+		req.Passenger = &passenger
 	}
 
 	if urlPassengerSeat := r.URL.Query().Get("passenger_seat"); urlPassengerSeat != "" {
 		passengerSeatPosition, err := seat.NewFromString(urlPassengerSeat)
 		if err != nil {
-			return nil, err
+			return req, err
 		}
 
-		s.PassengerSeat = &passengerSeatPosition
+		req.PassengerSeat = &passengerSeatPosition
 	}
 
 	if urlBaggage := r.URL.Query().Get("baggage"); urlBaggage != "" {
 		baggage, err := weight_balance.NewMassFromString(urlBaggage)
 		if err != nil {
-			return nil, err
+			return req, err
 		}
 
-		s.Baggage = &baggage
+		req.Baggage = &baggage
 	}
 
 	if urlOAT := r.URL.Query().Get("oat"); urlOAT != "" {
 		temp, err := temperature.NewFromString(urlOAT)
 		if err != nil {
-			return nil, err
+			return req, err
 		}
 
-		s.OutsideAirTemperature = &temp
+		req.OutsideAirTemperature = &temp
 	}
 
 	if urlPA := r.URL.Query().Get("pressure_altitude"); urlPA != "" {
 		pa, err := pressure.NewFromString(urlPA)
 		if err != nil {
-			return nil, err
+			return req, err
 		}
 
-		s.PressureAltitude = &pa
+		req.PressureAltitude = &pa
 	}
 
 	if urlWind, urlDirection := r.URL.Query().Get("wind"), r.URL.Query().Get("wind_direction"); urlWind != "" && urlDirection != "" {
 		sp, err := wind.NewSpeedFromString(urlWind)
 		if err != nil {
-			return nil, err
+			return req, err
 		}
 
 		d, err := wind.NewDirectionFromString(urlDirection)
 		if err != nil {
-			return nil, err
+			return req, err
 		}
 
 		w, err := wind.New(d, sp)
 		if err != nil {
-			return nil, err
+			return req, err
 		}
 
-		s.Wind = &w
+		req.Wind = &w
 	}
 
-	return s, nil
+	return req, nil
 }
 
 func NewFromFuelRequest(r *http.Request) (*state.State, error) {
@@ -210,21 +191,21 @@ func NewFromFuelRequest(r *http.Request) (*state.State, error) {
 	}
 
 	if tripDuration := r.URL.Query().Get("trip_duration"); tripDuration != "" {
-		d, err := parseHHMMToDuration(tripDuration)
-		if err != nil {
-			return nil, err
-		}
+		//d, err := parseHHMMToDuration(tripDuration)
+		//if err != nil {
+		//	return nil, err
+		//}
 
-		s.TripDuration = &d
+		//s.TripDuration = &d
 	}
 
 	if alternateDuration := r.URL.Query().Get("alternate_duration"); alternateDuration != "" {
-		d, err := parseHHMMToDuration(alternateDuration)
-		if err != nil {
-			return nil, err
-		}
+		//d, err := parseHHMMToDuration(alternateDuration)
+		//if err != nil {
+		//	return nil, err
+		//}
 
-		s.AlternateDuration = &d
+		//s.AlternateDuration = &d
 	}
 
 	return s, nil
