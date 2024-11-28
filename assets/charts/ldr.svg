@@ -6361,5 +6361,5 @@
   <use xlink:href="#glyph27-7" x="195.766431" y="51.376217"/>
 </g>
 </g>
-<path id="oat-line" style="fill:none;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(100%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M {{ .OatX }} 966.341146 L {{ .OatX }} {{ .OatY }} L 2077.115885 {{ .OatY }} L {{ .LmX }} {{ .LmY }} L 3439.388021 {{ .LmY }}" transform="matrix(0.12,0,0,-0.12,0,595)"/>
+<path id="oat-line" style="fill:none;stroke-width:15;stroke-linecap:round;stroke-linejoin:round;stroke:rgb(100%,0%,0%);stroke-opacity:1;stroke-miterlimit:10;" d="M {{ .OatX }} 966.341146 L {{ .OatX }} {{ .OatY }} L 2077.115885 {{ .OatY }} L {{ .LmX }} {{ .LmY }} L 3439.388021 {{ .LmY }} L {{ .WindX }} {{ .WindY }} L 5370.084635 {{ .WindY }} L 6030.240885 {{ .ObY }}" transform="matrix(0.12,0,0,-0.12,0,595)"/>
 </svg>

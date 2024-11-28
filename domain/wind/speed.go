@@ -16,6 +16,10 @@ func NewSpeedFromString(speed string) (Speed, error) {
 	return Speed(s), nil
 }
 
+func (s Speed) Float64() float64 {
+	return float64(s)
+}
+
 func (s Speed) String() string {
 	return fmt.Sprintf("%.0f", s)
 }

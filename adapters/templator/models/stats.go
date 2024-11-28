@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"ppl-calculations/app/queries"
+	"ppl-calculations/domain/wind"
 	"strings"
 )
 
@@ -33,6 +34,7 @@ type Stats struct {
 	FuelSufficient  bool
 
 	ChartUrl string
+	LdrUrl   string
 
 	WeightAndBalanceTakeOff WeightAndBalanceState
 	WeightAndBalanceLanding WeightAndBalanceState
@@ -109,6 +111,12 @@ func StatsFromStatsSheet(statsSheet queries.StatsSheetResponse) interface{} {
 	wbState.WithinLimits = statsSheet.TakeOffWeightAndBalance.WithinLimits
 
 	template.ChartUrl = fmt.Sprintf("/aquila-wb?callsign=%s&takeoff-mass=%.2f&takeoff-mass-moment=%.2f&landing-mass=%.2f&landing-mass-moment=%.2f&limits=%t", statsSheet.CallSign.String(), statsSheet.TakeOffWeightAndBalance.Total.Mass, statsSheet.TakeOffWeightAndBalance.Total.KGM(), statsSheet.LandingWeightAndBalance.Total.Mass, statsSheet.LandingWeightAndBalance.Total.KGM(), statsSheet.TakeOffWeightAndBalance.WithinLimits)
+
+	wd := "headwind"
+	if statsSheet.Wind.Direction == wind.DirectionTailwind {
+		wd = "tailwind"
+	}
+	template.LdrUrl = fmt.Sprintf("/aquila-ldr?pressure_altitude=%0.2f&mtow=%.2f&oat=%.2f&wind=%.2f&wind_direction=%s", statsSheet.PressureAltitude.Float64(), statsSheet.LandingWeightAndBalance.Total.Mass, statsSheet.OAT.Float64(), statsSheet.Wind.Speed.Float64(), wd)
 
 	template.WeightAndBalanceTakeOff = wbState
 	template.WeightAndBalanceLanding = wbLandingState

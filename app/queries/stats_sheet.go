@@ -6,7 +6,10 @@ import (
 	"ppl-calculations/domain/calculations"
 	"ppl-calculations/domain/callsign"
 	"ppl-calculations/domain/fuel"
+	"ppl-calculations/domain/pressure"
 	"ppl-calculations/domain/state"
+	"ppl-calculations/domain/temperature"
+	"ppl-calculations/domain/wind"
 )
 
 var (
@@ -21,7 +24,11 @@ func NewStatsSheetHandler() StatsSheetHandler {
 }
 
 type StatsSheetResponse struct {
-	CallSign                callsign.CallSign
+	CallSign         callsign.CallSign
+	PressureAltitude pressure.Altitude
+	OAT              temperature.Temperature
+	Wind             wind.Wind
+
 	TakeOffWeightAndBalance *calculations.WeightBalance
 	LandingWeightAndBalance *calculations.WeightBalance
 	FuelPlanning            *calculations.FuelPlanning
@@ -40,6 +47,9 @@ func (handler StatsSheetHandler) Handle(ctx context.Context, stateService state.
 	}
 
 	sheet.CallSign = *s.CallSign
+	sheet.PressureAltitude = *s.PressureAltitude
+	sheet.OAT = *s.OutsideAirTemperature
+	sheet.Wind = *s.Wind
 
 	var f fuel.Fuel
 	if s.MaxFuel != nil && *s.MaxFuel {
