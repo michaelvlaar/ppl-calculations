@@ -15,6 +15,8 @@ import (
 	"ppl-calculations/app"
 	"ppl-calculations/app/queries"
 	"ppl-calculations/domain/callsign"
+	"ppl-calculations/domain/pressure"
+	"ppl-calculations/domain/temperature"
 	"ppl-calculations/domain/weight_balance"
 	"strconv"
 	"sync"
@@ -107,6 +109,31 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 			LandingMassMoment: *weight_balance.NewMassMoment("Landing", landingMassMoment/landingMass, weight_balance.NewMass(landingMass)),
 			WithinLimits:      limits,
 		})
+
+		w.Header().Set("Content-Type", "image/svg+xml")
+
+		_, err = io.Copy(w, chart)
+		if err != nil {
+			logrus.WithError(err).Error("writing chart")
+		}
+	})
+
+	mux.HandleFunc("/aquila-ldr", func(w http.ResponseWriter, r *http.Request) {
+		pa, _ := pressure.NewFromString("5000")
+		oat, _ := temperature.NewFromString("4")
+		tow := weight_balance.NewMass(600)
+
+		chart, err := app.Queries.LdrChart.Handle(r.Context(), queries.LdrChartRequest{
+			OAT:              oat,
+			PressureAltitude: pa,
+			Tow:              &tow,
+			Wind:             nil,
+		})
+		if err != nil {
+			logrus.WithError(err).Error("creating chart")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
 		w.Header().Set("Content-Type", "image/svg+xml")
 

@@ -19,5 +19,7 @@ type Queries struct {
 	LoadSheet  queries.LoadSheetHandler
 	FuelSheet  queries.FuelSheetHandler
 	StatsSheet queries.StatsSheetHandler
-	WBChart    queries.WBChartHandler
+
+	WBChart  queries.WBChartHandler
+	LdrChart queries.LdrChartHandler
 }

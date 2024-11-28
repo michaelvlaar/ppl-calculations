@@ -16,6 +16,10 @@ func NewFromString(s string) (Altitude, error) {
 	return Altitude(a), nil
 }
 
+func (a Altitude) Float64() float64 {
+	return float64(a)
+}
+
 func (a Altitude) String() string {
 	return fmt.Sprintf("%.0f", a)
 }

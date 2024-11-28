@@ -16,6 +16,10 @@ func NewFromString(temperature string) (Temperature, error) {
 	return Temperature(t), nil
 }
 
+func (t Temperature) Float64() float64 {
+	return float64(t)
+}
+
 func (t Temperature) String() string {
 	return fmt.Sprintf("%.0f", float64(t))
 }

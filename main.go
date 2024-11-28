@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"embed"
 	"github.com/sirupsen/logrus"
+	"io"
 	"os"
 	"os/signal"
 	"ppl-calculations/app"
@@ -25,6 +27,22 @@ func main() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 
+	f, err := assets.Open("assets/charts/ldr.svg")
+	if err != nil {
+		panic(err)
+	}
+
+	var buf bytes.Buffer
+	_, err = io.Copy(&buf, f)
+	if err != nil {
+		panic(err)
+	}
+
+	err = f.Close()
+	if err != nil {
+		panic(err)
+	}
+
 	a := app.Application{
 		Commands: app.Commands{
 			UpdateLoadSheet: commands.NewUpdateLoadSheetHandler(),
@@ -35,6 +53,7 @@ func main() {
 			LoadSheet:  queries.NewLoadSheetHandler(),
 			FuelSheet:  queries.NewFuelSheetHandler(),
 			StatsSheet: queries.NewStatsSheetHandler(),
+			LdrChart:   queries.NewLdrChartHandler(buf),
 		},
 	}
 
