@@ -2,10 +2,15 @@ package queries
 
 import (
 	"context"
+	"errors"
 	"ppl-calculations/domain/fuel"
 	"ppl-calculations/domain/state"
 	"ppl-calculations/domain/volume"
 	"time"
+)
+
+var (
+	ErrMissingLoadSheet = errors.New("missing load sheet")
 )
 
 type FuelSheetHandler struct {
@@ -28,6 +33,10 @@ func (handler FuelSheetHandler) Handle(ctx context.Context, stateService state.S
 	s, err := stateService.State(ctx)
 	if err != nil {
 		return FuelSheetResponse{}, err
+	}
+
+	if s.CallSign == nil {
+		return FuelSheetResponse{}, ErrMissingLoadSheet
 	}
 
 	return FuelSheetResponse{

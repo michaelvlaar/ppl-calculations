@@ -20,19 +20,21 @@ type FuelPlanning struct {
 	Contingency fuel.Fuel
 	Reserve     fuel.Fuel
 	Extra       fuel.Fuel
+	Total       fuel.Fuel
 
-	Total fuel.Fuel
-
+	VolumeType volume.Type
 	Sufficient bool
 }
 
-func NewFuelPlanning(tripDuration time.Duration, alternateDuration time.Duration, f fuel.Fuel) (*FuelPlanning, error) {
+func NewFuelPlanning(tripDuration time.Duration, alternateDuration time.Duration, f fuel.Fuel, volumeType volume.Type) (*FuelPlanning, error) {
 	fp := &FuelPlanning{
 		Taxi:        fuel.MustNew(volume.MustNew(TaxiFuelLiters, volume.TypeLiter), f.Type),
 		Trip:        fuel.MustNew(volume.MustNew(AquilaFuelLiterConsumptionPerHour*tripDuration.Hours(), volume.TypeLiter), f.Type),
 		Alternate:   fuel.MustNew(volume.MustNew(AquilaFuelLiterConsumptionPerHour*alternateDuration.Hours(), volume.TypeLiter), f.Type),
 		Contingency: fuel.MustNew(volume.MustNew(AquilaFuelLiterConsumptionPerHour*tripDuration.Hours()*ContingencyFuelTripPercentage, volume.TypeLiter), f.Type),
 		Reserve:     fuel.MustNew(volume.MustNew(AquilaReserveFuelLiters, volume.TypeLiter), f.Type),
+
+		VolumeType: volumeType,
 	}
 
 	fp.Extra = fuel.Subtract(f, fp.Taxi, fp.Trip, fp.Alternate, fp.Contingency, fp.Reserve)

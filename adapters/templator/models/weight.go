@@ -1,6 +1,7 @@
 package models
 
 import (
+	"net/http"
 	"ppl-calculations/app/queries"
 )
 
@@ -17,6 +18,20 @@ type Weight struct {
 	PressureAltitude      *string
 	Wind                  *string
 	WindDirection         *string
+}
+
+type WindOption struct {
+	Wind          *string
+	WindDirection *string
+}
+
+func WindOptionsFromRequest(r *http.Request) interface{} {
+	is := WindOption{}
+
+	is.Wind = StringPointer(r.URL.Query().Get("wind"))
+	is.WindDirection = StringPointer(r.URL.Query().Get("wind_direction"))
+
+	return is
 }
 
 func WeightFromLoadSheet(loadSheet queries.LoadSheetResponse) interface{} {

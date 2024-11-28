@@ -153,15 +153,15 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 					return
 				}
 
-				loadSheet, err := app.Queries.LoadSheet.Handle(r.Context(), stateService)
+				fuelSheet, err := app.Queries.FuelSheet.Handle(r.Context(), stateService)
 				if err != nil {
-					logrus.WithError(err).Error("reading loadsheet")
+					logrus.WithError(err).Error("reading fuelsheet")
 					w.WriteHeader(http.StatusInternalServerError)
 					return
 				}
 
 				w.Header().Set("HX-Push-Url", "/fuel")
-				if err = tmpl.ExecuteTemplate(w, "fuel_form", models.WeightFromLoadSheet(loadSheet)); err != nil {
+				if err = tmpl.ExecuteTemplate(w, "fuel_form", models.FuelFromFuelSheet(fuelSheet)); err != nil {
 					logrus.WithError(err).Error("executing template")
 				}
 			} else {
@@ -192,7 +192,6 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 
 		switch r.Method {
 		case http.MethodGet:
-
 			if r.Header.Get("HX-Request") == "true" && r.URL.Query().Get("submit") == "Vorige" {
 				loadSheet, err := app.Queries.LoadSheet.Handle(r.Context(), stateService)
 				if err != nil {
@@ -220,7 +219,17 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 				}
 
 				w.Header().Set("HX-Push-Url", "/stats")
-				_ = tmpl.ExecuteTemplate(w, "calculations_form", models.StatsFromState(*s))
+
+				statsSheet, err := app.Queries.StatsSheet.Handle(r.Context(), stateService)
+				if err != nil {
+					logrus.WithError(err).Error("update loadsheet")
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+
+				if err = tmpl.ExecuteTemplate(w, "calculations_form", models.StatsFromStatsSheet(statsSheet)); err != nil {
+					logrus.WithError(err).Error("executing template")
+				}
 			} else {
 				fuelSheet, err := app.Queries.FuelSheet.Handle(r.Context(), stateService)
 				if err != nil {
@@ -235,45 +244,48 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 		default:
 			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		}
-
-		//s, err := parsing.NewFromFuelRequest(r)
-		//if err != nil {
-		//	http.Redirect(w, r, "/", http.StatusSeeOther)
-		//	return
-		//}
-		//
-		////_ = parsing.WriteState(s, w)
-		//
-		//if r.Header.Get("HX-Request") == "true" && r.URL.Query().Get("submit") == "Vorige" {
-		//	w.Header().Set("HX-Push-Url", "/")
-		//	_ = tmpl.ExecuteTemplate(w, "wb_form", models.WeightFromState(*s))
-		//} else if r.Header.Get("HX-Request") == "true" && r.URL.Query().Get("submit") == "Volgende" {
-		//	w.Header().Set("HX-Push-Url", "/stats")
-		//	_ = tmpl.ExecuteTemplate(w, "calculations_form", models.StatsFromState(*s))
-		//} else {
-		//	_ = tmpl.ExecuteTemplate(w, "index.html", models.FuelFromState(*s))
-		//}
 	})
 
 	mux.HandleFunc("/stats", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 
-		s, err := parsing.NewFromStatsRequest(r)
+		stateService, err := adapters.NewCookieStateService(w, r)
 		if err != nil {
-			http.Redirect(w, r, "/", http.StatusSeeOther)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		//_ = parsing.WriteState(s, w)
+		switch r.Method {
+		case http.MethodGet:
+			if r.Header.Get("HX-Request") == "true" && r.URL.Query().Get("submit") == "Vorige" {
+				w.Header().Set("HX-Push-Url", "/fuel")
 
-		if r.Header.Get("HX-Request") == "true" && r.URL.Query().Get("submit") == "Vorige" {
-			w.Header().Set("HX-Push-Url", "/fuel")
-			_ = tmpl.ExecuteTemplate(w, "fuel_form", models.FuelFromState(*s))
-		} else if r.Header.Get("HX-Request") == "true" && r.URL.Query().Get("submit") == "Volgende" {
-			w.Header().Set("HX-Push-Url", "/export")
-			_ = tmpl.ExecuteTemplate(w, "calculations_form", models.StatsFromState(*s))
-		} else {
-			_ = tmpl.ExecuteTemplate(w, "index.html", models.StatsFromState(*s))
+				fuelSheet, err := app.Queries.FuelSheet.Handle(r.Context(), stateService)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+
+				if err = tmpl.ExecuteTemplate(w, "fuel_form", models.FuelFromFuelSheet(fuelSheet)); err != nil {
+					logrus.WithError(err).Error("parsing template")
+				}
+			} else if r.Header.Get("HX-Request") == "true" && r.URL.Query().Get("submit") == "Volgende" {
+				//w.Header().Set("HX-Push-Url", "/export")
+				//_ = tmpl.ExecuteTemplate(w, "calculations_form", models.StatsFromState(*s))
+			} else {
+				statsSheet, err := app.Queries.StatsSheet.Handle(r.Context(), stateService)
+				if err != nil {
+					logrus.WithError(err).Error("update statssheet")
+					http.Redirect(w, r, "/", http.StatusSeeOther)
+					return
+				}
+
+				if err = tmpl.ExecuteTemplate(w, "index.html", models.StatsFromStatsSheet(statsSheet)); err != nil {
+					logrus.WithError(err).Error("executing template")
+				}
+			}
+		default:
+			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		}
 	})
 
@@ -281,24 +293,7 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 		w.Header().Set("Content-Type", "text/html")
 		switch r.Method {
 		case http.MethodGet:
-			stateService, err := adapters.NewCookieStateService(w, r)
-			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
-
-			s, err := stateService.State()
-			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
-
-			if err = parsing.ParseWeightRequest(r, s); err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
-
-			if err = tmpl.ExecuteTemplate(w, "wb_form_wind_option", models.WeightFromState(*s)); err != nil {
+			if err = tmpl.ExecuteTemplate(w, "wb_form_wind_option", models.WindOptionsFromRequest(r)); err != nil {
 				logrus.WithError(err).Error("executing template")
 			}
 		default:
@@ -308,14 +303,14 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 
 	mux.HandleFunc("/fuel-option", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
-
-		s, err := parsing.NewFromFuelRequest(r)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
+		switch r.Method {
+		case http.MethodGet:
+			if err = tmpl.ExecuteTemplate(w, "fuel_form_max_fuel_option", models.FuelOptionFromRequest(r)); err != nil {
+				logrus.WithError(err).Error("executing template")
+			}
+		default:
+			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		}
-
-		err = tmpl.ExecuteTemplate(w, "fuel_form_max_fuel_option", models.FuelFromState(*s))
 	})
 
 	server := &http.Server{

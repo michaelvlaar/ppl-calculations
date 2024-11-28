@@ -16,7 +16,8 @@ type Commands struct {
 }
 
 type Queries struct {
-	LoadSheet queries.LoadSheetHandler
-	FuelSheet queries.FuelSheetHandler
-	WBChart   queries.WBChartHandler
+	LoadSheet  queries.LoadSheetHandler
+	FuelSheet  queries.FuelSheetHandler
+	StatsSheet queries.StatsSheetHandler
+	WBChart    queries.WBChartHandler
 }

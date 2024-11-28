@@ -31,9 +31,10 @@ func main() {
 			UpdateFuelSheet: commands.NewUpdateFuelSheetHandler(),
 		},
 		Queries: app.Queries{
-			WBChart:   queries.NewWBChartHandler(),
-			LoadSheet: queries.NewLoadSheetHandler(),
-			FuelSheet: queries.NewFuelSheetHandler(),
+			WBChart:    queries.NewWBChartHandler(),
+			LoadSheet:  queries.NewLoadSheetHandler(),
+			FuelSheet:  queries.NewFuelSheetHandler(),
+			StatsSheet: queries.NewStatsSheetHandler(),
 		},
 	}
 

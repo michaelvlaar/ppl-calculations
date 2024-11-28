@@ -138,17 +138,8 @@ func UpdateLoadSheetRequest(r *http.Request) (commands.UpdateLoadSheetRequest, e
 	return req, nil
 }
 
-func NewFromFuelRequest(r *http.Request) (*state.State, error) {
-	s, err := NewFromRequest(r)
-	if err != nil {
-		return nil, err
-	}
-
-	// Verify if state is present
-	// TODO: improve this check, how to determine if the state is valid?
-	if s.CallSign == nil {
-		return s, ErrInvalidState
-	}
+func UpdateFuelSheetRequest(r *http.Request) (commands.UpdateFuelSheetRequest, error) {
+	var s commands.UpdateFuelSheetRequest
 
 	maxFuel := r.URL.Query().Get("fuel_max") == "max"
 	s.MaxFuel = &maxFuel
@@ -156,7 +147,7 @@ func NewFromFuelRequest(r *http.Request) (*state.State, error) {
 	if urlFuelType := r.URL.Query().Get("fuel_type"); urlFuelType != "" {
 		fuelType, err := fuel.NewTypeFromString(r.URL.Query().Get("fuel_type"))
 		if err != nil {
-			return nil, err
+			return s, err
 		}
 
 		s.FuelType = &fuelType
@@ -165,7 +156,7 @@ func NewFromFuelRequest(r *http.Request) (*state.State, error) {
 	if urlFuelUnit := r.URL.Query().Get("fuel_unit"); urlFuelUnit != "" {
 		fuelUnit, err := volume.NewTypeFromString(r.URL.Query().Get("fuel_unit"))
 		if err != nil {
-			return nil, err
+			return s, err
 		}
 
 		s.FuelVolumeType = &fuelUnit
@@ -174,38 +165,38 @@ func NewFromFuelRequest(r *http.Request) (*state.State, error) {
 	if fuelVol := r.URL.Query().Get("fuel_volume"); fuelVol != "" && s.FuelType != nil && s.FuelVolumeType != nil && s.MaxFuel != nil && *s.MaxFuel == false {
 		vol, err := strconv.ParseFloat(fuelVol, 64)
 		if err != nil {
-			return nil, err
+			return s, err
 		}
 
 		v, err := volume.New(vol, *s.FuelVolumeType)
 		if err != nil {
-			return nil, err
+			return s, err
 		}
 
 		f, err := fuel.New(v, *s.FuelType)
 		if err != nil {
-			return nil, err
+			return s, err
 		}
 
 		s.Fuel = &f
 	}
 
 	if tripDuration := r.URL.Query().Get("trip_duration"); tripDuration != "" {
-		//d, err := parseHHMMToDuration(tripDuration)
-		//if err != nil {
-		//	return nil, err
-		//}
+		d, err := parseHHMMToDuration(tripDuration)
+		if err != nil {
+			return s, err
+		}
 
-		//s.TripDuration = &d
+		s.TripDuration = &d
 	}
 
 	if alternateDuration := r.URL.Query().Get("alternate_duration"); alternateDuration != "" {
-		//d, err := parseHHMMToDuration(alternateDuration)
-		//if err != nil {
-		//	return nil, err
-		//}
+		d, err := parseHHMMToDuration(alternateDuration)
+		if err != nil {
+			return s, err
+		}
 
-		//s.AlternateDuration = &d
+		s.AlternateDuration = &d
 	}
 
 	return s, nil

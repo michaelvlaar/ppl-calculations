@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"net/http"
 	"ppl-calculations/app/queries"
 )
 
@@ -14,6 +15,22 @@ type Fuel struct {
 	AlternateDuration *string
 	FuelVolume        *string
 	FuelMax           bool
+}
+
+type FuelOption struct {
+	FuelVolumeUnit string
+	FuelVolume     *string
+	FuelMax        bool
+}
+
+func FuelOptionFromRequest(r *http.Request) interface{} {
+	fs := FuelOption{}
+
+	fs.FuelMax = r.URL.Query().Get("fuel_max") == "max"
+	fs.FuelVolumeUnit = r.URL.Query().Get("fuel_unit")
+	fs.FuelVolume = StringPointer(r.URL.Query().Get("fuel_volume"))
+
+	return fs
 }
 
 func FuelFromFuelSheet(s queries.FuelSheetResponse) interface{} {

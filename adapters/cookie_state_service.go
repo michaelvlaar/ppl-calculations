@@ -10,7 +10,7 @@ import (
 )
 
 func NewCookieStateService(w http.ResponseWriter, r *http.Request) (state.Service, error) {
-	return CookieStateService{
+	return &CookieStateService{
 		r: r,
 		w: w,
 	}, nil
@@ -19,9 +19,14 @@ func NewCookieStateService(w http.ResponseWriter, r *http.Request) (state.Servic
 type CookieStateService struct {
 	r *http.Request
 	w http.ResponseWriter
+	s *state.State
 }
 
-func (service CookieStateService) State(_ context.Context) (*state.State, error) {
+func (service *CookieStateService) State(_ context.Context) (*state.State, error) {
+	if service.s != nil {
+		return service.s, nil
+	}
+
 	if c, err := service.r.Cookie("state"); err == nil {
 		return service.newFromString(c.Value)
 	}
@@ -29,7 +34,7 @@ func (service CookieStateService) State(_ context.Context) (*state.State, error)
 	return state.MustNew(), nil
 }
 
-func (service CookieStateService) newFromString(base64State string) (*state.State, error) {
+func (service *CookieStateService) newFromString(base64State string) (*state.State, error) {
 	s := state.MustNew()
 
 	base64DecodedState, err := base64.StdEncoding.DecodeString(base64State)
@@ -45,11 +50,13 @@ func (service CookieStateService) newFromString(base64State string) (*state.Stat
 	return s, nil
 }
 
-func (service CookieStateService) SetState(_ context.Context, s *state.State) error {
+func (service *CookieStateService) SetState(_ context.Context, s *state.State) error {
 	jsonState, err := json.Marshal(s)
 	if err != nil {
 		return err
 	}
+
+	service.s = s
 
 	cookie := &http.Cookie{
 		Name:     "state",
