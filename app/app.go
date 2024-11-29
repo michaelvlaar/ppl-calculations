@@ -22,4 +22,5 @@ type Queries struct {
 
 	WBChart  queries.WBChartHandler
 	LdrChart queries.LdrChartHandler
+	TodChart queries.TodChartHandler
 }

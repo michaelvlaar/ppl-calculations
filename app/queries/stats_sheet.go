@@ -17,10 +17,13 @@ var (
 )
 
 type StatsSheetHandler struct {
+	calcService calculations.Service
 }
 
-func NewStatsSheetHandler() StatsSheetHandler {
-	return StatsSheetHandler{}
+func NewStatsSheetHandler(calcService calculations.Service) StatsSheetHandler {
+	return StatsSheetHandler{
+		calcService: calcService,
+	}
 }
 
 type StatsSheetResponse struct {
@@ -32,6 +35,8 @@ type StatsSheetResponse struct {
 	TakeOffWeightAndBalance *calculations.WeightBalance
 	LandingWeightAndBalance *calculations.WeightBalance
 	FuelPlanning            *calculations.FuelPlanning
+
+	Performance *calculations.Performance
 }
 
 func (handler StatsSheetHandler) Handle(ctx context.Context, stateService state.Service) (StatsSheetResponse, error) {
@@ -73,6 +78,22 @@ func (handler StatsSheetHandler) Handle(ctx context.Context, stateService state.
 	sheet.LandingWeightAndBalance, err = calculations.NewWeightAndBalance(*s.CallSign, *s.Pilot, *s.PilotSeat, s.Passenger, s.PassengerSeat, *s.Baggage, fuel.Subtract(f, sheet.FuelPlanning.Trip, sheet.FuelPlanning.Taxi))
 	if err != nil {
 		return sheet, err
+	}
+
+	_, todRR, todDR, err := handler.calcService.TakeOffDistance(*s.OutsideAirTemperature, *s.PressureAltitude, sheet.TakeOffWeightAndBalance.Total.Mass, *s.Wind)
+	if err != nil {
+		return sheet, err
+	}
+
+	_, ldrDR, ldrGR, err := handler.calcService.LandingDistance(*s.OutsideAirTemperature, *s.PressureAltitude, sheet.LandingWeightAndBalance.Total.Mass, *s.Wind)
+	if err != nil {
+		return sheet, err
+	}
+	sheet.Performance = &calculations.Performance{
+		TakeOffRunRequired:        todRR,
+		TakeOffDistanceRequired:   todDR,
+		LandingDistanceRequired:   ldrDR,
+		LandingGroundRollRequired: ldrGR,
 	}
 
 	return sheet, nil

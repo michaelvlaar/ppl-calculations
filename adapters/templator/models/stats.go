@@ -35,6 +35,12 @@ type Stats struct {
 
 	ChartUrl string
 	LdrUrl   string
+	TdrUrl   string
+
+	TakeOffRunRequired        string
+	TakeOffDistanceRequired   string
+	LandingDistanceRequired   string
+	LandingGroundRollRequired string
 
 	WeightAndBalanceTakeOff WeightAndBalanceState
 	WeightAndBalanceLanding WeightAndBalanceState
@@ -116,7 +122,14 @@ func StatsFromStatsSheet(statsSheet queries.StatsSheetResponse) interface{} {
 	if statsSheet.Wind.Direction == wind.DirectionTailwind {
 		wd = "tailwind"
 	}
+
 	template.LdrUrl = fmt.Sprintf("/aquila-ldr?pressure_altitude=%0.2f&mtow=%.2f&oat=%.2f&wind=%.2f&wind_direction=%s", statsSheet.PressureAltitude.Float64(), statsSheet.LandingWeightAndBalance.Total.Mass, statsSheet.OAT.Float64(), statsSheet.Wind.Speed.Float64(), wd)
+	template.TdrUrl = fmt.Sprintf("/aquila-tdr?pressure_altitude=%0.2f&mtow=%.2f&oat=%.2f&wind=%.2f&wind_direction=%s", statsSheet.PressureAltitude.Float64(), statsSheet.TakeOffWeightAndBalance.Total.Mass, statsSheet.OAT.Float64(), statsSheet.Wind.Speed.Float64(), wd)
+
+	template.TakeOffDistanceRequired = fmt.Sprintf("%.0f", statsSheet.Performance.TakeOffDistanceRequired)
+	template.TakeOffRunRequired = fmt.Sprintf("%.0f", statsSheet.Performance.TakeOffRunRequired)
+	template.LandingDistanceRequired = fmt.Sprintf("%.0f", statsSheet.Performance.LandingDistanceRequired)
+	template.LandingGroundRollRequired = fmt.Sprintf("%.0f", statsSheet.Performance.LandingGroundRollRequired)
 
 	template.WeightAndBalanceTakeOff = wbState
 	template.WeightAndBalanceLanding = wbLandingState

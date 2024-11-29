@@ -134,10 +134,10 @@ func NewWeightAndBalanceMaxFuel(callSign callsign.CallSign, pilot weight_balance
 	switch f.Volume.Type {
 	case volume.TypeLiter:
 		fuelMass = weight_balance.NewMass(f.Volume.Amount * fuelMassPerLiter)
-		volumeDescription = volume.VolumeDescriptionLiter
+		volumeDescription = volume.DescriptionLiter
 	case volume.TypeGallon:
 		fuelMass = weight_balance.NewMass(f.Volume.Amount * volume.LitersInGallon * fuelMassPerLiter)
-		volumeDescription = volume.VolumeDescriptionGallon
+		volumeDescription = volume.DescriptionGallon
 	}
 
 	wb.Moments = append(wb.Moments, weight_balance.NewMassMoment(fmt.Sprintf("%s (%.2fkg/%s)", FuelMassName, fuelMassPerLiter, volumeDescription), FuelMassArm, fuelMass))
@@ -217,10 +217,10 @@ func NewWeightAndBalance(callSign callsign.CallSign, pilot weight_balance.Mass, 
 	switch f.Volume.Type {
 	case volume.TypeLiter:
 		fuelMass = weight_balance.NewMass(f.Volume.Amount * fuelMassPerLiter)
-		volumeDescription = volume.VolumeDescriptionLiter
+		volumeDescription = volume.DescriptionLiter
 	case volume.TypeGallon:
 		fuelMass = weight_balance.NewMass(f.Volume.Amount * volume.LitersInGallon * fuelMassPerLiter)
-		volumeDescription = volume.VolumeDescriptionGallon
+		volumeDescription = volume.DescriptionGallon
 	}
 
 	wb.Moments = append(wb.Moments, weight_balance.NewMassMoment(fmt.Sprintf("%s (%.2fkg/%s)", FuelMassName, fuelMassPerLiter, volumeDescription), FuelMassArm, fuelMass))

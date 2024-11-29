@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"os/signal"
+	"ppl-calculations/adapters"
 	"ppl-calculations/app"
 	"ppl-calculations/app/commands"
 	"ppl-calculations/app/queries"
@@ -27,21 +28,39 @@ func main() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 
-	f, err := assets.Open("assets/charts/ldr.svg")
+	ldrFile, err := assets.Open("assets/charts/ldr.svg")
 	if err != nil {
 		panic(err)
 	}
 
-	var buf bytes.Buffer
-	_, err = io.Copy(&buf, f)
+	var ldrBuf bytes.Buffer
+	_, err = io.Copy(&ldrBuf, ldrFile)
 	if err != nil {
 		panic(err)
 	}
 
-	err = f.Close()
+	err = ldrFile.Close()
 	if err != nil {
 		panic(err)
 	}
+
+	tdrFile, err := assets.Open("assets/charts/tdr.svg")
+	if err != nil {
+		panic(err)
+	}
+
+	var tdrBuf bytes.Buffer
+	_, err = io.Copy(&tdrBuf, tdrFile)
+	if err != nil {
+		panic(err)
+	}
+
+	err = tdrFile.Close()
+	if err != nil {
+		panic(err)
+	}
+
+	calculationsService := adapters.NewCalculationsService(tdrBuf, ldrBuf)
 
 	a := app.Application{
 		Commands: app.Commands{
@@ -52,8 +71,9 @@ func main() {
 			WBChart:    queries.NewWBChartHandler(),
 			LoadSheet:  queries.NewLoadSheetHandler(),
 			FuelSheet:  queries.NewFuelSheetHandler(),
-			StatsSheet: queries.NewStatsSheetHandler(),
-			LdrChart:   queries.NewLdrChartHandler(buf),
+			StatsSheet: queries.NewStatsSheetHandler(calculationsService),
+			LdrChart:   queries.NewLdrChartHandler(calculationsService),
+			TodChart:   queries.NewTodChartHandler(calculationsService),
 		},
 	}
 

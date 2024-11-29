@@ -119,6 +119,76 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 		}
 	})
 
+	mux.HandleFunc("/aquila-tdr", func(w http.ResponseWriter, r *http.Request) {
+		urlPa := r.URL.Query().Get("pressure_altitude")
+		urlOAT := r.URL.Query().Get("oat")
+		urlMTOW := r.URL.Query().Get("mtow")
+		urlWind := r.URL.Query().Get("wind")
+		urlWindDirection := r.URL.Query().Get("wind_direction")
+
+		if urlPa == "" || urlOAT == "" || urlMTOW == "" || urlWind == "" || urlWindDirection == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		pa, err := pressure.NewFromString(urlPa)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		oat, err := temperature.NewFromString(urlOAT)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		mtow, err := strconv.ParseFloat(urlMTOW, 64)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		tow := weight_balance.NewMass(mtow)
+
+		d, err := wind.NewDirectionFromString(urlWindDirection)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		s, err := wind.NewSpeedFromString(urlWind)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		wi, err := wind.New(d, s)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		chart, err := app.Queries.TodChart.Handle(r.Context(), queries.TodChartRequest{
+			OAT:              oat,
+			PressureAltitude: pa,
+			Tow:              tow,
+			Wind:             wi,
+		})
+		if err != nil {
+			logrus.WithError(err).Error("creating chart")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "image/svg+xml")
+
+		_, err = io.Copy(w, chart.Chart)
+		if err != nil {
+			logrus.WithError(err).Error("writing chart")
+		}
+	})
+
 	mux.HandleFunc("/aquila-ldr", func(w http.ResponseWriter, r *http.Request) {
 		urlPa := r.URL.Query().Get("pressure_altitude")
 		urlOAT := r.URL.Query().Get("oat")
@@ -183,7 +253,7 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 
 		w.Header().Set("Content-Type", "image/svg+xml")
 
-		_, err = io.Copy(w, chart)
+		_, err = io.Copy(w, chart.Chart)
 		if err != nil {
 			logrus.WithError(err).Error("writing chart")
 		}

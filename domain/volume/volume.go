@@ -5,8 +5,8 @@ import "fmt"
 const (
 	LitersInGallon = 3.78541
 
-	VolumeDescriptionLiter  = "L"
-	VolumeDescriptionGallon = "gal"
+	DescriptionLiter  = "L"
+	DescriptionGallon = "gal"
 )
 
 type Volume struct {
@@ -80,9 +80,9 @@ func (v Volume) String(t Type) string {
 
 	switch t {
 	case TypeLiter:
-		return fmt.Sprintf("%.2f%s", amount, VolumeDescriptionLiter)
+		return fmt.Sprintf("%.2f%s", amount, DescriptionLiter)
 	case TypeGallon:
-		return fmt.Sprintf("%.2f%s", amount/LitersInGallon, VolumeDescriptionGallon)
+		return fmt.Sprintf("%.2f%s", amount/LitersInGallon, DescriptionGallon)
 	default:
 		panic("invalid volume type")
 	}
