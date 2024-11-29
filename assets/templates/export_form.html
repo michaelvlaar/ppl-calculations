@@ -1,0 +1,22 @@
+{{ define "export_form" }}
+<div id="content-container" class="w-full flex flex-col">
+    {{ block "stepper" . }}{{ end }}
+    <form hx-post="/export" hx-swap="outerHTML" hx-target="#content-container" id="main-form" class="w-full">
+        <div class="text-center mt-2">
+            <h1 class="text-2xl uppercase font-bold">Opslaan</h1>
+        </div>
+        <div class="mb-4 w-full mt-4">
+            <label for="export-name" class="uppercase block text-gray-700 font-bold mb-2">Document Referentie</label>
+            <input type="string" placeholder="Document referentie" id="export-name"
+                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+
+        <div class="mt-4 flex items-center justify-between">
+            <div hx-on:click="document.getElementById('stepper-back-stats').click()"
+                   class="cursor-pointer text-center mr-1 w-full bg-gray-200 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Vorige</div>
+            <a href="/download" target="_blank"
+                    class="cursor-pointer text-center w-full bg-indigo-600 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Download</a>
+        </div>
+    </form>
+</div>
+{{ end }}

@@ -74,6 +74,7 @@ func main() {
 			StatsSheet: queries.NewStatsSheetHandler(calculationsService),
 			LdrChart:   queries.NewLdrChartHandler(calculationsService),
 			TodChart:   queries.NewTodChartHandler(calculationsService),
+			PdfExport:  queries.NewPdfExportHandler(),
 		},
 	}
 

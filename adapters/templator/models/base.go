@@ -2,6 +2,7 @@ package models
 
 type Base struct {
 	Step string
+	CSRF string
 }
 
 type Step string

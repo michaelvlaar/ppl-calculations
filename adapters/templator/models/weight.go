@@ -34,10 +34,11 @@ func WindOptionsFromRequest(r *http.Request) interface{} {
 	return is
 }
 
-func WeightFromLoadSheet(loadSheet queries.LoadSheetResponse) interface{} {
+func WeightFromLoadSheet(csrf string, loadSheet queries.LoadSheetResponse) interface{} {
 	is := Weight{
 		Base: Base{
 			Step: string(StepWeight),
+			CSRF: csrf,
 		},
 	}
 

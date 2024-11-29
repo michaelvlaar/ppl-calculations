@@ -50,10 +50,11 @@ func parseNumber(number string) string {
 	return strings.ReplaceAll(number, ".", ",")
 }
 
-func StatsFromStatsSheet(statsSheet queries.StatsSheetResponse) interface{} {
+func StatsFromStatsSheet(csrf string, statsSheet queries.StatsSheetResponse) interface{} {
 	template := Stats{
 		Base: Base{
 			Step: string(StepStats),
+			CSRF: csrf,
 		},
 	}
 

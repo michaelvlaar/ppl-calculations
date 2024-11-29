@@ -33,10 +33,11 @@ func FuelOptionFromRequest(r *http.Request) interface{} {
 	return fs
 }
 
-func FuelFromFuelSheet(s queries.FuelSheetResponse) interface{} {
+func FuelFromFuelSheet(csrf string, s queries.FuelSheetResponse) interface{} {
 	fs := Fuel{
 		Base: Base{
 			Step: string(StepFuel),
+			CSRF: csrf,
 		},
 		FuelType:       "mogas",
 		FuelVolumeUnit: "liter",

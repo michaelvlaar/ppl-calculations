@@ -38,8 +38,15 @@
                 {{ block "fuel_form" . }}{{ end }}
             {{ else if eq .Step "stats" }}
                 {{ block "calculations_form" . }}{{ end }}
+            {{ else if eq .Step "export" }}
+                {{ block "export_form" . }}{{ end }}
             {{ end }}
         </div>
     </main>
+    <script>
+        document.body.addEventListener('htmx:configRequest', function(evt) {
+            evt.detail.headers['X-CSRF-Token'] = '{{ .CSRF }}';
+        });
+    </script>
 </body>
 </html>

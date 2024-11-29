@@ -6,9 +6,9 @@
                 <div class="min-h-7 inline-flex justify-center items-center text-xs align-middle">
                     {{ if ne .Step "weight" }}
                     <form class="flex w-full" hx-get="/" hx-target="#content-container"
-                          hx-swap="outerHTML show:top">
+                          hx-swap="outerHTML scroll:top">
                         <input type="hidden" name="submit" value="weight" />
-                        <button type="submit"
+                        <button id="stepper-back-weight" type="submit"
                                 class="bg-indigo-600 flex justify-center items-center shrink-0 bg-white border border-gray-400 font-medium text-gray-800 rounded-full dark:bg-neutral-900 dark:border-neutral-700 dark:text-white">
                             <span class="material-icons text-white p-2">create</span>
                         </button>
@@ -32,10 +32,10 @@
             <li class="flex items-center gap-x-2 shrink basis-0 flex-1 group">
                 <div class="min-w-7 min-h-7 inline-flex justify-center items-center text-xs align-middle">
                     {{ if or (eq .Step "stats") (eq .Step "export") }}
-                    <form class="flex w-full" hx-get="/stats" hx-target="#content-container"
-                          hx-swap="outerHTML show:top">
-                        <input type="hidden" name="submit" value="Vorige" />
-                        <button type="submit"
+                    <form class="flex w-full" hx-get="/fuel" hx-target="#content-container"
+                          hx-swap="outerHTML scroll:top">
+                        <input type="hidden" name="submit" value="fuel" />
+                        <button type="submit" id="stepper-back-fuel"
                                 class="bg-indigo-600 size-7 flex justify-center items-center shrink-0 bg-white border border-gray-400 font-medium text-gray-800 rounded-full dark:bg-neutral-900 dark:border-neutral-700 dark:text-white">
                             <span class="material-icons text-white p-2">local_gas_station</span>
                         </button>
@@ -59,10 +59,10 @@
             </li>
             <li class="flex items-center gap-x-2 shrink basis-0 flex-1 group">
                 <div class="min-w-7 min-h-7 inline-flex justify-center items-center text-xs align-middle">
-                    {{ if or (eq .Step "stats") (eq .Step "export") }}
-                    <form class="flex w-full" hx-get="/stats" hx-target="#content-container" hx-swap="outerHTML shop:top">
+                    {{ if (eq .Step "export") }}
+                    <form class="flex w-full" hx-get="/stats" hx-target="#content-container" hx-swap="outerHTML scroll:top">
                         <input type="hidden" name="submit" value="stats" />
-                        <button type="submit"
+                        <button type="submit" id="stepper-back-stats"
                                 class="bg-indigo-600 size-7 flex justify-center items-center shrink-0 bg-white border border-gray-400 font-medium text-gray-800 rounded-full dark:bg-neutral-900 dark:border-neutral-700 dark:text-white">
                             <span class="material-icons text-white p-2">bar_chart</span>
                         </button>
@@ -73,9 +73,9 @@
                     </form>
                     {{ else }}
                     <span
-                            class="size-7 flex justify-center items-center shrink-0 bg-white border border-gray-400 font-medium text-gray-800 rounded-full dark:bg-neutral-900 dark:border-neutral-700 dark:text-white">
-                        <span
-                                class="material-icons p-2">bar_chart</span>
+                            class="{{ if or (eq .Step "stats") (eq .Step "export") }}bg-indigo-600{{ end }} size-7 flex justify-center items-center shrink-0 bg-white border border-gray-400 font-medium text-gray-800 rounded-full dark:bg-neutral-900 dark:border-neutral-700 dark:text-white">
+                    <span
+                            class="{{ if or (eq .Step "stats") (eq .Step "export") }}text-white{{ end }} material-icons p-2">bar_chart</span>
                     </span>
                     <span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800 dark:text-white">
                         Berekeningen
@@ -86,7 +86,7 @@
             </li>
             <li class="flex items-center shrink basis-0 group">
                 <div class="min-w-7 min-h-7 inline-flex justify-center items-center text-xs align-middle">
-                    <span class="{{ if eq .Step " export" }}bg-indigo-600 {{ end }}size-7 flex justify-center
+                    <span class="{{ if eq .Step "export" }}bg-indigo-600 {{ end }}size-7 flex justify-center
                     items-center shrink-0 bg-white border border-gray-400 font-medium text-gray-800 rounded-full
                     dark:bg-neutral-900 dark:border-neutral-700 dark:text-white">
                     <span class="material-icons p-2 {{ if eq .Step "export" }}text-white{{ end }}">save_alt</span>
