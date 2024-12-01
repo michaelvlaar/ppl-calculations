@@ -3,6 +3,10 @@ module ppl-calculations
 go 1.22.0
 
 require (
+	github.com/gorilla/csrf v1.7.2
+	github.com/sirupsen/logrus v1.9.3
+	github.com/srwiley/oksvg v0.0.0-20221011165216-be6e8873101c
+	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef
 	github.com/tdewolff/canvas v0.0.0-20241125210542-b15999ef68b0
 	gonum.org/v1/plot v0.15.0
 )
@@ -11,7 +15,6 @@ require (
 	git.sr.ht/~sbinet/gg v0.6.0 // indirect
 	github.com/ByteArena/poly2tri-go v0.0.0-20170716161910-d102ad91854f // indirect
 	github.com/Kagami/go-avif v0.1.0 // indirect
-	github.com/SebastiaanKlippert/go-wkhtmltopdf v1.9.3 // indirect
 	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/benoitkugler/textlayout v0.3.0 // indirect
@@ -23,11 +26,9 @@ require (
 	github.com/go-pdf/fpdf v0.9.0 // indirect
 	github.com/go-text/typesetting v0.2.0 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
-	github.com/gorilla/csrf v1.7.2 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/kolesa-team/go-webp v1.0.4 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/tdewolff/font v0.0.0-20241125190050-d899fdc808fc // indirect
 	github.com/tdewolff/minify/v2 v2.21.1 // indirect
 	github.com/tdewolff/parse/v2 v2.7.19 // indirect

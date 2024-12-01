@@ -1,0 +1,125 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage[sfdefault]{roboto}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{colortbl}
+\usepackage[table,xcdraw]{xcolor}
+
+\titleformat{\section}
+  {\normalfont\Large\bfseries\filcenter} % Center-align
+  {}
+  {0pt}
+  {}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textbf{ {{.CallSign}} }}
+\fancyhead[C]{\textbf{ {{.Reference}} }}
+\fancyhead[R]{\textbf{ {{.Generated}} }}
+\cfoot{\textbf{\thepage}}
+
+\setlength{\headheight}{16pt}
+\renewcommand{\sectionmark}[1]{\markboth{#1}{}}
+
+\begin{document}
+
+\section*{Gewicht en Balans}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{wb.png}
+\end{figure}
+
+{\small
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+    \setlength{\tabcolsep}{5pt}
+    \caption*{\textbf{Take-off}}
+    \begin{tabular}{|l|c|c|c|}
+        \hline
+        \rowcolor[HTML]{AAAAAA}
+        \textbf{NAME} & \textbf{MASS [KG]} & \textbf{ARM [M]} & \textbf{MASS MOMENT [KG M]} \\ \hline
+        {{ range $index, $item := .WeightAndBalanceTakeOff.Items }}
+            {{ $item.Name }} & {{ $item.LeverArm }} & {{ $item.Mass }} & {{ $item.MassMoment }} \\ \hline
+        {{ end }}
+        \rowcolor[HTML]{AAAAAA}
+        \textbf{TOTAL} & \textbf{ {{ .WeightAndBalanceTakeOff.Total.LeverArm }} } & \textbf{ {{ .WeightAndBalanceTakeOff.Total.Mass }} } & \textbf{ {{ .WeightAndBalanceTakeOff.Total.MassMoment }} } \\ \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+    \setlength{\tabcolsep}{5pt}
+    \caption*{\textbf{Landing}}
+    \begin{tabular}{|l|c|c|c|}
+        \hline
+        \rowcolor[HTML]{AAAAAA}
+        \textbf{NAME} & \textbf{MASS [KG]} & \textbf{ARM [M]} & \textbf{MASS MOMENT [KG M]} \\ \hline
+        {{ range $index, $item := .WeightAndBalanceLanding.Items }}
+            {{ $item.Name }} & {{ $item.LeverArm }} & {{ $item.Mass }} & {{ $item.MassMoment }} \\ \hline
+        {{ end }}
+        \rowcolor[HTML]{AAAAAA}
+        \textbf{TOTAL} & \textbf{ {{ .WeightAndBalanceLanding.Total.LeverArm }} } & \textbf{ {{ .WeightAndBalanceLanding.Total.Mass }} } & \textbf{ {{ .WeightAndBalanceLanding.Total.MassMoment }} } \\ \hline
+    \end{tabular}
+\end{table}
+}
+
+\newpage
+\section*{Brandstofplanning}
+{\small
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.5}
+    \setlength{\tabcolsep}{10pt}
+    \begin{tabular}{|l|c|}
+        \hline
+        \rowcolor[HTML]{AAAAAA}
+        \textbf{Branstofcategorie} & \textbf{Hoeveelheid} \\ \hline
+        Taxi Brandstof & {{ .FuelTaxi }}           \\ \hline
+        Reisbrandstof (17L/H) & {{ .FuelTrip }}           \\ \hline
+        Onvoorziene brandstof (10\%) & {{ .FuelContingency }}           \\ \hline
+        Brandstof alternatieve luchthaven & {{ .FuelAlternate }}           \\ \hline
+        Eindreservebrandstof (45 minuten) & {{ .FuelReserve }}           \\ \hline
+        Extra brandstof & {{ .FuelExtra }}           \\ \hline
+        \rowcolor[HTML]{AAAAAA}
+        \textbf{Totaal} & \textbf{ {{ .FuelTotal }} } \\ \hline
+    \end{tabular}
+\end{table}
+}
+
+\section*{Prestaties}
+{\small
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.5}
+    \setlength{\tabcolsep}{10pt}
+    \begin{tabular}{|l|c|}
+        \hline
+        \rowcolor[HTML]{AAAAAA}
+        \textbf{Name} & \textbf{Distance [m]} \\ \hline
+        Take-off Run Required (Ground Roll) & {{ .TakeOffRunRequired }} \\ \hline
+        Take-off Distance Required & {{ .TakeOffDistanceRequired }} \\ \hline
+        Landing Distance Required & {{ .LandingDistanceRequired }} \\ \hline
+        Landing Ground Roll Required & {{ .LandingGroundRollRequired }} \\ \hline
+    \end{tabular}
+\end{table}
+}
+
+\newpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{tdr.png}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{ldr.png}
+\end{figure}
+
+
+\end{document}

@@ -115,7 +115,7 @@ func StatsFromStatsSheet(csrf string, statsSheet queries.StatsSheetResponse) int
 		MassMoment: parseNumber(fmt.Sprintf("%.2f", statsSheet.LandingWeightAndBalance.Total.KGM())),
 	}
 
-	wbState.WithinLimits = statsSheet.TakeOffWeightAndBalance.WithinLimits
+	wbLandingState.WithinLimits = statsSheet.TakeOffWeightAndBalance.WithinLimits
 
 	template.ChartUrl = fmt.Sprintf("/aquila-wb?callsign=%s&takeoff-mass=%.2f&takeoff-mass-moment=%.2f&landing-mass=%.2f&landing-mass-moment=%.2f&limits=%t", statsSheet.CallSign.String(), statsSheet.TakeOffWeightAndBalance.Total.Mass, statsSheet.TakeOffWeightAndBalance.Total.KGM(), statsSheet.LandingWeightAndBalance.Total.Mass, statsSheet.LandingWeightAndBalance.Total.KGM(), statsSheet.TakeOffWeightAndBalance.WithinLimits)
 

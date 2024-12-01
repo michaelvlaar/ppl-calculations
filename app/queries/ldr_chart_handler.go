@@ -15,6 +15,7 @@ type LdrChartRequest struct {
 	PressureAltitude pressure.Altitude
 	Tow              weight_balance.Mass
 	Wind             wind.Wind
+	ChartType        calculations.ChartType
 }
 
 type LdrChartResponse struct {
@@ -33,7 +34,7 @@ func NewLdrChartHandler(calcService calculations.Service) LdrChartHandler {
 }
 
 func (h LdrChartHandler) Handle(_ context.Context, request LdrChartRequest) (*LdrChartResponse, error) {
-	chart, ldrDR, ldrGR, err := h.calcService.LandingDistance(request.OAT, request.PressureAltitude, request.Tow, request.Wind)
+	chart, ldrDR, ldrGR, err := h.calcService.LandingDistance(request.OAT, request.PressureAltitude, request.Tow, request.Wind, request.ChartType)
 	if err != nil {
 		return nil, err
 	}

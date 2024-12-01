@@ -1,11 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"embed"
 	"github.com/sirupsen/logrus"
-	"io"
+	"io/fs"
 	"os"
 	"os/signal"
 	"ppl-calculations/adapters"
@@ -28,53 +27,32 @@ func main() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 
-	ldrFile, err := assets.Open("assets/charts/ldr.svg")
+	chartsFS, err := fs.Sub(assets, "assets/charts")
 	if err != nil {
-		panic(err)
+		logrus.WithError(err).Fatal("could not load chart folder")
 	}
 
-	var ldrBuf bytes.Buffer
-	_, err = io.Copy(&ldrBuf, ldrFile)
-	if err != nil {
-		panic(err)
-	}
+	calculationsService := adapters.MustNewCalculationsService(chartsFS, adapters.MustNewImageService())
 
-	err = ldrFile.Close()
+	exportFS, err := fs.Sub(assets, "assets/export")
 	if err != nil {
-		panic(err)
+		logrus.WithError(err).Fatal("could not load export folder")
 	}
-
-	tdrFile, err := assets.Open("assets/charts/tdr.svg")
-	if err != nil {
-		panic(err)
-	}
-
-	var tdrBuf bytes.Buffer
-	_, err = io.Copy(&tdrBuf, tdrFile)
-	if err != nil {
-		panic(err)
-	}
-
-	err = tdrFile.Close()
-	if err != nil {
-		panic(err)
-	}
-
-	calculationsService := adapters.NewCalculationsService(tdrBuf, ldrBuf)
 
 	a := app.Application{
 		Commands: app.Commands{
 			UpdateLoadSheet: commands.NewUpdateLoadSheetHandler(),
 			UpdateFuelSheet: commands.NewUpdateFuelSheetHandler(),
+			ClearSheet:      commands.NewClearSheetHandler(),
 		},
 		Queries: app.Queries{
-			WBChart:    queries.NewWBChartHandler(),
+			WBChart:    queries.NewWBChartHandler(calculationsService),
 			LoadSheet:  queries.NewLoadSheetHandler(),
 			FuelSheet:  queries.NewFuelSheetHandler(),
 			StatsSheet: queries.NewStatsSheetHandler(calculationsService),
 			LdrChart:   queries.NewLdrChartHandler(calculationsService),
 			TodChart:   queries.NewTodChartHandler(calculationsService),
-			PdfExport:  queries.NewPdfExportHandler(),
+			PdfExport:  queries.NewPdfExportHandler(exportFS, calculationsService),
 		},
 	}
 

@@ -51,6 +51,10 @@ func (handler StatsSheetHandler) Handle(ctx context.Context, stateService state.
 		return sheet, ErrMissingFuelSheet
 	}
 
+	if s.CallSign == nil {
+		return sheet, ErrMissingFuelSheet
+	}
+
 	sheet.CallSign = *s.CallSign
 	sheet.PressureAltitude = *s.PressureAltitude
 	sheet.OAT = *s.OutsideAirTemperature
@@ -80,12 +84,12 @@ func (handler StatsSheetHandler) Handle(ctx context.Context, stateService state.
 		return sheet, err
 	}
 
-	_, todRR, todDR, err := handler.calcService.TakeOffDistance(*s.OutsideAirTemperature, *s.PressureAltitude, sheet.TakeOffWeightAndBalance.Total.Mass, *s.Wind)
+	_, todRR, todDR, err := handler.calcService.TakeOffDistance(*s.OutsideAirTemperature, *s.PressureAltitude, sheet.TakeOffWeightAndBalance.Total.Mass, *s.Wind, calculations.ChartTypeSVG)
 	if err != nil {
 		return sheet, err
 	}
 
-	_, ldrDR, ldrGR, err := handler.calcService.LandingDistance(*s.OutsideAirTemperature, *s.PressureAltitude, sheet.LandingWeightAndBalance.Total.Mass, *s.Wind)
+	_, ldrDR, ldrGR, err := handler.calcService.LandingDistance(*s.OutsideAirTemperature, *s.PressureAltitude, sheet.LandingWeightAndBalance.Total.Mass, *s.Wind, calculations.ChartTypeSVG)
 	if err != nil {
 		return sheet, err
 	}

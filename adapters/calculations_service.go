@@ -4,8 +4,19 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/sirupsen/logrus"
+	"github.com/tdewolff/canvas"
+	"github.com/tdewolff/canvas/renderers"
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
+	"image/color"
 	"io"
+	"io/fs"
 	"math"
+	"ppl-calculations/domain/calculations"
+	"ppl-calculations/domain/callsign"
 	"ppl-calculations/domain/pressure"
 	"ppl-calculations/domain/temperature"
 	"ppl-calculations/domain/weight_balance"
@@ -14,14 +25,48 @@ import (
 )
 
 type CalculationsService struct {
-	tdrChart bytes.Buffer
-	ldrChart bytes.Buffer
+	tdrChart     bytes.Buffer
+	ldrChart     bytes.Buffer
+	imageService *ImageService
 }
 
-func NewCalculationsService(tdrChart bytes.Buffer, ldrChart bytes.Buffer) *CalculationsService {
+func MustNewCalculationsService(assets fs.FS, imageService *ImageService) *CalculationsService {
+	ldrFile, err := assets.Open("ldr.svg")
+	if err != nil {
+		logrus.WithError(err).Fatal("ldr.svg not present")
+	}
+
+	var ldrBuf bytes.Buffer
+	_, err = io.Copy(&ldrBuf, ldrFile)
+	if err != nil {
+		logrus.WithError(err).Fatal("ldr.svg not loaded")
+	}
+
+	err = ldrFile.Close()
+	if err != nil {
+		logrus.WithError(err).Fatal("ldr.svg not closed")
+	}
+
+	tdrFile, err := assets.Open("tdr.svg")
+	if err != nil {
+		logrus.WithError(err).Fatal("tdr.svg not present")
+	}
+
+	var tdrBuf bytes.Buffer
+	_, err = io.Copy(&tdrBuf, tdrFile)
+	if err != nil {
+		logrus.WithError(err).Fatal("tdr.svg not loaded")
+	}
+
+	err = tdrFile.Close()
+	if err != nil {
+		logrus.WithError(err).Fatal("ldr.svg not closed")
+	}
+
 	return &CalculationsService{
-		tdrChart: tdrChart,
-		ldrChart: ldrChart,
+		tdrChart:     tdrBuf,
+		ldrChart:     ldrBuf,
+		imageService: imageService,
 	}
 }
 
@@ -251,7 +296,7 @@ func (s CalculationsService) calculateWindPosition(windXStart, windXEnd, wind, t
 	return windXPos, windYPos
 }
 
-func (s CalculationsService) LandingDistance(oat temperature.Temperature, pa pressure.Altitude, tow weight_balance.Mass, wi wind.Wind) (io.Reader, float64, float64, error) {
+func (s CalculationsService) LandingDistance(oat temperature.Temperature, pa pressure.Altitude, tow weight_balance.Mass, wi wind.Wind, chartType calculations.ChartType) (io.Reader, float64, float64, error) {
 	oatXStart := 562.923177
 	oatXEnd := 1870.93099
 	oatXUnits := 70.0
@@ -323,7 +368,6 @@ func (s CalculationsService) LandingDistance(oat temperature.Temperature, pa pre
 	ldrGR := s.findNextValue(ldrGRValues, obsYPos, perfYEnd)
 	ldrDR := s.findNextValue(ldrDRValues, windYPos, perfYEnd)
 
-	// Calculate LDR and LGR
 	ldgGR := (ldrGR - perfYStart) / (perfYEnd - perfYStart) * perfUnits
 	ldgDR := (ldrDR - perfYStart) / (perfYEnd - perfYStart) * perfUnits
 
@@ -347,10 +391,142 @@ func (s CalculationsService) LandingDistance(oat temperature.Temperature, pa pre
 		return nil, 0, 0, err
 	}
 
+	if chartType == calculations.ChartTypePNG {
+		png, err := s.imageService.SvgToPng(&output)
+		if err != nil {
+			return nil, 0, 0, err
+		}
+
+		return png, ldgDR, ldgGR, nil
+	}
+
 	return &output, ldgDR, ldgGR, nil
 }
 
-func (s CalculationsService) TakeOffDistance(oat temperature.Temperature, pa pressure.Altitude, tow weight_balance.Mass, wi wind.Wind) (io.Reader, float64, float64, error) {
+func (s CalculationsService) WeightAndBalance(callSign callsign.CallSign, takeOffMassMoment weight_balance.MassMoment, landingMassMoment weight_balance.MassMoment, withinLimits bool, chartType calculations.ChartType) (io.Reader, error) {
+	p := plot.New()
+
+	p.Title.Text = fmt.Sprintf("Gewicht en Balans (%s)", callSign.String())
+	p.X.Label.Text = "Mass Moment [kg m]"
+	p.Y.Label.Text = "Mass [kg]"
+
+	p.X.Min = 230
+	p.X.Max = 430
+	p.Y.Min = 550
+	p.Y.Max = 770
+
+	p.X.Tick.Marker = s.tickGenerator(p.X.Min, p.X.Max)
+	p.Y.Tick.Marker = s.tickGenerator(p.Y.Min, p.Y.Max)
+
+	grid := plotter.NewGrid()
+	p.Add(grid)
+
+	polygonData := plotter.XYs{
+		{X: calculations.AquilaMinWeight * calculations.AquilaForwardCgLimit, Y: calculations.AquilaMinWeight},
+		{X: calculations.AquilaMinWeight * calculations.AquilaBackwardCgLimit, Y: calculations.AquilaMinWeight},
+		{X: calculations.AquilaMTOW * calculations.AquilaBackwardCgLimit, Y: calculations.AquilaMTOW},
+		{X: calculations.AquilaMTOW * calculations.AquilaForwardCgLimit, Y: calculations.AquilaMTOW},
+	}
+
+	polygon, err := plotter.NewPolygon(polygonData)
+	if err != nil {
+		return nil, err
+	}
+
+	polygon.LineStyle.Color = color.RGBA{R: 255, G: 0, B: 0, A: 255}
+	polygon.Color = color.RGBA{R: 255, G: 0, B: 0, A: 64}
+	p.Add(polygon)
+
+	points := plotter.XYs{
+		{X: takeOffMassMoment.KGM(), Y: takeOffMassMoment.Mass.Kilo()},
+	}
+
+	points2 := plotter.XYs{
+		{X: landingMassMoment.KGM(), Y: landingMassMoment.Mass.Kilo()},
+	}
+
+	scatterTakeOff, err := plotter.NewScatter(points)
+	if err != nil {
+		return nil, err
+	}
+
+	scatterTakeOff.GlyphStyle.Shape = draw.CircleGlyph{}
+	if withinLimits {
+		scatterTakeOff.GlyphStyle.Color = color.RGBA{G: 255, A: 255}
+	} else {
+		scatterTakeOff.GlyphStyle.Color = color.RGBA{R: 255, A: 255}
+	}
+
+	scatterTakeOff.GlyphStyle.Radius = vg.Points(5)
+
+	p.Add(scatterTakeOff)
+
+	scatterLanding, err := plotter.NewScatter(points2)
+	if err != nil {
+		return nil, err
+	}
+
+	scatterLanding.GlyphStyle.Shape = draw.CircleGlyph{}
+	scatterLanding.GlyphStyle.Color = color.RGBA{B: 255, A: 255}
+	scatterLanding.GlyphStyle.Radius = vg.Points(5)
+
+	p.Add(scatterLanding)
+
+	p.Legend.Top = false
+	p.Legend.XOffs = vg.Centimeter * -1.5
+	p.Legend.YOffs = vg.Centimeter * 1.5
+	p.Legend.Padding = vg.Points(5)
+
+	p.Legend.Add("CG Envelope", polygon)
+	p.Legend.Add("Take-off Point", scatterTakeOff)
+	p.Legend.Add("Landing Point", scatterLanding)
+
+	var buf bytes.Buffer
+
+	switch chartType {
+	case calculations.ChartTypeSVG:
+
+		c := canvas.New(150.0, 150.0)
+		gCanvas := renderers.NewGonumPlot(c)
+
+		p.Draw(gCanvas)
+
+		err = c.Write(&buf, renderers.SVG())
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &buf, nil
+	default:
+		writer, err := p.WriterTo(8*vg.Inch, 8*vg.Inch, "png")
+		if err != nil {
+			return nil, err
+		}
+
+		if _, err := writer.WriteTo(&buf); err != nil {
+			return nil, err
+		}
+
+		return &buf, nil
+	}
+}
+
+func (s CalculationsService) tickGenerator(min, max float64) plot.Ticker {
+	return plot.ConstantTicks(func() []plot.Tick {
+		var ticks []plot.Tick
+		step := 20.0
+		for val := min; val <= max; val += step {
+			ticks = append(ticks, plot.Tick{
+				Value: val,
+				Label: fmt.Sprintf("%.0f", val),
+			})
+		}
+		return ticks
+	}())
+}
+
+func (s CalculationsService) TakeOffDistance(oat temperature.Temperature, pa pressure.Altitude, tow weight_balance.Mass, wi wind.Wind, chartType calculations.ChartType) (io.Reader, float64, float64, error) {
 	temp := oat.Float64()
 	pressureAltitude := pa.Float64()
 	mtow := tow.Kilo()
@@ -480,6 +656,15 @@ func (s CalculationsService) TakeOffDistance(oat temperature.Temperature, pa pre
 	})
 	if err != nil {
 		return nil, 0, 0, err
+	}
+
+	if chartType == calculations.ChartTypePNG {
+		png, err := s.imageService.SvgToPng(&output)
+		if err != nil {
+			return nil, 0, 0, err
+		}
+
+		return png, todGR, todDR, nil
 	}
 
 	return &output, todGR, todDR, nil

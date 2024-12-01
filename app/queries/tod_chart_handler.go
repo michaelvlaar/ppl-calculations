@@ -15,6 +15,7 @@ type TodChartRequest struct {
 	PressureAltitude pressure.Altitude
 	Tow              weight_balance.Mass
 	Wind             wind.Wind
+	ChartType        calculations.ChartType
 }
 
 type TodChartHandler struct {
@@ -34,7 +35,7 @@ type TodChartResponse struct {
 }
 
 func (h TodChartHandler) Handle(_ context.Context, request TodChartRequest) (*TodChartResponse, error) {
-	chart, todGR, todDR, err := h.calcService.TakeOffDistance(request.OAT, request.PressureAltitude, request.Tow, request.Wind)
+	chart, todGR, todDR, err := h.calcService.TakeOffDistance(request.OAT, request.PressureAltitude, request.Tow, request.Wind, request.ChartType)
 	if err != nil {
 		return nil, err
 	}

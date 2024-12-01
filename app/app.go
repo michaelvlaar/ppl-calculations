@@ -13,6 +13,7 @@ type Application struct {
 type Commands struct {
 	UpdateLoadSheet commands.UpdateLoadSheetHandler
 	UpdateFuelSheet commands.UpdateFuelSheetHandler
+	ClearSheet      commands.ClearSheetHandler
 }
 
 type Queries struct {
