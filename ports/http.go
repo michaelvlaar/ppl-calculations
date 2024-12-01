@@ -511,23 +511,14 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 		w.Header().Set("Content-Type", "application/pdf")
 		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", r.URL.Query().Get("name")))
 
-		io.Copy(w, pdf)
+		_, err = io.Copy(w, pdf)
+		if err != nil {
+			logrus.WithError(err).Error("writing attachment")
+		}
 	})
 
 	mux.HandleFunc("/export", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
-
-		stateService, err := adapters.NewCookieStateService(w, r)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		statsSheet, err := app.Queries.StatsSheet.Handle(r.Context(), stateService)
-		if err != nil {
-			http.Redirect(w, r, "/stats", http.StatusSeeOther)
-			return
-		}
 
 		switch r.Method {
 		case http.MethodPost:
@@ -542,7 +533,7 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 				return
 			}
 
-			if err = tmpl.ExecuteTemplate(w, "download_redirect.html", models.DownloadRedirectFromStatsSheet(csrf.Token(r), r.Form.Get("reference"), statsSheet)); err != nil {
+			if err = tmpl.ExecuteTemplate(w, "download_redirect.html", models.DownloadRedirectFromStatsSheet(csrf.Token(r), r.Form.Get("reference"))); err != nil {
 				logrus.WithError(err).Error("executing template")
 			}
 		case http.MethodGet:

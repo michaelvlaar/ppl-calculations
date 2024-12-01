@@ -173,7 +173,12 @@ func (h PdfExportHandler) Handle(ctx context.Context, stateService state.Service
 	if err != nil {
 		return nil, err
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() {
+		err := os.RemoveAll(tempDir)
+		if err != nil {
+			logrus.WithError(err).Error("removing temporary directory")
+		}
+	}()
 
 	err = os.WriteFile(path.Join(tempDir, "tdr.png"), tdrBytes, 0644)
 	if err != nil {
@@ -270,8 +275,14 @@ func (h PdfExportHandler) Handle(ctx context.Context, stateService state.Service
 
 	var output bytes.Buffer
 	err = tmpl.Execute(&output, exData)
+	if err != nil {
+		return nil, err
+	}
 
-	os.WriteFile(path.Join(tempDir, "export.tex"), output.Bytes(), 0644)
+	err = os.WriteFile(path.Join(tempDir, "export.tex"), output.Bytes(), 0644)
+	if err != nil {
+		return nil, err
+	}
 
 	cmd := exec.Command("xelatex", "-halt-on-error", "-interaction=nonstopmode", "export.tex")
 	cmd.Dir = tempDir

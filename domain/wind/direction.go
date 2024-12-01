@@ -10,7 +10,7 @@ const (
 )
 
 var (
-	ErrInvalidDirection = errors.New("Invalid direction")
+	ErrInvalidDirection = errors.New("invalid direction")
 )
 
 func NewDirectionFromString(s string) (Direction, error) {

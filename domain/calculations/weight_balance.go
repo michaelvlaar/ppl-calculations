@@ -82,10 +82,8 @@ func NewWeightAndBalanceMaxFuel(callSign callsign.CallSign, pilot weight_balance
 			passengerSeatMassArm = AquilaSeatFrontMassArm
 		case seat.PositionMiddle:
 			passengerSeatMassArm = AquilaSeatMiddleMassArm
-		case seat.PositionBack:
-			passengerSeatMassArm = AquilaSeatBackMassArm
 		default:
-			panic("invalid seat position")
+			passengerSeatMassArm = AquilaSeatBackMassArm
 		}
 
 		wb.Moments = append(wb.Moments, weight_balance.NewMassMoment(PassengerMassName, passengerSeatMassArm, *passenger))
@@ -191,10 +189,8 @@ func NewWeightAndBalance(callSign callsign.CallSign, pilot weight_balance.Mass, 
 			passengerSeatMassArm = AquilaSeatFrontMassArm
 		case seat.PositionMiddle:
 			passengerSeatMassArm = AquilaSeatMiddleMassArm
-		case seat.PositionBack:
-			passengerSeatMassArm = AquilaSeatBackMassArm
 		default:
-			panic("invalid seat position")
+			passengerSeatMassArm = AquilaSeatBackMassArm
 		}
 
 		wb.Moments = append(wb.Moments, weight_balance.NewMassMoment(PassengerMassName, passengerSeatMassArm, *passenger))

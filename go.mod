@@ -5,8 +5,6 @@ go 1.22.0
 require (
 	github.com/gorilla/csrf v1.7.2
 	github.com/sirupsen/logrus v1.9.3
-	github.com/srwiley/oksvg v0.0.0-20221011165216-be6e8873101c
-	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef
 	github.com/tdewolff/canvas v0.0.0-20241125210542-b15999ef68b0
 	gonum.org/v1/plot v0.15.0
 )

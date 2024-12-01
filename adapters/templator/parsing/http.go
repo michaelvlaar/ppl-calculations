@@ -1,45 +1,18 @@
 package parsing
 
 import (
-	"errors"
 	"net/http"
 	"ppl-calculations/app/commands"
 	"ppl-calculations/domain/callsign"
 	"ppl-calculations/domain/fuel"
 	"ppl-calculations/domain/pressure"
 	"ppl-calculations/domain/seat"
-	"ppl-calculations/domain/state"
 	"ppl-calculations/domain/temperature"
 	"ppl-calculations/domain/volume"
 	"ppl-calculations/domain/weight_balance"
 	"ppl-calculations/domain/wind"
 	"strconv"
 )
-
-var (
-	ErrInvalidState = errors.New("invalid state")
-)
-
-func NewFromRequest(r *http.Request) (*state.State, error) {
-	if _, err := r.Cookie("state"); err == nil {
-	}
-
-	return state.MustNew(), nil
-}
-func NewFromStatsRequest(r *http.Request) (*state.State, error) {
-	s, err := NewFromRequest(r)
-	if err != nil {
-		return nil, err
-	}
-
-	// Verify if state is present
-	// TODO: improve this check, how to determine if the state is valid?
-	if s.MaxFuel == nil {
-		return s, ErrInvalidState
-	}
-
-	return s, nil
-}
 
 func UpdateLoadSheetRequest(r *http.Request) (commands.UpdateLoadSheetRequest, error) {
 	req := commands.UpdateLoadSheetRequest{}
