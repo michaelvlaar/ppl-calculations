@@ -571,14 +571,14 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 
 	CSRF := csrf.Protect([]byte(os.Getenv("CSRF_KEY")), csrf.CookieName("_csrf"))
 	server := &http.Server{
-		Addr:    ":80",
+		Addr:    ":" + os.Getenv("PORT"),
 		Handler: CSRF(mux),
 	}
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		logrus.WithField("port", 80).Info("starting HTTP server")
+		logrus.WithField("addr", server.Addr).Info("starting HTTP server")
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			logrus.WithError(err).Error("error starting HTTP server")
 		}

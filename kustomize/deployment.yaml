@@ -19,9 +19,9 @@ spec:
       serviceAccountName: ppl-calculations
       containers:
         - name: ppl-calculations
-          image: michaelvlaar/ppl-calculations:1.0.0
+          image: michaelvlaar/ppl-calculations:1.0.1
           ports:
-            - containerPort: 80
+            - containerPort: 8080
               name: http
           resources:
             limits:
