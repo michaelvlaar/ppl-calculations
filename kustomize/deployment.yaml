@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ppl-calculations
+  labels:
+    app: ppl-calculations
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ppl-calculations
+  template:
+    metadata:
+      labels:
+        app: ppl-calculations
+      annotations:
+        linkerd.io/inject: "enabled"
+    spec:
+      serviceAccountName: ppl-calculations
+      containers:
+        - name: ppl-calculations
+          image: michaelvlaar/ppl-calculations:1.0.0
+          ports:
+            - containerPort: 80
+              name: http
+          resources:
+            limits:
+              memory: "50Mi"
+              cpu: "10m"
