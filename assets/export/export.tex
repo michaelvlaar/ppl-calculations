@@ -1,5 +1,5 @@
 \documentclass[12pt]{article}
-\usepackage[a4paper, margin=1in]{geometry}
+\usepackage[a4paper, margin=0.8in]{geometry}
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{caption}
@@ -28,6 +28,21 @@
 \begin{document}
 
 \section*{Gewicht en Balans}
+
+{{ if not .WeightAndBalanceTakeOff.WithinLimits }}
+{\small
+\noindent
+\colorbox{red!80}{%
+    \parbox{\textwidth}{%
+        \centering
+        {\textcolor{white}{\textbf{De huidige gewichts- en balansberekening geeft aan dat de belading van het vliegtuig buiten de
+        toegestane limieten valt. Controleer en herbereken de gewichts- en balansverdeling zorgvuldig om te
+        voldoen aan de veiligheidsvoorschriften.}}}%
+    }%
+}
+}
+{{ end }}
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{wb.png}
@@ -71,6 +86,24 @@
 
 \newpage
 \section*{Brandstofplanning}
+
+
+{{ if not .FuelSufficient }}
+{\small
+\noindent
+\colorbox{red!80}{%
+\parbox{\textwidth}{%
+\centering
+{\textcolor{white}{\textbf{
+De huidige brandstofvoorraad van {{ .FuelTotal }} is onvoldoende om de geplande vlucht veilig uit te
+voeren. Er moet minimaal {{ .FuelExtraAbs }} extra brandstof worden bijgetankt om te voldoen
+aan de veiligheidsvoorschriften.
+}}}%
+}%
+}
+}
+{{ end }}
+
 {\small
 \begin{table}[H]
     \centering
@@ -93,6 +126,20 @@
 }
 
 \section*{Prestaties}
+
+{{ if not .WeightAndBalanceTakeOff.WithinLimits }}
+{\small
+\noindent
+\colorbox{red!80}{%
+    \parbox{\textwidth}{%
+        \centering
+        {\textcolor{white}{\textbf{
+De prestaties kunnen niet worden berekend omdat de huidige gewichts- en balansberekening aangeeft dat de belading van het vliegtuig buiten de toegestane limieten valt. Controleer en herbereken de gewichts- en balansverdeling zorgvuldig om te voldoen aan de veiligheidsvoorschriften
+}}}%
+    }%
+}
+}
+{{ else }}
 {\small
 \begin{table}[H]
     \centering
@@ -120,6 +167,6 @@
     \centering
     \includegraphics[width=1\textwidth]{ldr.png}
 \end{figure}
-
+{{ end }}
 
 \end{document}

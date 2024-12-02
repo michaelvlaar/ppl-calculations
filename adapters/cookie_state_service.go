@@ -2,24 +2,26 @@ package adapters
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
+	"github.com/gorilla/sessions"
 	"net/http"
+	"os"
 	"ppl-calculations/domain/state"
-	"time"
 )
 
 func NewCookieStateService(w http.ResponseWriter, r *http.Request) (state.Service, error) {
 	return &CookieStateService{
-		r: r,
-		w: w,
+		r:     r,
+		store: sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY"))),
+		w:     w,
 	}, nil
 }
 
 type CookieStateService struct {
-	r *http.Request
-	w http.ResponseWriter
-	s *state.State
+	r     *http.Request
+	w     http.ResponseWriter
+	store *sessions.CookieStore
+	s     *state.State
 }
 
 func (service *CookieStateService) State(_ context.Context) (*state.State, error) {
@@ -27,22 +29,19 @@ func (service *CookieStateService) State(_ context.Context) (*state.State, error
 		return service.s, nil
 	}
 
-	if c, err := service.r.Cookie("state"); err == nil {
-		return service.newFromString(c.Value)
+	c, _ := service.store.Get(service.r, "_state")
+	jsonState, ok := c.Values["state"]
+	if ok {
+		return service.newFromString(jsonState.(string))
 	}
 
 	return state.MustNew(), nil
 }
 
-func (service *CookieStateService) newFromString(base64State string) (*state.State, error) {
+func (service *CookieStateService) newFromString(jsonState string) (*state.State, error) {
 	s := state.MustNew()
 
-	base64DecodedState, err := base64.StdEncoding.DecodeString(base64State)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(base64DecodedState, &s)
+	err := json.Unmarshal([]byte(jsonState), &s)
 	if err != nil {
 		return nil, err
 	}
@@ -58,16 +57,8 @@ func (service *CookieStateService) SetState(_ context.Context, s *state.State) e
 
 	service.s = s
 
-	cookie := &http.Cookie{
-		Name:     "state",
-		Value:    base64.StdEncoding.EncodeToString(jsonState),
-		Path:     "/",
-		Expires:  time.Now().Add(24 * time.Hour),
-		HttpOnly: true,
-		Secure:   true,
-	}
+	session, _ := service.store.Get(service.r, "_state")
+	session.Values["state"] = string(jsonState)
 
-	http.SetCookie(service.w, cookie)
-
-	return nil
+	return service.store.Save(service.r, service.w, session)
 }

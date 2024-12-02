@@ -66,7 +66,7 @@ func StatsFromStatsSheet(csrf string, statsSheet queries.StatsSheetResponse) int
 	template.FuelReserve = parseNumber(statsSheet.FuelPlanning.Reserve.Volume.String(statsSheet.FuelPlanning.VolumeType))
 	template.FuelTotal = parseNumber(statsSheet.FuelPlanning.Total.Volume.String(statsSheet.FuelPlanning.VolumeType))
 	template.FuelExtra = parseNumber(statsSheet.FuelPlanning.Extra.Volume.String(statsSheet.FuelPlanning.VolumeType))
-	template.FuelExtraAbs = parseNumber(statsSheet.FuelPlanning.Extra.Volume.String(statsSheet.FuelPlanning.VolumeType))
+	template.FuelExtraAbs = parseNumber(statsSheet.FuelPlanning.Extra.Volume.Abs().String(statsSheet.FuelPlanning.VolumeType))
 
 	wbState := WeightAndBalanceState{}
 	for _, i := range statsSheet.TakeOffWeightAndBalance.Moments {

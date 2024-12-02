@@ -1,6 +1,9 @@
 package volume
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 const (
 	LitersInGallon = 3.78541
@@ -12,6 +15,13 @@ const (
 type Volume struct {
 	Amount float64
 	Type   Type
+}
+
+func (v Volume) Abs() Volume {
+	return Volume{
+		Amount: math.Abs(v.Amount),
+		Type:   v.Type,
+	}
 }
 
 func New(amount float64, t Type) (Volume, error) {

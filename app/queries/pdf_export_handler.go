@@ -214,7 +214,7 @@ func (h PdfExportHandler) Handle(ctx context.Context, stateService state.Service
 	exData.FuelReserve = parseNumber(fuelPlanning.Reserve.Volume.String(fuelPlanning.VolumeType))
 	exData.FuelTotal = parseNumber(fuelPlanning.Total.Volume.String(fuelPlanning.VolumeType))
 	exData.FuelExtra = parseNumber(fuelPlanning.Extra.Volume.String(fuelPlanning.VolumeType))
-	exData.FuelExtraAbs = parseNumber(fuelPlanning.Extra.Volume.String(fuelPlanning.VolumeType))
+	exData.FuelExtraAbs = parseNumber(fuelPlanning.Extra.Volume.Abs().String(fuelPlanning.VolumeType))
 
 	wbState := WeightAndBalanceState{}
 	for _, i := range takeOffWeightAndBalance.Moments {
