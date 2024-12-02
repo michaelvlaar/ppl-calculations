@@ -20,6 +20,17 @@ spec:
       containers:
         - name: ppl-calculations
           image: michaelvlaar/ppl-calculations:1.0.0
+          env:
+            - name: CSRF_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ppl
+                  key: CSRF_KEY
+            - name: SESSION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ppl
+                  key: SESSION_KEY
           ports:
             - containerPort: 80
               name: http
