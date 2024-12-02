@@ -38,5 +38,5 @@ spec:
               name: http
           resources:
             limits:
-              memory: "150Mi"
+              memory: "512Mi"
               cpu: "100m"
