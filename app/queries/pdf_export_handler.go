@@ -293,9 +293,10 @@ func (h PdfExportHandler) Handle(ctx context.Context, stateService state.Service
 
 	err = cmd.Run()
 	if err != nil {
-		fmt.Println(err)
-		fmt.Println(stdoutBuf.String())
-		fmt.Println(stderrBuf.String())
+		logrus.WithError(err).WithFields(logrus.Fields{
+			"stdout": stdoutBuf.String(),
+			"stderr": stderrBuf.String(),
+		}).Error("executing xelatex")
 		return nil, err
 	}
 
