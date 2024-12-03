@@ -8,6 +8,7 @@
 \usepackage{titlesec}
 \usepackage{colortbl}
 \usepackage[table,xcdraw]{xcolor}
+\usepackage{svg}
 
 \titleformat{\section}
   {\normalfont\Large\bfseries\filcenter} % Center-align
@@ -57,7 +58,7 @@
     \begin{tabular}{|l|c|c|c|}
         \hline
         \rowcolor[HTML]{AAAAAA}
-        \textbf{NAME} & \textbf{MASS [KG]} & \textbf{ARM [M]} & \textbf{MASS MOMENT [KG M]} \\ \hline
+        \textbf{NAME} & \textbf{ARM [M]} & \textbf{MASS [KG]} & \textbf{MASS MOMENT [KG M]} \\ \hline
         {{ range $index, $item := .WeightAndBalanceTakeOff.Items }}
             {{ $item.Name }} & {{ $item.LeverArm }} & {{ $item.Mass }} & {{ $item.MassMoment }} \\ \hline
         {{ end }}
@@ -74,7 +75,7 @@
     \begin{tabular}{|l|c|c|c|}
         \hline
         \rowcolor[HTML]{AAAAAA}
-        \textbf{NAME} & \textbf{MASS [KG]} & \textbf{ARM [M]} & \textbf{MASS MOMENT [KG M]} \\ \hline
+        \textbf{NAME} & \textbf{ARM [M]} & \textbf{MASS [KG]} & \textbf{MASS MOMENT [KG M]} \\ \hline
         {{ range $index, $item := .WeightAndBalanceLanding.Items }}
             {{ $item.Name }} & {{ $item.LeverArm }} & {{ $item.Mass }} & {{ $item.MassMoment }} \\ \hline
         {{ end }}
