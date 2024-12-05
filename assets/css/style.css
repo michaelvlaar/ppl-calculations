@@ -1,14 +1,3 @@
-@media print {
-    .no-print {
-        display: none !important;
-    }
-
-    body {
-        margin: 20mm;
-        font-size: 12pt;
-    }
-}
-
 .custom-select {
     appearance: none;
     background-color: #fff;
@@ -20,13 +9,12 @@
     background-size: 1.5rem;
 }
 
-.vertical-center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .table-row:hover {
     background-color: #f0f0f0;
     cursor: pointer;
+}
+
+#trip-duration,
+#alternate-duration {
+    display: none;
 }

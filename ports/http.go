@@ -58,8 +58,19 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 	if err != nil {
 		log.Fatalf("Fout bij het parsen van css: %v", err)
 	}
-
 	mux.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.FS(cssFs))))
+
+	jsFs, err := fs.Sub(assets, "assets/js")
+	if err != nil {
+		log.Fatalf("Fout bij het parsen van css: %v", err)
+	}
+	mux.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.FS(jsFs))))
+
+	fontFs, err := fs.Sub(assets, "assets/fonts")
+	if err != nil {
+		log.Fatalf("Fout bij het parsen van css: %v", err)
+	}
+	mux.Handle("/fonts/", http.StripPrefix("/fonts/", http.FileServer(http.FS(fontFs))))
 
 	mux.HandleFunc("/aquila-wb", func(w http.ResponseWriter, r *http.Request) {
 		urlTakeOffMass := r.URL.Query().Get("takeoff-mass")
@@ -572,7 +583,7 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 	CSRF := csrf.Protect([]byte(os.Getenv("CSRF_KEY")), csrf.CookieName("_csrf"))
 	server := &http.Server{
 		Addr:    ":" + os.Getenv("PORT"),
-		Handler: CSRF(mux),
+		Handler: SecurityHeaders(CSRF(mux)),
 	}
 
 	wg.Add(1)
@@ -593,4 +604,15 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 			logrus.WithError(err).Error("error shutting down HTTP server")
 		}
 	}
+}
+
+func SecurityHeaders(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("Referrer-Policy", "same-origin")
+		w.Header().Set("Permissions-Policy", "accelerometer=(), autoplay=(), camera=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), keyboard-map=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(), usb=(), web-share=(), xr-spatial-tracking=()")
+		w.Header().Set("Content-Security-Policy", "script-src 'self' 'unsafe-eval'")
+		handler.ServeHTTP(w, r)
+	})
 }
