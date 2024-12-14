@@ -5,7 +5,8 @@
     <title>Berekeningen Aquila A210</title>
     <meta name="csrf" content="{{ .CSRF }}">
     <script src="js/htmx.min.js"></script>
-    <link href="css/tailwind.min.css" rel="stylesheet">
+    <link href="css/tailwind.min.css" rel="stylesheet" >
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" crossorigin="anonymous">
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%221em%22 font-size=%2280%22>&#128747;</text></svg>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0">
@@ -31,7 +32,7 @@
             </div>
         </div>
     </header>
-    <main class="max-w-7xl mx-auto mt-16 p-4 pb-14">
+    <main class="max-w-7xl mx-auto mt-16 p-4 pb-20">
         <div class="flex flex-col lg:items-stretch w-full" id="#main">
             {{ if eq .Step "weight" }}
                 {{ block "wb_form" . }}{{ end }}
@@ -45,9 +46,13 @@
         </div>
     </main>
     <footer class="fixed bottom-0 left-0 w-full text-center py-2 bg-gray-100 text-gray-600 text-sm">
-        <a href="https://github.com/michaelvlaar/ppl-calculations" target="_blank" class="hover:text-gray-800">
-          {{ version }}
+        <a href="https://github.com/michaelvlaar/ppl-calculations" target="_blank" class="hover:text-gray-800 inline-flex items-center space-x-2">
+            <i class="fab fa-github"></i>
+            <span>michaelvlaar/ppl-calculations ({{ version }})</span>
         </a>
+        <div class="mt-1">
+            &copy; 2024 Michael Vlaar
+        </div>
     </footer>
     <script src="js/csrf.js"></script>
 </body>
