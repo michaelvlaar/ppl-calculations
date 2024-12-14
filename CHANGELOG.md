@@ -1,4 +1,18 @@
-# [](https://github.com/michaelvlaar/ppl-calculations/compare/v1.0.6...v) (2024-12-14)
+# [](https://github.com/michaelvlaar/ppl-calculations/compare/v1.0.7...v) (2024-12-14)
+
+
+
+## [1.0.7](https://github.com/michaelvlaar/ppl-calculations/compare/v1.0.6...v1.0.7) (2024-12-14)
+
+
+### Bug Fixes
+
+* github repository link ([45f5a35](https://github.com/michaelvlaar/ppl-calculations/commit/45f5a359eabc8d632528a0f4530febdbb4c2c4f3))
+
+
+### Features
+
+* version number in footer ([7f7028d](https://github.com/michaelvlaar/ppl-calculations/commit/7f7028ddf362168bb33d5a44f77eab04f8022a1b))
 
 
 
