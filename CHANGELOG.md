@@ -8,6 +8,9 @@
 ### Bug Fixes
 
 * corrected npm package.json filename ([975d90d](https://github.com/michaelvlaar/ppl-calculations/commit/975d90d1d82070c2a4b287fb2d520dc73beeb7b5))
+* Dockerfile labels corrected ([8dca919](https://github.com/michaelvlaar/ppl-calculations/commit/8dca9199ce4d9e72c13faa98492307b8849bc66b))
+* github actions ([f728bd1](https://github.com/michaelvlaar/ppl-calculations/commit/f728bd116876548917f463031640db8b09fd3dde))
+* github actions ([b2fa9e6](https://github.com/michaelvlaar/ppl-calculations/commit/b2fa9e644f7a66c9ffd7c769d7a34f2eb718080d))
 * github actions bot permissions ([5937f20](https://github.com/michaelvlaar/ppl-calculations/commit/5937f203c224d9da6c17a82b348993dcdcef759e))
 * github bot permissions ([c8a0f77](https://github.com/michaelvlaar/ppl-calculations/commit/c8a0f77ab69ab115abbe6bf7ed5f99691dedc0fc))
 
