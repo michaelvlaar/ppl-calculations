@@ -38,8 +38,6 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout master
-          git pull origin master
           git add CHANGELOG.md
           git commit -m "chore: update changelog for ${{ env.VERSION }}"
           git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" 
