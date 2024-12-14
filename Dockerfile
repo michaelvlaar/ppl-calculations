@@ -1,7 +1,3 @@
-LABEL org.opencontainers.image.source="https://github.com/michaelvlaar/ppl-calculations"
-LABEL org.opencontainers.image.description="PPL Calculations is an open source project designed to simplify the calculation and management of weight and balance for an aeroclub fleet. It combines a reliable Go-based HTTP backend with a straightforward HTMX frontend, enabling pilots to perform quick and accurate weight and balance calculations. The project aims to improve operational safety and efficiency within aeroclubs and is open to community contributions."
-LABEL org.opencontainers.image.licenses=MIT
-
 FROM golang:1.23-alpine AS build
 WORKDIR /app
 
@@ -13,6 +9,10 @@ COPY . .
 RUN go build -o main .
 
 FROM debian:bookworm
+
+LABEL org.opencontainers.image.source="https://github.com/michaelvlaar/ppl-calculations"
+LABEL org.opencontainers.image.description="PPL Calculations is an open source project designed to simplify the calculation and management of weight and balance for an aeroclub fleet. It combines a reliable Go-based HTTP backend with a straightforward HTMX frontend, enabling pilots to perform quick and accurate weight and balance calculations. The project aims to improve operational safety and efficiency within aeroclubs and is open to community contributions."
+LABEL org.opencontainers.image.licenses=MIT
 
 ENV DEBIAN_FRONTEND=noninteractive
 
