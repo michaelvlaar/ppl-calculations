@@ -36,7 +36,7 @@ func derefString(s *string) string {
 	return *s
 }
 
-func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Application, assets fs.FS) {
+func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Application, assets fs.FS, version string) {
 	mux := http.NewServeMux()
 
 	templatesFS, err := fs.Sub(assets, "assets/templates")
@@ -46,10 +46,14 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 
 	tmpl, err := template.New("base").Funcs(template.FuncMap{
 		"derefString": derefString,
+		"version": func() string {
+			return version
+		},
 		"mod": func(i, j int) bool {
 			return i%j != 0
 		},
 	}).ParseFS(templatesFS, "*.html")
+
 	if err != nil {
 		logrus.WithError(err).Fatal("cannot parse asset templates")
 	}

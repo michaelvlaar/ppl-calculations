@@ -1,4 +1,8 @@
 FROM golang:1.23-alpine AS build
+
+ARG VERSION=dev
+ENV VERSION=$VERSION
+
 WORKDIR /app
 
 COPY go.mod go.sum ./
@@ -6,7 +10,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o main .
+RUN go build -ldflags="-X 'main.version=${VERSION}'" -o main .
 
 FROM debian:bookworm
 

@@ -18,6 +18,8 @@ import (
 //go:embed assets/*
 var assets embed.FS
 
+var version = "dev"
+
 func main() {
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 	logrus.Info("application started")
@@ -59,7 +61,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		ports.NewHTTPListener(ctx, &wg, a, assets)
+		ports.NewHTTPListener(ctx, &wg, a, assets, version)
 	}()
 
 	<-stop
