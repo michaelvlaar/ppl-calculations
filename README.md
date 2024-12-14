@@ -15,3 +15,8 @@ PPL Calculations is an open source project designed to simplify the calculation 
 - [ ] Show document references (which documents / versions)
 - [ ] Server side error messages for form validation (currently not working properly on Firefox)
 - [ ] Negative PA support in performance calculations
+ 
+
+## Changelog
+
+For a detailed list of changes, see the [CHANGELOG.md](./CHANGELOG.md).
