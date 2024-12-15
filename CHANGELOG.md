@@ -1,9 +1,10 @@
-# [](https://github.com/michaelvlaar/ppl-calculations/compare/v1.0.8...v) (2024-12-14)
+# [](https://github.com/michaelvlaar/ppl-calculations/compare/v1.1.0...v) (2024-12-15)
 
 
 ### Features
 
 * copyright and github link visual improvements ([9879f95](https://github.com/michaelvlaar/ppl-calculations/commit/9879f95123c6c4679be01b75f4eac7e4f49c1522))
+* export overview ([ee1b3f0](https://github.com/michaelvlaar/ppl-calculations/commit/ee1b3f08812050f51241acc12eea795b6b500ffa))
 
 
 
