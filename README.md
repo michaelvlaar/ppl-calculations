@@ -26,7 +26,11 @@ PPL Calculations is an open-source project designed to simplify the calculation 
 ### Prerequisites
 - [Docker](https://www.docker.com/get-started) installed on your machine
 - Kubernetes cluster (optional, for deployment using Kustomize and Flux)
-
+- **Dependencies:**
+    - `xelatex`: For generating PDFs from LaTeX.
+    - `librsvg2`: For rendering SVG images.
+    - **Roboto Font**: Required for consistent typography in PDFs.
+     
 ### Environment Variables
 
 The application requires the following environment variables to function correctly. Below are example values:
@@ -96,7 +100,7 @@ git commit -m "feat: add new feature"
 ```bash
 git push origin feature/your-feature-name
 ```
-5.Open a Pull Request
+5. Open a Pull Request
 
 Please ensure your commits follow the [Conventional Commits](https://www.conventionalcommits.org/) standard.
 
