@@ -43,18 +43,23 @@ func main() {
 
 	a := app.Application{
 		Commands: app.Commands{
-			UpdateLoadSheet: commands.NewUpdateLoadSheetHandler(),
-			UpdateFuelSheet: commands.NewUpdateFuelSheetHandler(),
-			ClearSheet:      commands.NewClearSheetHandler(),
+			UpdateLoadSheet:   commands.NewUpdateLoadSheetHandler(),
+			UpdateFuelSheet:   commands.NewUpdateFuelSheetHandler(),
+			UpdateExportSheet: commands.NewUpdateExportSheetHandler(),
+			DeleteExportSheet: commands.NewDeleteExportSheetHandler(),
+			ClearSheet:        commands.NewClearSheetHandler(),
 		},
 		Queries: app.Queries{
-			WBChart:    queries.NewWBChartHandler(calculationsService),
-			LoadSheet:  queries.NewLoadSheetHandler(),
-			FuelSheet:  queries.NewFuelSheetHandler(),
-			StatsSheet: queries.NewStatsSheetHandler(calculationsService),
-			LdrChart:   queries.NewLdrChartHandler(calculationsService),
-			TodChart:   queries.NewTodChartHandler(calculationsService),
-			PdfExport:  queries.NewPdfExportHandler(exportFS, calculationsService),
+			WBChart:     queries.NewWBChartHandler(calculationsService),
+			LoadSheet:   queries.NewLoadSheetHandler(),
+			FuelSheet:   queries.NewFuelSheetHandler(),
+			StatsSheet:  queries.NewStatsSheetHandler(calculationsService),
+			ExportSheet: queries.NewExportSheetHandler(),
+			Export:      queries.NewExportHandler(),
+			Exports:     queries.NewExportsHandler(),
+			LdrChart:    queries.NewLdrChartHandler(calculationsService),
+			TodChart:    queries.NewTodChartHandler(calculationsService),
+			PdfExport:   queries.NewPdfExportHandler(exportFS, calculationsService),
 		},
 	}
 

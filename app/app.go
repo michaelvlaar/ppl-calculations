@@ -11,15 +11,21 @@ type Application struct {
 }
 
 type Commands struct {
-	UpdateLoadSheet commands.UpdateLoadSheetHandler
-	UpdateFuelSheet commands.UpdateFuelSheetHandler
-	ClearSheet      commands.ClearSheetHandler
+	UpdateLoadSheet   commands.UpdateLoadSheetHandler
+	UpdateFuelSheet   commands.UpdateFuelSheetHandler
+	UpdateExportSheet commands.UpdateExportSheetHandler
+	DeleteExportSheet commands.DeleteExportSheetHandler
+	ClearSheet        commands.ClearSheetHandler
 }
 
 type Queries struct {
-	LoadSheet  queries.LoadSheetHandler
-	FuelSheet  queries.FuelSheetHandler
-	StatsSheet queries.StatsSheetHandler
+	LoadSheet   queries.LoadSheetHandler
+	FuelSheet   queries.FuelSheetHandler
+	StatsSheet  queries.StatsSheetHandler
+	ExportSheet queries.ExportSheetHandler
+
+	Export  queries.ExportHandler
+	Exports queries.ExportsHandler
 
 	WBChart  queries.WBChartHandler
 	LdrChart queries.LdrChartHandler

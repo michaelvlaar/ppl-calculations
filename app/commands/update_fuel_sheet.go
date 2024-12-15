@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"ppl-calculations/domain/calculations"
 	"ppl-calculations/domain/fuel"
 	"ppl-calculations/domain/state"
 	"ppl-calculations/domain/volume"
@@ -36,6 +37,22 @@ func (handler UpdateFuelSheetHandler) Handle(ctx context.Context, stateService s
 	s.MaxFuel = request.MaxFuel
 	s.TripDuration = request.TripDuration
 	s.AlternateDuration = request.AlternateDuration
+
+	var f fuel.Fuel
+	if s.MaxFuel != nil && *s.MaxFuel {
+		_, f, err = calculations.NewWeightAndBalanceMaxFuel(*s.CallSign, *s.Pilot, *s.PilotSeat, s.Passenger, s.PassengerSeat, *s.Baggage, *s.FuelType)
+		if err != nil {
+			return err
+		}
+	} else {
+		f = *s.Fuel
+		_, err = calculations.NewWeightAndBalance(*s.CallSign, *s.Pilot, *s.PilotSeat, s.Passenger, s.PassengerSeat, s.Baggage, f)
+		if err != nil {
+			return err
+		}
+	}
+
+	s.Fuel = &f
 
 	err = stateService.SetState(ctx, s)
 	if err != nil {

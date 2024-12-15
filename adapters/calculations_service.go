@@ -17,11 +17,14 @@ import (
 	"math"
 	"ppl-calculations/domain/calculations"
 	"ppl-calculations/domain/callsign"
+	"ppl-calculations/domain/fuel"
 	"ppl-calculations/domain/pressure"
+	"ppl-calculations/domain/seat"
 	"ppl-calculations/domain/temperature"
 	"ppl-calculations/domain/weight_balance"
 	"ppl-calculations/domain/wind"
 	"text/template"
+	"time"
 )
 
 type CalculationsService struct {
@@ -296,6 +299,20 @@ func (s CalculationsService) calculateWindPosition(windXStart, windXEnd, wind, t
 	return windXPos, windYPos
 }
 
+func (s CalculationsService) tickGenerator(min, max float64) plot.Ticker {
+	return plot.ConstantTicks(func() []plot.Tick {
+		var ticks []plot.Tick
+		step := 20.0
+		for val := min; val <= max; val += step {
+			ticks = append(ticks, plot.Tick{
+				Value: val,
+				Label: fmt.Sprintf("%.0f", val),
+			})
+		}
+		return ticks
+	}())
+}
+
 func (s CalculationsService) LandingDistance(oat temperature.Temperature, pa pressure.Altitude, tow weight_balance.Mass, wi wind.Wind, chartType calculations.ChartType) (io.Reader, float64, float64, error) {
 	oatXStart := 562.923177
 	oatXEnd := 1870.93099
@@ -512,20 +529,6 @@ func (s CalculationsService) WeightAndBalance(callSign callsign.CallSign, takeOf
 	}
 }
 
-func (s CalculationsService) tickGenerator(min, max float64) plot.Ticker {
-	return plot.ConstantTicks(func() []plot.Tick {
-		var ticks []plot.Tick
-		step := 20.0
-		for val := min; val <= max; val += step {
-			ticks = append(ticks, plot.Tick{
-				Value: val,
-				Label: fmt.Sprintf("%.0f", val),
-			})
-		}
-		return ticks
-	}())
-}
-
 func (s CalculationsService) TakeOffDistance(oat temperature.Temperature, pa pressure.Altitude, tow weight_balance.Mass, wi wind.Wind, chartType calculations.ChartType) (io.Reader, float64, float64, error) {
 	temp := oat.Float64()
 	pressureAltitude := pa.Float64()
@@ -668,4 +671,48 @@ func (s CalculationsService) TakeOffDistance(oat temperature.Temperature, pa pre
 	}
 
 	return &output, todGR, todDR, nil
+}
+
+func (s CalculationsService) Calculations(callSign *callsign.CallSign, pilot *weight_balance.Mass, pilotSeat *seat.Position, passenger *weight_balance.Mass, passengerSeat *seat.Position, baggage *weight_balance.Mass, outsideAirTemperature *temperature.Temperature, pa *pressure.Altitude, w *wind.Wind, f *fuel.Fuel, tripDuration *time.Duration, alternateDuration *time.Duration) (*calculations.Calculations, error) {
+	sheet := &calculations.Calculations{}
+
+	sheet.CallSign = *callSign
+	sheet.PressureAltitude = *pa
+	sheet.OAT = *outsideAirTemperature
+	sheet.Wind = *w
+
+	var err error
+	sheet.TakeOffWeightAndBalance, err = calculations.NewWeightAndBalance(*callSign, *pilot, *pilotSeat, passenger, passengerSeat, baggage, *f)
+	if err != nil {
+		return sheet, err
+	}
+
+	sheet.FuelPlanning, err = calculations.NewFuelPlanning(*tripDuration, *alternateDuration, *f, f.Volume.Type)
+	if err != nil {
+		return sheet, err
+	}
+
+	sheet.LandingWeightAndBalance, err = calculations.NewWeightAndBalance(*callSign, *pilot, *pilotSeat, passenger, passengerSeat, baggage, fuel.Subtract(*f, sheet.FuelPlanning.Trip, sheet.FuelPlanning.Taxi))
+	if err != nil {
+		return sheet, err
+	}
+
+	_, todRR, todDR, err := s.TakeOffDistance(*outsideAirTemperature, *pa, sheet.TakeOffWeightAndBalance.Total.Mass, *w, calculations.ChartTypeSVG)
+
+	if err != nil {
+		return sheet, err
+	}
+
+	_, ldrDR, ldrGR, err := s.LandingDistance(*outsideAirTemperature, *pa, sheet.LandingWeightAndBalance.Total.Mass, *w, calculations.ChartTypeSVG)
+	if err != nil {
+		return sheet, err
+	}
+	sheet.Performance = &calculations.Performance{
+		TakeOffRunRequired:        todRR,
+		TakeOffDistanceRequired:   todDR,
+		LandingDistanceRequired:   ldrDR,
+		LandingGroundRollRequired: ldrGR,
+	}
+
+	return sheet, nil
 }

@@ -154,7 +154,7 @@ func NewWeightAndBalanceMaxFuel(callSign callsign.CallSign, pilot weight_balance
 	return wb, f, nil
 }
 
-func NewWeightAndBalance(callSign callsign.CallSign, pilot weight_balance.Mass, pilotSeat seat.Position, passenger *weight_balance.Mass, passengerSeat *seat.Position, bagage weight_balance.Mass, f fuel.Fuel) (*WeightBalance, error) {
+func NewWeightAndBalance(callSign callsign.CallSign, pilot weight_balance.Mass, pilotSeat seat.Position, passenger *weight_balance.Mass, passengerSeat *seat.Position, bagage *weight_balance.Mass, f fuel.Fuel) (*WeightBalance, error) {
 	wb := &WeightBalance{}
 
 	switch callSign.String() {
@@ -196,7 +196,11 @@ func NewWeightAndBalance(callSign callsign.CallSign, pilot weight_balance.Mass, 
 		wb.Moments = append(wb.Moments, weight_balance.NewMassMoment(PassengerMassName, passengerSeatMassArm, *passenger))
 	}
 
-	wb.Moments = append(wb.Moments, weight_balance.NewMassMoment(BagageMassName, BagageMassArm, bagage))
+	if bagage != nil {
+		wb.Moments = append(wb.Moments, weight_balance.NewMassMoment(BagageMassName, BagageMassArm, *bagage))
+	} else {
+		wb.Moments = append(wb.Moments, weight_balance.NewMassMoment(BagageMassName, BagageMassArm, weight_balance.NewMass(0.0)))
+	}
 
 	var fuelMassPerLiter float64
 	switch f.Type {

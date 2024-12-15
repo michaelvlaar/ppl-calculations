@@ -5,7 +5,7 @@
             <li class="flex items-center gap-x-2 shrink basis-0 flex-1 group">
                 <div class="min-h-7 inline-flex justify-center items-center text-xs align-middle">
                     {{ if ne .Step "weight" }}
-                    <form class="flex w-full" hx-get="/" hx-target="#content-container"
+                    <form class="flex w-full" hx-get="/load" hx-target="#content-container"
                           hx-swap="outerHTML scroll:top">
                         <input type="hidden" name="submit" value="weight" />
                         <button id="stepper-back-weight" type="submit"

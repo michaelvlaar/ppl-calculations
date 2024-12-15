@@ -13,8 +13,8 @@ import (
 	"path"
 	"path/filepath"
 	"ppl-calculations/domain/calculations"
+	"ppl-calculations/domain/export"
 	"ppl-calculations/domain/fuel"
-	"ppl-calculations/domain/state"
 	"strings"
 	"time"
 )
@@ -93,56 +93,33 @@ func parseNumber(number string) string {
 	return strings.ReplaceAll(number, ".", ",")
 }
 
-func (h PdfExportHandler) Handle(ctx context.Context, stateService state.Service, reference string) (io.Reader, error) {
-	s, err := stateService.State(ctx)
+func (h PdfExportHandler) Handle(ctx context.Context, e export.Export) (io.Reader, error) {
+	takeOffWeightAndBalance, err := calculations.NewWeightAndBalance(e.CallSign, e.Pilot, e.PilotSeat, e.Passenger, e.PassengerSeat, e.Baggage, e.Fuel)
 	if err != nil {
 		return nil, err
 	}
 
-	if s.TripDuration == nil {
-		return nil, ErrMissingFuelSheet
-	}
-
-	if s.CallSign == nil {
-		return nil, ErrMissingFuelSheet
-	}
-
-	var f fuel.Fuel
-	var takeOffWeightAndBalance *calculations.WeightBalance
-	if s.MaxFuel != nil && *s.MaxFuel {
-		takeOffWeightAndBalance, f, err = calculations.NewWeightAndBalanceMaxFuel(*s.CallSign, *s.Pilot, *s.PilotSeat, s.Passenger, s.PassengerSeat, *s.Baggage, *s.FuelType)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		f = *s.Fuel
-		takeOffWeightAndBalance, err = calculations.NewWeightAndBalance(*s.CallSign, *s.Pilot, *s.PilotSeat, s.Passenger, s.PassengerSeat, *s.Baggage, f)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	fuelPlanning, err := calculations.NewFuelPlanning(*s.TripDuration, *s.AlternateDuration, f, *s.FuelVolumeType)
+	fuelPlanning, err := calculations.NewFuelPlanning(e.TripDuration, e.AlternateDuration, e.Fuel, e.Fuel.Volume.Type)
 	if err != nil {
 		return nil, err
 	}
 
-	landingWeightAndBalance, err := calculations.NewWeightAndBalance(*s.CallSign, *s.Pilot, *s.PilotSeat, s.Passenger, s.PassengerSeat, *s.Baggage, fuel.Subtract(f, fuelPlanning.Trip, fuelPlanning.Taxi))
+	landingWeightAndBalance, err := calculations.NewWeightAndBalance(e.CallSign, e.Pilot, e.PilotSeat, e.Passenger, e.PassengerSeat, e.Baggage, fuel.Subtract(e.Fuel, fuelPlanning.Trip, fuelPlanning.Taxi))
 	if err != nil {
 		return nil, err
 	}
 
-	tdrChart, todRR, todDR, err := h.calcService.TakeOffDistance(*s.OutsideAirTemperature, *s.PressureAltitude, takeOffWeightAndBalance.Total.Mass, *s.Wind, calculations.ChartTypePNG)
+	tdrChart, todRR, todDR, err := h.calcService.TakeOffDistance(e.OutsideAirTemperature, e.PressureAltitude, takeOffWeightAndBalance.Total.Mass, e.Wind, calculations.ChartTypePNG)
 	if err != nil {
 		return nil, err
 	}
 
-	ldrChart, ldrDR, ldrGR, err := h.calcService.LandingDistance(*s.OutsideAirTemperature, *s.PressureAltitude, landingWeightAndBalance.Total.Mass, *s.Wind, calculations.ChartTypePNG)
+	ldrChart, ldrDR, ldrGR, err := h.calcService.LandingDistance(e.OutsideAirTemperature, e.PressureAltitude, landingWeightAndBalance.Total.Mass, e.Wind, calculations.ChartTypePNG)
 	if err != nil {
 		return nil, err
 	}
 
-	wbChart, err := h.calcService.WeightAndBalance(*s.CallSign, *takeOffWeightAndBalance.Total, *landingWeightAndBalance.Total, takeOffWeightAndBalance.WithinLimits, calculations.ChartTypePNG)
+	wbChart, err := h.calcService.WeightAndBalance(e.CallSign, *takeOffWeightAndBalance.Total, *landingWeightAndBalance.Total, takeOffWeightAndBalance.WithinLimits, calculations.ChartTypePNG)
 	if err != nil {
 		return nil, err
 	}
@@ -202,9 +179,9 @@ func (h PdfExportHandler) Handle(ctx context.Context, stateService state.Service
 
 	exData := ExportData{}
 
-	exData.CallSign = s.CallSign.String()
+	exData.CallSign = e.CallSign.String()
 	exData.Generated = time.Now().Format("15:04:05 02-01-2006")
-	exData.Reference = reference
+	exData.Reference = e.Name.String()
 
 	exData.FuelSufficient = fuelPlanning.Sufficient
 	exData.FuelTaxi = parseNumber(fuelPlanning.Taxi.Volume.String(fuelPlanning.VolumeType))

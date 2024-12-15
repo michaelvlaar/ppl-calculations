@@ -1,12 +1,17 @@
 package adapters
 
 import (
+	"bytes"
 	"context"
+	"encoding/gob"
 	"encoding/json"
 	"github.com/gorilla/sessions"
 	"net/http"
 	"os"
+	"ppl-calculations/domain/export"
 	"ppl-calculations/domain/state"
+	"slices"
+	"strings"
 )
 
 func NewCookieStateService(w http.ResponseWriter, r *http.Request) (state.Service, error) {
@@ -22,6 +27,7 @@ type CookieStateService struct {
 	w     http.ResponseWriter
 	store *sessions.CookieStore
 	s     *state.State
+	e     []export.Export
 }
 
 func (service *CookieStateService) State(_ context.Context) (*state.State, error) {
@@ -61,4 +67,95 @@ func (service *CookieStateService) SetState(_ context.Context, s *state.State) e
 	session.Values["state"] = string(jsonState)
 
 	return service.store.Save(service.r, service.w, session)
+}
+
+func (service *CookieStateService) SetExport(ctx context.Context, e export.Export) error {
+	ex, err := service.Exports(ctx)
+	if err != nil {
+		return err
+	}
+
+	ex = append(ex, e)
+
+	service.e = ex
+
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	if err := enc.Encode(e); err != nil {
+		return err
+	}
+
+	session, _ := service.store.Get(service.r, "_e_"+e.ID.String())
+	session.Values["export"] = buf.Bytes()
+	session.Options.MaxAge = 60 * 60 * 24 * 30 * 6
+
+	return service.store.Save(service.r, service.w, session)
+}
+
+func (service *CookieStateService) DeleteExport(ctx context.Context, e export.ID) error {
+	ex, err := service.Exports(ctx)
+	if err != nil {
+		return err
+	}
+
+	service.e = ex
+
+	index := slices.IndexFunc(service.e, func(e2 export.Export) bool {
+		return e == e2.ID
+	})
+
+	if index != -1 {
+		service.e = slices.Delete(service.e, index, index+1)
+	}
+
+	session, _ := service.store.Get(service.r, "_e_"+e.String())
+	session.Options.MaxAge = -1
+	return service.store.Save(service.r, service.w, session)
+}
+
+func (service *CookieStateService) Exports(_ context.Context) ([]export.Export, error) {
+	if service.e != nil {
+		return service.e, nil
+	}
+
+	var exports []export.Export
+	for _, c := range service.r.Cookies() {
+		if strings.HasPrefix(c.Name, "_e_") {
+			session, _ := service.store.Get(service.r, c.Name)
+			exBytes, ok := session.Values["export"]
+			if !ok {
+				continue
+			}
+
+			var ex export.Export
+
+			buf := bytes.NewBufferString(string(exBytes.([]byte)))
+			dec := gob.NewDecoder(buf)
+			if err := dec.Decode(&ex); err != nil {
+				continue
+			}
+
+			exports = append(exports, ex)
+		}
+	}
+
+	return exports, nil
+}
+
+func (service *CookieStateService) Export(_ context.Context, id export.ID) (*export.Export, error) {
+	session, _ := service.store.Get(service.r, "_e_"+id.String())
+	exBytes, ok := session.Values["export"]
+	if !ok {
+		return nil, nil
+	}
+
+	var ex export.Export
+
+	buf := bytes.NewBufferString(string(exBytes.([]byte)))
+	dec := gob.NewDecoder(buf)
+	if err := dec.Decode(&ex); err != nil {
+		return nil, nil
+	}
+
+	return &ex, nil
 }

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"ppl-calculations/app/commands"
 	"ppl-calculations/domain/callsign"
+	"ppl-calculations/domain/export"
 	"ppl-calculations/domain/fuel"
 	"ppl-calculations/domain/pressure"
 	"ppl-calculations/domain/seat"
@@ -173,4 +174,23 @@ func UpdateFuelSheetRequest(r *http.Request) (commands.UpdateFuelSheetRequest, e
 	}
 
 	return s, nil
+}
+
+func UpdateExportSheetRequest(r *http.Request) (commands.UpdateExportSheetRequest, error) {
+	req := commands.UpdateExportSheetRequest{}
+
+	if urlName := r.Form.Get("name"); urlName != "" {
+		name, err := export.NewName(urlName)
+		if err != nil {
+			return req, err
+		}
+
+		req.Name = name
+		req.ID, err = export.NewID()
+		if err != nil {
+			return req, err
+		}
+	}
+
+	return req, nil
 }

@@ -8,8 +8,10 @@ type Base struct {
 type Step string
 
 const (
-	StepWeight Step = "weight"
-	StepFuel   Step = "fuel"
-	StepStats  Step = "stats"
-	StepExport Step = "export"
+	StepOverview Step = "overview"
+	StepWeight   Step = "weight"
+	StepFuel     Step = "fuel"
+	StepStats    Step = "stats"
+	StepExport   Step = "export"
+	StepView     Step = "view"
 )

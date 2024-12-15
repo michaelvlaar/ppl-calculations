@@ -2,6 +2,7 @@ package state
 
 import (
 	"ppl-calculations/domain/callsign"
+	"ppl-calculations/domain/export"
 	"ppl-calculations/domain/fuel"
 	"ppl-calculations/domain/pressure"
 	"ppl-calculations/domain/seat"
@@ -31,6 +32,9 @@ type State struct {
 	MaxFuel           *bool
 	TripDuration      *time.Duration
 	AlternateDuration *time.Duration
+
+	// Export
+	ExportName *export.Name
 }
 
 func MustNew() *State {

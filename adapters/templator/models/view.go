@@ -3,25 +3,16 @@ package models
 import (
 	"fmt"
 	"ppl-calculations/app/queries"
+	"ppl-calculations/domain/export"
 	"ppl-calculations/domain/wind"
 	"strings"
 )
 
-type WeightAndBalanceItem struct {
-	Name       string
-	LeverArm   string
-	Mass       string
-	MassMoment string
-}
-
-type WeightAndBalanceState struct {
-	Items        []WeightAndBalanceItem
-	Total        WeightAndBalanceItem
-	WithinLimits bool
-}
-
-type Stats struct {
+type View struct {
 	Base
+
+	Name string
+	Date string
 
 	FuelTaxi        string
 	FuelTrip        string
@@ -46,16 +37,14 @@ type Stats struct {
 	WeightAndBalanceLanding WeightAndBalanceState
 }
 
-func parseNumber(number string) string {
-	return strings.ReplaceAll(number, ".", ",")
-}
-
-func StatsFromStatsSheet(csrf string, statsSheet queries.StatsSheetResponse) interface{} {
-	template := Stats{
+func ViewFromExport(csrf string, statsSheet queries.StatsSheetResponse, e export.Export) interface{} {
+	template := View{
 		Base: Base{
-			Step: string(StepStats),
+			Step: string(StepView),
 			CSRF: csrf,
 		},
+		Name: e.Name.String(),
+		Date: e.CreatedAt.Format("15:04:05 02-01-2006"),
 	}
 
 	template.FuelSufficient = statsSheet.Calculations.FuelPlanning.Sufficient
