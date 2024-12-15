@@ -1,4 +1,9 @@
-# [](https://github.com/michaelvlaar/ppl-calculations/compare/v1.0.7...v) (2024-12-14)
+# [](https://github.com/michaelvlaar/ppl-calculations/compare/v1.0.8...v) (2024-12-14)
+
+
+### Features
+
+* copyright and github link visual improvements ([9879f95](https://github.com/michaelvlaar/ppl-calculations/commit/9879f95123c6c4679be01b75f4eac7e4f49c1522))
 
 
 
