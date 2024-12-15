@@ -23,16 +23,16 @@ jobs:
         id: extract_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
+      - name: Download git-chglog
+        run: |
+          wget https://github.com/git-chglog/git-chglog/releases/download/v0.16.0/git-chglog_0.16.0_Linux_x86_64.tar.gz
+          tar -xzf git-chglog_0.16.0_Linux_x86_64.tar.gz
+          sudo mv git-chglog /usr/local/bin/
+          git-chglog --version
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Generate changelog
-        run: npm run changelog
+      - name: Generate Changelog
+        run: |
+          git-chglog > CHANGELOG.md
 
       - name: Commit changelog
         run: |
