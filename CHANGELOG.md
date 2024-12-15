@@ -1,4 +1,9 @@
-# [](https://github.com/michaelvlaar/ppl-calculations/compare/v1.1.0...v) (2024-12-15)
+# [](https://github.com/michaelvlaar/ppl-calculations/compare/v1.1.1...v) (2024-12-15)
+
+
+### Bug Fixes
+
+* additional gzip compression to shorten urls ([9453441](https://github.com/michaelvlaar/ppl-calculations/commit/9453441bb3a7021a65ffa4e2792991eb5b9b74e2))
 
 
 ### Features
