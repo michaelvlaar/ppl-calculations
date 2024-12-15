@@ -17,7 +17,7 @@ PPL Calculations is an open-source project designed to simplify the calculation 
 - ✅ Save form input values
 
 ### ⬜ Upcoming
-- ⬜ Calculation information as title / subtitle when sharing via e.g. WhatsApp (in )
+- ⬜ Calculation information as title / subtitle when sharing via e.g. WhatsApp
 - ⬜ Server-side error messages for form validation (currently not functioning properly on Firefox)
 - ⬜ Support for Negative PA in performance calculations
 
