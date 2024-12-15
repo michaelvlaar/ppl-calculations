@@ -113,4 +113,4 @@ Please ensure your commits follow the [Conventional Commits](https://www.convent
 - **Design Patterns:** CQRS and Domain-Driven Design (DDD)
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](LISENCE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
