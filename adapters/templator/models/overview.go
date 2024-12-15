@@ -2,6 +2,7 @@ package models
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/base64"
 	"encoding/gob"
 	"fmt"
@@ -39,11 +40,25 @@ func OverviewFromExports(csrf string, ex []export.Export) interface{} {
 			continue
 		}
 
+		var gzipBuffer bytes.Buffer
+		gz := gzip.NewWriter(&gzipBuffer)
+
+		_, err := gz.Write(buf.Bytes())
+		if err != nil {
+			logrus.WithError(err).Error("encoding export for view url")
+			continue
+		}
+		err = gz.Close()
+		if err != nil {
+			logrus.WithError(err).Error("encoding export for view url")
+			continue
+		}
+
 		fs.Exports = append(fs.Exports, ExportData{
 			ID:        e.ID.String(),
 			Name:      e.Name.String(),
 			CreatedAt: e.CreatedAt.Format("15:04:05 02-01-2006"),
-			ViewUrl:   fmt.Sprintf("/view?d=%s", base64.URLEncoding.EncodeToString(buf.Bytes())),
+			ViewUrl:   fmt.Sprintf("/view?d=%s", base64.URLEncoding.EncodeToString(gzipBuffer.Bytes())),
 		})
 	}
 

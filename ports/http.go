@@ -2,6 +2,7 @@ package ports
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
 	"encoding/base64"
 	"encoding/gob"
@@ -498,8 +499,27 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 				return
 			}
 
-			buf := bytes.NewBuffer(b)
+			gzReader, err := gzip.NewReader(bytes.NewReader(b))
+			if err != nil {
+				http.Redirect(w, r, "/", http.StatusSeeOther)
+				return
+			}
+
+			gzBytes, err := io.ReadAll(gzReader)
+			if err != nil {
+				http.Redirect(w, r, "/", http.StatusSeeOther)
+				return
+			}
+
+			err = gzReader.Close()
+			if err != nil {
+				http.Redirect(w, r, "/", http.StatusSeeOther)
+				return
+			}
+
+			buf := bytes.NewBuffer(gzBytes)
 			dec := gob.NewDecoder(buf)
+
 			var e export.Export
 			if err := dec.Decode(&e); err != nil {
 				http.Redirect(w, r, "/", http.StatusSeeOther)
