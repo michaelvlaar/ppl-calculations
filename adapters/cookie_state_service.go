@@ -22,6 +22,8 @@ const (
 func NewCookieStateService(w http.ResponseWriter, r *http.Request) (state.Service, error) {
 	store := sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 	store.Options.SameSite = http.SameSiteStrictMode
+	store.Options.Path = "/"
+	store.Options.Secure = true
 
 	return &CookieStateService{
 		r:     r,
@@ -96,6 +98,9 @@ func (service *CookieStateService) SetExport(ctx context.Context, e export.Expor
 	session, _ := service.store.Get(service.r, CookieExportName+e.ID.String())
 	session.Values["export"] = buf.Bytes()
 	session.Options.MaxAge = 60 * 60 * 24 * 30 * 6
+	session.Options.HttpOnly = true
+	session.Options.Secure = true
+	session.Options.Path = "/"
 
 	return service.store.Save(service.r, service.w, session)
 }
