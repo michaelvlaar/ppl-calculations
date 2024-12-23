@@ -1,4 +1,38 @@
 
+<a name="v1.2.1"></a>
+## [v1.2.1](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.0...v1.2.1) (2024-12-23)
+
+### 📚 Documentation
+
+* update README.md
+* fixed typo in readme license section
+
+### 🚀 Features
+
+* cookie security improvements
+
+
+<a name="v1.2.0"></a>
+## [v1.2.0](https://github.com/michaelvlaar/ppl-calculations/compare/v1.1.2...v1.2.0) (2024-12-15)
+
+### 📚 Documentation
+
+* improved readme dependencies
+* improved README
+* improved changelog generation
+
+### 🧰 Maintenance
+
+* updated kustomize to version 1.1.2
+* merged changelogs
+* update changelog for 1.1.2
+
+### BREAKING CHANGE
+
+
+This is an breaking change!
+
+
 <a name="v1.1.2"></a>
 ## [v1.1.2](https://github.com/michaelvlaar/ppl-calculations/compare/v1.1.1...v1.1.2) (2024-12-15)
 
