@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	CookieStateName  = "__Host-state"
-	CookieExportName = "__Host-e_"
+	CookieStateName  = "__Secure-state"
+	CookieExportName = "__Secure-e_"
 )
 
 func NewCookieStateService(w http.ResponseWriter, r *http.Request) (state.Service, error) {
