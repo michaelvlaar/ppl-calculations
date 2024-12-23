@@ -1,4 +1,16 @@
 
+<a name="v1.2.6"></a>
+## [v1.2.6](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.5...v1.2.6) (2024-12-23)
+
+### 🐛 Bug Fixes
+
+* csrf cookie HTTP only
+
+### 🧰 Maintenance
+
+* update changelog for 1.2.5
+
+
 <a name="v1.2.5"></a>
 ## [v1.2.5](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.4...v1.2.5) (2024-12-23)
 
