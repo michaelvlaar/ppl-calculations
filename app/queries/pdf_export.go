@@ -93,7 +93,7 @@ func parseNumber(number string) string {
 	return strings.ReplaceAll(number, ".", ",")
 }
 
-func (h PdfExportHandler) Handle(ctx context.Context, e export.Export) (io.Reader, error) {
+func (h PdfExportHandler) Handle(_ context.Context, e export.Export) (io.Reader, error) {
 	takeOffWeightAndBalance, err := calculations.NewWeightAndBalance(e.CallSign, e.Pilot, e.PilotSeat, e.Passenger, e.PassengerSeat, e.Baggage, e.Fuel)
 	if err != nil {
 		return nil, err

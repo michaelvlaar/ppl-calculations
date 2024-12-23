@@ -20,6 +20,8 @@ PPL Calculations is an open-source project designed to simplify the calculation 
 - ⬜ Calculation information as title / subtitle when sharing via e.g. WhatsApp (in )
 - ⬜ Server-side error messages for form validation (currently not functioning properly on Firefox)
 - ⬜ Support for Negative PA in performance calculations
+- ⬜ Support for PA calculation with and QNH and QFE
+- ⬜ KNMI weatherbulletin and weather charts
 
 ## Installation
 
