@@ -1,4 +1,16 @@
 
+<a name="v1.2.4"></a>
+## [v1.2.4](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.3...v1.2.4) (2024-12-23)
+
+### 🐛 Bug Fixes
+
+* cookie explicit path
+
+### 🧰 Maintenance
+
+* update changelog for 1.2.3
+
+
 <a name="v1.2.3"></a>
 ## [v1.2.3](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.2...v1.2.3) (2024-12-23)
 
