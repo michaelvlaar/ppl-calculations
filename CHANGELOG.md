@@ -1,4 +1,12 @@
 
+<a name="v1.2.5"></a>
+## [v1.2.5](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.4...v1.2.5) (2024-12-23)
+
+### 🧰 Maintenance
+
+* update changelog for 1.2.4
+
+
 <a name="v1.2.4"></a>
 ## [v1.2.4](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.3...v1.2.4) (2024-12-23)
 
