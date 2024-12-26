@@ -1,4 +1,17 @@
 
+<a name="v1.2.7"></a>
+## [v1.2.7](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.6...v1.2.7) (2024-12-26)
+
+### 🐛 Bug Fixes
+
+* CSP remove unsafe eval and inline
+* HTTP only enabled on all cookies
+
+### 🧰 Maintenance
+
+* update changelog for 1.2.6
+
+
 <a name="v1.2.6"></a>
 ## [v1.2.6](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.5...v1.2.6) (2024-12-23)
 
