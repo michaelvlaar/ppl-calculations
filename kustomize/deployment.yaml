@@ -23,6 +23,8 @@ spec:
           env:
             - name: PORT
               value: "8080"
+            - name: SECURE_COOKIE
+              value: "true"
             - name: CSRF_KEY
               valueFrom:
                 secretKeyRef:
