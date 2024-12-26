@@ -1,4 +1,17 @@
 
+<a name="v1.2.9"></a>
+## [v1.2.9](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.8...v1.2.9) (2024-12-26)
+
+### 🐛 Bug Fixes
+
+* secure prefix bugfix
+
+### 🧰 Maintenance
+
+* updated dependencies
+* update changelog for 1.2.8
+
+
 <a name="v1.2.8"></a>
 ## [v1.2.8](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.7...v1.2.8) (2024-12-26)
 
