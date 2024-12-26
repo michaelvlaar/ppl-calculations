@@ -19,7 +19,7 @@ spec:
       serviceAccountName: ppl-calculations
       containers:
         - name: ppl-calculations
-          image: ghcr.io/michaelvlaar/ppl-calculations:v1.2.7
+          image: ghcr.io/michaelvlaar/ppl-calculations:v1.2.8
           env:
             - name: PORT
               value: "8080"
