@@ -17,7 +17,7 @@
     </thead>
     <tbody>
     <tr class="table-row">
-      <td class="px-6 py-4 text-xs font-medium text-gray-900 text-center">{{ .Name }}</td>
+      <td class="px-6 py-4 text-xs font-medium text-gray-900 text-left">{{ .Name }}</td>
       <td class="px-6 py-4 whitespace-nowrap text-xs font-medium text-gray-900 text-center">{{ .Date }}</td>
     </tr>
     </tbody>
@@ -224,13 +224,13 @@
 
 {{ if eq .Step "view" }}
 <div class="mt-4 flex items-center justify-between">
-  <div hx-on:click="document.getElementById('btn-back-main').click()"
-       class="cursor-pointer text-center mr-1 w-full bg-gray-200 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Terug</div>
+  <div hx-trigger="click" hx-get="/" hx-target="#content-container" hx-swap="outerHTML"
+       class="cursor-pointer mr-1 text-center w-full bg-gray-200 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Terug</div>
 </div>
 {{ else }}
 <div class="mt-4 flex items-center justify-between">
-  <div hx-on:click="document.getElementById('stepper-back-fuel').click()"
-       class="cursor-pointer text-center mr-1 w-full bg-gray-200 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Vorige</div>
+  <div hx-trigger="click" hx-get="/fuel" hx-target="#content-container" hx-swap="outerHTML"
+       class="cursor-pointer mr-1 text-center w-full bg-gray-200 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Vorige</div>
   <input name="submit" value="Volgende" type="submit"
          class="cursor-pointer w-full bg-indigo-600 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
 </div>

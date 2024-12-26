@@ -17,10 +17,11 @@ type Overview struct {
 }
 
 type ExportData struct {
-	ID        string
-	Name      string
-	ViewUrl   string
-	CreatedAt string
+	ID          string
+	Name        string
+	ViewUrl     string
+	DownloadUrl string
+	CreatedAt   string
 }
 
 func OverviewFromExports(csrf string, ex []export.Export) interface{} {
@@ -55,10 +56,11 @@ func OverviewFromExports(csrf string, ex []export.Export) interface{} {
 		}
 
 		fs.Exports = append(fs.Exports, ExportData{
-			ID:        e.ID.String(),
-			Name:      e.Name.String(),
-			CreatedAt: e.CreatedAt.Format("15:04:05 02-01-2006"),
-			ViewUrl:   fmt.Sprintf("/view?d=%s", base64.URLEncoding.EncodeToString(gzipBuffer.Bytes())),
+			ID:          e.ID.String(),
+			Name:        e.Name.String(),
+			CreatedAt:   e.CreatedAt.Format("15:04:05 02-01-2006"),
+			ViewUrl:     fmt.Sprintf("/view?d=%s", base64.URLEncoding.EncodeToString(gzipBuffer.Bytes())),
+			DownloadUrl: fmt.Sprintf("/download?d=%s", base64.URLEncoding.EncodeToString(gzipBuffer.Bytes())),
 		})
 	}
 

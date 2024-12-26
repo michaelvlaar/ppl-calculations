@@ -1,10 +1,11 @@
+
+
 flatpickr("#trip-duration", {
     enableTime: true,
     noCalendar: true,
     dateFormat: "H:i",
     time_24hr: true,
     inline: true,
-    defaultDate: "{{ if .TripDuration }}{{ .TripDuration }}{{ else }}01:00{{ end }}"
 });
 
 flatpickr("#alternate-duration", {
@@ -13,7 +14,6 @@ flatpickr("#alternate-duration", {
     dateFormat: "H:i",
     time_24hr: true,
     inline: true,
-    defaultDate: "{{ if .AlternateDuration }}{{ .AlternateDuration }}{{ else }}00:30{{ end }}"
 });
 
 htmx.on('htmx:beforeHistorySave', function() {

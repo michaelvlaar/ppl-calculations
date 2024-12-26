@@ -14,8 +14,8 @@
         </div>
 
         <div class="mt-4 flex items-center justify-between">
-            <div hx-on:click="document.getElementById('stepper-back-stats').click()"
-                   class="cursor-pointer text-center mr-1 w-full bg-gray-200 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Vorige</div>
+            <div hx-trigger="click" hx-get="/stats" hx-target="#content-container" hx-swap="outerHTML"
+                 class="cursor-pointer mr-1 text-center w-full bg-gray-200 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Vorige</div>
             <input type="submit" value="Opslaan"
                class="cursor-pointer text-center w-full bg-indigo-600 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" />
         </div>

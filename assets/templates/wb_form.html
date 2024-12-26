@@ -78,7 +78,7 @@
         </div>
 
         <div class="mt-4 flex items-center justify-between">
-            <div id="btn-wb-back" hx-on:click="document.getElementById('btn-back-main').click()"
+            <div hx-trigger="click" hx-get="/" hx-target="#content-container" hx-swap="outerHTML"
                  class="cursor-pointer mr-1 text-center w-full bg-gray-200 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Vorige</div>
             <input name="submit" value="Volgende" type="submit"
                    class="cursor-pointer w-full bg-indigo-600 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">

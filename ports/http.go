@@ -328,6 +328,7 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 			}
 
 			w.Header().Set("HX-Push-Url", "/fuel")
+
 			if err = tmpl.ExecuteTemplate(w, "fuel_form", models.FuelFromFuelSheet(csrf.Token(r), fuelSheet)); err != nil {
 				logrus.WithError(err).Error("executing template")
 			}
@@ -472,7 +473,7 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 				return
 			}
 
-			if r.Header.Get("HX-Request") == "true" && r.URL.Query().Get("submit") == "fuel" {
+			if r.Header.Get("HX-Request") == "true" {
 				w.Header().Set("HX-Push-Url", "/fuel")
 				if err = tmpl.ExecuteTemplate(w, "fuel_form", models.FuelFromFuelSheet(csrf.Token(r), fuelSheet)); err != nil {
 					logrus.WithError(err).Error("executing template")
@@ -587,7 +588,7 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 				return
 			}
 
-			if r.Header.Get("HX-Request") == "true" && r.URL.Query().Get("submit") == "stats" {
+			if r.Header.Get("HX-Request") == "true" {
 				w.Header().Set("HX-Push-Url", "/stats")
 				if err = tmpl.ExecuteTemplate(w, "calculations_form", models.StatsFromStatsSheet(csrf.Token(r), statsSheet)); err != nil {
 					logrus.WithError(err).Error("executing template")
@@ -679,15 +680,34 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 					return
 				}
 
-				buf := bytes.NewBufferString(string(b))
-				dec := gob.NewDecoder(buf)
-				var ex export.Export
-				if err := dec.Decode(&ex); err != nil {
+				gzReader, err := gzip.NewReader(bytes.NewReader(b))
+				if err != nil {
 					w.WriteHeader(http.StatusBadRequest)
 					return
 				}
 
-				pdf, err := app.Queries.PdfExport.Handle(r.Context(), ex)
+				gzBytes, err := io.ReadAll(gzReader)
+				if err != nil {
+					w.WriteHeader(http.StatusBadRequest)
+					return
+				}
+
+				err = gzReader.Close()
+				if err != nil {
+					w.WriteHeader(http.StatusBadRequest)
+					return
+				}
+
+				buf := bytes.NewBuffer(gzBytes)
+				dec := gob.NewDecoder(buf)
+
+				var e export.Export
+				if err := dec.Decode(&e); err != nil {
+					w.WriteHeader(http.StatusBadRequest)
+					return
+				}
+
+				pdf, err := app.Queries.PdfExport.Handle(r.Context(), e)
 				if err != nil {
 					logrus.WithError(err).Error("creating pdf")
 					w.WriteHeader(http.StatusInternalServerError)
@@ -695,7 +715,7 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 				}
 
 				w.Header().Set("Content-Type", "application/pdf")
-				w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", ex.Name.String()))
+				w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", e.Name.String()))
 
 				_, err = io.Copy(w, pdf)
 				if err != nil {
@@ -836,7 +856,7 @@ func SecurityHeaders(handler http.Handler) http.Handler {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Referrer-Policy", "same-origin")
 		w.Header().Set("Permissions-Policy", "accelerometer=(), autoplay=(), camera=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), keyboard-map=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(), usb=(), web-share=(), xr-spatial-tracking=()")
-		w.Header().Set("Content-Security-Policy", "script-src 'self' 'unsafe-eval' 'unsafe-inline'")
+		w.Header().Set("Content-Security-Policy", "script-src 'self'")
 
 		handler.ServeHTTP(w, r)
 	})
