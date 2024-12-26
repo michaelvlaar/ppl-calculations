@@ -16,38 +16,42 @@ import (
 
 const (
 	CookiePrefixSecure = "__Secure-"
-)
-
-var (
-	CookieStateName  = "state"
-	CookieExportName = "e_"
+	CookieStateName    = "state"
+	CookieExportName   = "e_"
 )
 
 func NewCookieStateService(w http.ResponseWriter, r *http.Request) (state.Service, error) {
-	if os.Getenv("SECURE_COOKIE") == "true" {
-		CookieStateName = CookiePrefixSecure + CookieStateName
-		CookieExportName = CookiePrefixSecure + CookieExportName
-	}
-
 	store := sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 	store.Options.SameSite = http.SameSiteStrictMode
 	store.Options.Path = "/"
 	store.Options.Secure = true
 	store.Options.HttpOnly = true
 
+	cookieStateName := CookieStateName
+	cookieExportName := CookieExportName
+
+	if os.Getenv("SECURE_COOKIE") == "true" {
+		cookieStateName = CookiePrefixSecure + cookieStateName
+		cookieExportName = CookiePrefixSecure + cookieExportName
+	}
+
 	return &CookieStateService{
-		r:     r,
-		store: store,
-		w:     w,
+		r:                r,
+		store:            store,
+		w:                w,
+		cookieStateName:  cookieStateName,
+		cookieExportName: cookieExportName,
 	}, nil
 }
 
 type CookieStateService struct {
-	r     *http.Request
-	w     http.ResponseWriter
-	store *sessions.CookieStore
-	s     *state.State
-	e     []export.Export
+	r                *http.Request
+	w                http.ResponseWriter
+	store            *sessions.CookieStore
+	s                *state.State
+	e                []export.Export
+	cookieStateName  string
+	cookieExportName string
 }
 
 func (service *CookieStateService) State(_ context.Context) (*state.State, error) {
@@ -55,7 +59,7 @@ func (service *CookieStateService) State(_ context.Context) (*state.State, error
 		return service.s, nil
 	}
 
-	c, _ := service.store.Get(service.r, CookieStateName)
+	c, _ := service.store.Get(service.r, service.cookieStateName)
 	jsonState, ok := c.Values["state"]
 	if ok {
 		return service.newFromString(jsonState.(string))
@@ -83,7 +87,7 @@ func (service *CookieStateService) SetState(_ context.Context, s *state.State) e
 
 	service.s = s
 
-	session, _ := service.store.Get(service.r, CookieStateName)
+	session, _ := service.store.Get(service.r, service.cookieStateName)
 	session.Values["state"] = string(jsonState)
 
 	return service.store.Save(service.r, service.w, session)
@@ -105,7 +109,7 @@ func (service *CookieStateService) SetExport(ctx context.Context, e export.Expor
 		return err
 	}
 
-	session, _ := service.store.Get(service.r, CookieExportName+e.ID.String())
+	session, _ := service.store.Get(service.r, service.cookieExportName+e.ID.String())
 	session.Values["export"] = buf.Bytes()
 	session.Options.MaxAge = 60 * 60 * 24 * 30 * 6
 	session.Options.HttpOnly = true
@@ -132,7 +136,7 @@ func (service *CookieStateService) DeleteExport(ctx context.Context, e export.ID
 		service.e = slices.Delete(service.e, index, index+1)
 	}
 
-	session, _ := service.store.Get(service.r, CookieExportName+e.String())
+	session, _ := service.store.Get(service.r, service.cookieExportName+e.String())
 	session.Options.MaxAge = -1
 	return service.store.Save(service.r, service.w, session)
 }
@@ -144,7 +148,7 @@ func (service *CookieStateService) Exports(_ context.Context) ([]export.Export, 
 
 	var exports []export.Export
 	for _, c := range service.r.Cookies() {
-		if strings.HasPrefix(c.Name, CookieExportName) {
+		if strings.HasPrefix(c.Name, service.cookieExportName) {
 			session, _ := service.store.Get(service.r, c.Name)
 			exBytes, ok := session.Values["export"]
 			if !ok {
@@ -167,7 +171,7 @@ func (service *CookieStateService) Exports(_ context.Context) ([]export.Export, 
 }
 
 func (service *CookieStateService) Export(_ context.Context, id export.ID) (*export.Export, error) {
-	session, _ := service.store.Get(service.r, CookieExportName+id.String())
+	session, _ := service.store.Get(service.r, service.cookieExportName+id.String())
 	exBytes, ok := session.Values["export"]
 	if !ok {
 		return nil, nil
