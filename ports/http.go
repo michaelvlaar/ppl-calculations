@@ -798,7 +798,12 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 		}
 	})
 
-	CSRF := csrf.Protect([]byte(os.Getenv("CSRF_KEY")), csrf.CookieName("__Secure-csrf"), csrf.SameSite(csrf.SameSiteStrictMode), csrf.Path("/"), csrf.HttpOnly(true))
+	cookieName := "csrf"
+	if os.Getenv("SECURE_COOKIE") == "true" {
+		cookieName = "__Secure-" + cookieName
+	}
+
+	CSRF := csrf.Protect([]byte(os.Getenv("CSRF_KEY")), csrf.CookieName(cookieName), csrf.SameSite(csrf.SameSiteStrictMode), csrf.Path("/"), csrf.HttpOnly(true))
 	server := &http.Server{
 		Addr:    ":" + os.Getenv("PORT"),
 		Handler: SecurityHeaders(CSRF(mux)),

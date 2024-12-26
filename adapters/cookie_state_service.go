@@ -15,15 +15,25 @@ import (
 )
 
 const (
-	CookieStateName  = "__Secure-state"
-	CookieExportName = "__Secure-e_"
+	CookiePrefixSecure = "__Secure-"
+)
+
+var (
+	CookieStateName  = "state"
+	CookieExportName = "e_"
 )
 
 func NewCookieStateService(w http.ResponseWriter, r *http.Request) (state.Service, error) {
+	if os.Getenv("SECURE_COOKIE") == "true" {
+		CookieStateName = CookiePrefixSecure + CookieStateName
+		CookieExportName = CookiePrefixSecure + CookieExportName
+	}
+
 	store := sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 	store.Options.SameSite = http.SameSiteStrictMode
 	store.Options.Path = "/"
 	store.Options.Secure = true
+	store.Options.HttpOnly = true
 
 	return &CookieStateService{
 		r:     r,
