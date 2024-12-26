@@ -69,6 +69,12 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 	}
 	mux.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.FS(cssFs))))
 
+	imagesFs, err := fs.Sub(assets, "assets/images")
+	if err != nil {
+		log.Fatalf("Fout bij het parsen van images: %v", err)
+	}
+	mux.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.FS(imagesFs))))
+
 	jsFs, err := fs.Sub(assets, "assets/js")
 	if err != nil {
 		log.Fatalf("Fout bij het parsen van css: %v", err)
