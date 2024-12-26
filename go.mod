@@ -9,7 +9,7 @@ require (
 	github.com/gorilla/csrf v1.7.2
 	github.com/gorilla/sessions v1.4.0
 	github.com/sirupsen/logrus v1.9.3
-	github.com/tdewolff/canvas v0.0.0-20241202004848-95f003d9bc50
+	github.com/tdewolff/canvas v0.0.0-20241223212311-a4892b47d753
 	gonum.org/v1/plot v0.15.0
 )
 
