@@ -9,7 +9,7 @@ require (
 	github.com/gorilla/csrf v1.7.2
 	github.com/gorilla/sessions v1.4.0
 	github.com/sirupsen/logrus v1.9.3
-	github.com/tdewolff/canvas v0.0.0-20241223212311-a4892b47d753
+	github.com/tdewolff/canvas v0.0.0-20250112102011-cd6e9ba5e719
 	gonum.org/v1/plot v0.15.0
 )
 
@@ -32,12 +32,12 @@ require (
 	github.com/kolesa-team/go-webp v1.0.4 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/tdewolff/font v0.0.0-20241125190050-d899fdc808fc // indirect
-	github.com/tdewolff/minify/v2 v2.21.2 // indirect
+	github.com/tdewolff/minify/v2 v2.21.3 // indirect
 	github.com/tdewolff/parse/v2 v2.7.19 // indirect
 	github.com/wcharczuk/go-chart/v2 v2.1.2 // indirect
-	golang.org/x/image v0.22.0 // indirect
-	golang.org/x/net v0.31.0 // indirect
-	golang.org/x/sys v0.27.0 // indirect
-	golang.org/x/text v0.20.0 // indirect
+	golang.org/x/image v0.23.0 // indirect
+	golang.org/x/net v0.34.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	star-tex.org/x/tex v0.5.0 // indirect
 )
