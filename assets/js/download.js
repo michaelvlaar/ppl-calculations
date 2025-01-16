@@ -22,6 +22,10 @@ function hideLoadingIndicator() {
     document.body.style.userSelect = '';
 }
 
+function sanitizeFilename(filename) {
+    return filename.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+}
+
 function handleDownloadClick(event) {
     const downloadUrl = event.target.getAttribute('data-download-url');
     if (!downloadUrl) {
@@ -39,7 +43,7 @@ function handleDownloadClick(event) {
             const blobUrl = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = blobUrl;
-            a.download = event.target.getAttribute('data-download-name');
+            a.setAttribute("download", sanitizeFilename(event.target.getAttribute('data-download-name')));
             a.style.display = 'none';
             document.body.appendChild(a);
             a.click();
