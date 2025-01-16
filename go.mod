@@ -36,8 +36,8 @@ require (
 	github.com/tdewolff/parse/v2 v2.7.19 // indirect
 	github.com/wcharczuk/go-chart/v2 v2.1.2 // indirect
 	golang.org/x/image v0.22.0 // indirect
-	golang.org/x/net v0.31.0 // indirect
-	golang.org/x/sys v0.27.0 // indirect
-	golang.org/x/text v0.20.0 // indirect
+	golang.org/x/net v0.33.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	star-tex.org/x/tex v0.5.0 // indirect
 )
