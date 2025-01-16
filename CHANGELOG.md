@@ -1,4 +1,16 @@
 
+<a name="v1.2.10"></a>
+## [v1.2.10](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.9...v1.2.10) (2024-12-26)
+
+### ♻️ Code Refactoring
+
+* removed fontawesome and added github logo
+
+### 🧰 Maintenance
+
+* update changelog for 1.2.9
+
+
 <a name="v1.2.9"></a>
 ## [v1.2.9](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.8...v1.2.9) (2024-12-26)
 
