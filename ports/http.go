@@ -73,6 +73,7 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 	if err != nil {
 		log.Fatalf("Fout bij het parsen van images: %v", err)
 	}
+
 	mux.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.FS(imagesFs))))
 
 	jsFs, err := fs.Sub(assets, "assets/js")
@@ -86,6 +87,10 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 		log.Fatalf("Fout bij het parsen van css: %v", err)
 	}
 	mux.Handle("/fonts/", http.StripPrefix("/fonts/", http.FileServer(http.FS(fontFs))))
+
+	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	})
 
 	mux.HandleFunc("/aquila-wb", func(w http.ResponseWriter, r *http.Request) {
 		urlTakeOffMass := r.URL.Query().Get("takeoff-mass")

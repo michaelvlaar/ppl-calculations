@@ -17,14 +17,29 @@ spec:
         linkerd.io/inject: "enabled"
     spec:
       serviceAccountName: ppl-calculations
+      securityContext:
+        runAsUser: 10001
+        runAsGroup: 30001
+        fsGroup: 30001
+      volumes:
+        - name: cache-folder
+          emptyDir: {}
       containers:
         - name: ppl-calculations
-          image: ghcr.io/michaelvlaar/ppl-calculations:v1.2.10
+          image: ghcr.io/michaelvlaar/ppl-calculations:v1.2.11
+          imagePullPolicy: Always
+          securityContext:
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - mountPath: /cache/
+              name: cache-folder
           env:
             - name: PORT
               value: "8080"
             - name: SECURE_COOKIE
               value: "true"
+            - name: TMP_PATH
+              value: "/cache/"
             - name: CSRF_KEY
               valueFrom:
                 secretKeyRef:
@@ -38,6 +53,12 @@ spec:
           ports:
             - containerPort: 8080
               name: http
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /healthz
+            initialDelaySeconds: 3
+            periodSeconds: 3
           resources:
             limits:
               memory: "512Mi"
