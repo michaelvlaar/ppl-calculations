@@ -1,4 +1,14 @@
 
+<a name="v1.2.11"></a>
+## [v1.2.11](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.10...v1.2.11) (2025-01-16)
+
+### 🧰 Maintenance
+
+* sanitized download url parameters to improve security
+* updated dependencies to fix known security issues
+* update changelog for 1.2.10
+
+
 <a name="v1.2.10"></a>
 ## [v1.2.10](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.9...v1.2.10) (2024-12-26)
 
