@@ -1,4 +1,13 @@
 
+<a name="v1.2.12"></a>
+## [v1.2.12](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.11...v1.2.12) (2025-01-16)
+
+### 🧰 Maintenance
+
+* improved kubernetes deployment security
+* update changelog for 1.2.11
+
+
 <a name="v1.2.11"></a>
 ## [v1.2.11](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.10...v1.2.11) (2025-01-16)
 
