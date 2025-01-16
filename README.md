@@ -1,6 +1,7 @@
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://acm.vlaar.it/)
 [![Conventional Commits](https://img.shields.io/badge/commits-conventional-blue)](https://www.conventionalcommits.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmichaelvlaar%2Fppl-calculations.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmichaelvlaar%2Fppl-calculations?ref=badge_shield)
 
 # PPL Calculations
 
@@ -116,3 +117,6 @@ Please ensure your commits follow the [Conventional Commits](https://www.convent
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmichaelvlaar%2Fppl-calculations.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmichaelvlaar%2Fppl-calculations?ref=badge_large)
