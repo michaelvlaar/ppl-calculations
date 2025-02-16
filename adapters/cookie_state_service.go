@@ -114,7 +114,7 @@ func (service *CookieStateService) SetExport(ctx context.Context, e export.Expor
 	session.Options.MaxAge = 60 * 60 * 24 * 30 * 6
 	session.Options.HttpOnly = true
 	session.Options.Secure = true
-	session.Options.SameSite = http.SameSiteStrictMode
+	session.Options.SameSite = http.SameSiteLaxMode
 	session.Options.Path = "/"
 
 	return service.store.Save(service.r, service.w, session)
