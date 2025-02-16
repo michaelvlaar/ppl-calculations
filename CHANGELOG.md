@@ -1,4 +1,16 @@
 
+<a name="v1.2.14"></a>
+## [v1.2.14](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.13...v1.2.14) (2025-02-16)
+
+### 🐛 Bug Fixes
+
+* recent calculations changed to SameSite LAX
+
+### 🧰 Maintenance
+
+* update changelog for 1.2.13
+
+
 <a name="v1.2.13"></a>
 ## [v1.2.13](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.12...v1.2.13) (2025-01-16)
 
