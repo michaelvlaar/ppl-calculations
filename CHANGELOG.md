@@ -1,4 +1,19 @@
 
+<a name="v1.2.15"></a>
+## [v1.2.15](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.14...v1.2.15) (2025-02-19)
+
+### ⚡️ Performance Improvements
+
+* tailwindcss 4.0 and tree shaking
+* minimized css and improved caching
+
+### 🧰 Maintenance
+
+* updated build script
+* removed unused folder
+* update changelog for 1.2.14
+
+
 <a name="v1.2.14"></a>
 ## [v1.2.14](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.13...v1.2.14) (2025-02-16)
 
