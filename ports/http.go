@@ -41,6 +41,13 @@ func derefString(s *string) string {
 	return *s
 }
 
+func cacheHeaders(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "public, max-age=86400")
+		h.ServeHTTP(w, r)
+	})
+}
+
 func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Application, assets fs.FS, version string) {
 	mux := http.NewServeMux()
 
@@ -67,26 +74,26 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 	if err != nil {
 		log.Fatalf("Fout bij het parsen van css: %v", err)
 	}
-	mux.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.FS(cssFs))))
+	mux.Handle("/css/", cacheHeaders(http.StripPrefix("/css/", http.FileServer(http.FS(cssFs)))))
 
 	imagesFs, err := fs.Sub(assets, "assets/images")
 	if err != nil {
 		log.Fatalf("Fout bij het parsen van images: %v", err)
 	}
 
-	mux.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.FS(imagesFs))))
+	mux.Handle("/images/", cacheHeaders(http.StripPrefix("/images/", http.FileServer(http.FS(imagesFs)))))
 
 	jsFs, err := fs.Sub(assets, "assets/js")
 	if err != nil {
 		log.Fatalf("Fout bij het parsen van css: %v", err)
 	}
-	mux.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.FS(jsFs))))
+	mux.Handle("/js/", http.StripPrefix("/js/", cacheHeaders(http.FileServer(http.FS(jsFs)))))
 
 	fontFs, err := fs.Sub(assets, "assets/fonts")
 	if err != nil {
 		log.Fatalf("Fout bij het parsen van css: %v", err)
 	}
-	mux.Handle("/fonts/", http.StripPrefix("/fonts/", http.FileServer(http.FS(fontFs))))
+	mux.Handle("/fonts/", http.StripPrefix("/fonts/", cacheHeaders(http.FileServer(http.FS(fontFs)))))
 
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)

@@ -86,6 +86,11 @@ Once the application is running, navigate to http://localhost:8080 (or the appro
 ## Changelog
 For a detailed list of changes, see the [CHANGELOG](CHANGELOG.md).
 
+## Minification
+```bash
+npx tailwindcss -i ./assets/css/style.css -o ./assets/css/style.min.css -m
+```
+
 ## Contributing
 
 PPL Calculations is open to contributions from the community. To contribute:
@@ -111,6 +116,7 @@ Please ensure your commits follow the [Conventional Commits](https://www.convent
 
 - **Backend:** Go (HTTP server)
 - **Frontend:** HTMX
+- **CSS / Minification:** tailwindcss cli
 - **Changelog Generation:** git-chglog
 - **Deployment:** Kubernetes with Kustomize
 - **Design Patterns:** CQRS and Domain-Driven Design (DDD)
