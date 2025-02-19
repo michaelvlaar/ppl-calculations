@@ -1,9 +1,9 @@
 function showLoadingIndicator() {
     const loadingIndicator = document.createElement('div');
     loadingIndicator.id = 'loading-indicator';
-    loadingIndicator.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 cursor-not-allowed select-none';
+    loadingIndicator.className = 'fixed inset-0 flex items-center justify-center bg-black/50 cursor-not-allowed select-none z-100';
     loadingIndicator.innerHTML = `
-      <div class="bg-white p-10 rounded shadow-md flex items-center text-xl space-x-4">
+      <div class="bg-white p-10 rounded-sm shadow-md flex items-center text-xl space-x-4">
         <span class="text-gray-700">Download genereren...</span>
       </div>
     `;
