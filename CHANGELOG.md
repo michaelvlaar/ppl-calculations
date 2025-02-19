@@ -1,4 +1,12 @@
 
+<a name="v1.2.16"></a>
+## [v1.2.16](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.15...v1.2.16) (2025-02-19)
+
+### 🐛 Bug Fixes
+
+* TDR / LDR images now scale properly
+
+
 <a name="v1.2.15"></a>
 ## [v1.2.15](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.14...v1.2.15) (2025-02-19)
 
