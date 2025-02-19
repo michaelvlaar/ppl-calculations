@@ -41,7 +41,7 @@ jobs:
           git checkout master
           git pull origin master
           git add CHANGELOG.md
-          git commit -m "chore: update changelog for ${{ env.VERSION }}"
+          git commit -m "update changelog for ${{ env.VERSION }}"
           git push origin master
 
       - name: Set up Docker Buildx
