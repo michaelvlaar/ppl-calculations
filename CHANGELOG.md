@@ -1,4 +1,12 @@
 
+<a name="v1.2.17"></a>
+## [v1.2.17](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.16...v1.2.17) (2025-02-20)
+
+### ♻️ Code Refactoring
+
+* docker compose development container. Improved templating engine.
+
+
 <a name="v1.2.16"></a>
 ## [v1.2.16](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.15...v1.2.16) (2025-02-19)
 
