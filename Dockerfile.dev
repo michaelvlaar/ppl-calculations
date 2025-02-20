@@ -1,0 +1,33 @@
+FROM debian:bookworm
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    ca-certificates \
+    build-essential \
+    git \
+    nodejs \
+    npm \
+    librsvg2-bin \
+    texlive-xetex \
+    texlive-fonts-recommended \
+    texlive-fonts-extra \
+    fonts-roboto \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+ARG GO_VERSION=1.23.0
+RUN wget https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz \
+    && tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz \
+    && rm go${GO_VERSION}.linux-amd64.tar.gz
+ENV PATH="/usr/local/go/bin:${PATH}"
+
+RUN go install github.com/air-verse/air@latest \
+    && go install github.com/a-h/templ/cmd/templ@latest \
+    && npm install -g tailwindcss @tailwindcss/cli
+
+WORKDIR /app
+
+CMD ["/root/go/bin/air"]

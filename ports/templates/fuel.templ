@@ -1,0 +1,110 @@
+package templates
+
+import "ppl-calculations/ports/templates/models"
+
+templ FuelMaxFuel(fuelOption models.FuelOption) {
+    <div class="mb-4 flex w-full flex-col" id="max-fuel-container">
+        <div class="uppercase block text-gray-700 font-bold mb-2">Beschikbare Brandstof</div>
+        <div class="flex items-center mb-2">
+            <input type="checkbox" id="max-fuel" name="fuel_max" hx-target="#max-fuel-container" hx-swap="outerHTML"
+                value="max" checked?={ fuelOption.FuelMax }
+                class="h-5 w-5 text-white bg-indigo-600 border-none rounded-sm focus:ring-indigo-500"
+                hx-option="input[name=fuel_max]"
+                if !fuelOption.FuelMax {
+                    hx-include="select[name=fuel_unit],input[name=fuel_volume]"
+                } else {
+                    hx-include="select[name=fuel_unit]"
+                }
+                hx-get="/fuel-option" hx-trigger="change, change from:#fuel-quantity-type">
+
+            <label for="max-fuel" class="ml-2 block text-gray-700 font-bold">Aanvullen tot
+                maximum</label>
+        </div>
+
+        if !fuelOption.FuelMax {
+            <input required min="0" step=".1"
+                if fuelOption.FuelVolumeUnit == "gallon" {
+                    max="28.95"
+                } else {
+                    max="109.6"
+                }
+                class="shadow-sm appearance-none border rounded-sm w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline"
+                if fuelOption.FuelVolume != nil {
+                    value={ *fuelOption.FuelVolume }
+                }
+                type="number" name="fuel_volume" placeholder="Totaal brandstof" />
+        }
+    </div>
+}
+
+templ Fuel(fuel models.Fuel) {
+    <div class="w-full flex flex-col" id="content-container">
+        @Stepper(StepperStepFuel)
+        <form class="w-full mb-2 flex flex-col" id="main-form" hx-post="/fuel" hx-target="#content-container"
+              hx-swap="outerHTML">
+            <div class="flex flex-col">
+                <div class="mb-4 flex w-full flex-col">
+                    <label for="fuel-type" class="uppercase block text-gray-700 font-bold mb-2">Brandstof Type</label>
+                    <select aria-label="Type brandstof" id="fuel-type" name="fuel_type"
+                            class="custom-select shadow-sm appearance-none border rounded-sm px-3 py-2 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline"
+                            required>
+                        <option value="mogas" selected?={ fuel.FuelType != "avgas" }>Mogas</option>
+                        <option value="avgas" selected?={ fuel.FuelType == "avgas" }>Avgas</option>
+                    </select>
+                </div>
+                <div class="mb-4 flex w-full flex-col">
+                    <label for="fuel-quantity-type" class="uppercase block text-gray-700 font-bold mb-2">Brandstof
+                        Eenheid</label>
+                    <select aria-label="Brandstof eenheid" id="fuel-quantity-type" name="fuel_unit"
+                            class="custom-select shadow-sm appearance-none border rounded-sm py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline"
+                            required>
+                        <option value="liter" selected?={ fuel.FuelVolumeUnit != "gallon" }>Liters</option>
+                        <option value="gallon" selected?={ fuel.FuelVolumeUnit == "gallon" }>Gallon</option>
+                    </select>
+                </div>
+                <div class="mb-4 flex w-full flex-col">
+                    <label for="trip-duration" class="uppercase block text-gray-700 font-bold mb-2">Reisduur (HHMM)</label>
+                    <input required type="text" name="trip_duration"
+                       class="shadow-sm appearance-none border rounded-sm w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline"
+                       placeholder="HHMM"
+                       maxlength="4"
+                       minlength="4"
+                       inputmode="numeric"
+                       pattern="[0-9]{4}"
+                       if fuel.TripDuration != nil {
+                            value={ *fuel.TripDuration }
+                       } else {
+                            value="0100"
+                       }>
+                </div>
+                <div class="mb-4 flex w-full flex-col">
+                    <label for="alternate-duration" class="uppercase block text-gray-700 font-bold mb-2">Reisduur alternatieve
+                        luchthaven (HHMM)</label>
+                    <input required type="text" name="alternate_duration"
+                        class="shadow-sm appearance-none border rounded-sm w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline"
+                        placeholder="HHMM"
+                        maxlength="4"
+                        minlength="4"
+                        inputmode="numeric"
+                        pattern="[0-9]{4}"
+                        if fuel.AlternateDuration != nil {
+                            value={ *fuel.AlternateDuration }
+                        } else {
+                            value="0030"
+                        }>
+                </div>
+                @FuelMaxFuel(models.FuelOption{
+                    FuelMax: fuel.FuelMax,
+                    FuelVolume: fuel.FuelVolume,
+                    FuelVolumeUnit: fuel.FuelVolumeUnit,
+                })
+            </div>
+            <div class="flex items-center justify-between">
+                <div hx-trigger="click" hx-get="/load" hx-target="#content-container" hx-swap="outerHTML"
+                     class="cursor-pointer mr-1 text-center w-full bg-gray-200 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-sm focus:outline-hidden focus:shadow-outline">Vorige</div>
+                <input id="next-button" name="submit" value="Volgende" type="submit"
+                       class="cursor-pointer w-full bg-indigo-600 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded-sm focus:outline-hidden focus:shadow-outline">
+            </div>
+        </form>
+    </div>
+}

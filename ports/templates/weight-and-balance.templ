@@ -1,0 +1,139 @@
+package templates
+
+import "ppl-calculations/ports/templates/models"
+
+templ WeightAndBalanceWindOption(weight models.WindOption) {
+    <div class="mb-4" id="wind-option">
+        <label for="wind" class="uppercase block text-gray-700 font-bold mb-2">Wind (kts)</label>
+        <div class="flex">
+            <input type="number" id="wind" min="0"
+                if equalsPointer(weight.WindDirection, "tailwind") {
+                    max="10"
+                } else {
+                    max="20"
+                }
+                placeholder="Wind (kts)" id="wind" name="wind" required
+                if weight.Wind != nil {
+                    value={ *weight.Wind }
+                }
+                class="shadow-sm mr-2 appearance-none border rounded-sm w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline">
+            <select aria-label="Windrichting" id="wind-direction" hx-get="/wind-option" hx-trigger="change" hx-target="#wind-option" hx-include="[name='wind'],[name='wind_direction']" name="wind_direction" required class="custom-select shadow-sm appearance-none border rounded-sm w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline cursor-pointer">
+                <option value="headwind" selected?={ !equalsPointer(weight.WindDirection, "tailwind") }>Tegenwind</option>
+                <option value="tailwind" selected?={ equalsPointer(weight.WindDirection, "tailwind") }>Rugwind</option>
+            </select>
+        </div>
+    </div>
+}
+
+templ WeightAndBalanceForm(weight models.Weight) {
+    <div class="w-full flex flex-col" id="content-container">
+        @Stepper(StepperStepWeight)
+        <form class="w-full mb-2 flex flex-col" id="main-form" hx-post="/load" hx-target="#content-container" hx-swap="outerHTML show:top">
+            <div class="flex flex-col sm:flex-row">
+                <div class="w-full flex flex-col sm:mr-2">
+                    <div class="mb-4">
+                        <label for="callsign" class="uppercase block text-gray-700 font-bold mb-2">Vliegtuig</label>
+                        <select
+                            id="callsign"
+                            name="callsign"
+                            class="custom-select shadow-sm appearance-none border rounded-sm w-full py-1 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline cursor-pointer"
+                            required>
+                            <option value="PHDHA" selected?={ equalsPointer(weight.CallSign, "PHDHA") }>PHDHA</option>
+                            <option value="PHDHB" selected?={ equalsPointer(weight.CallSign, "PHDHB") }>PHDHB</option>
+                        </select>
+                    </div>
+                    <div class="flex w-full">
+                        <div class="mb-4 w-1/2 mr-1">
+                            <label for="piloot-gewicht" class="uppercase block text-gray-700 font-bold mb-2">Piloot
+                                (kg)</label>
+                            <input type="number" placeholder="Gewicht piloot in kg" min="0" id="piloot-gewicht"
+                                if weight.Pilot != nil {
+                                    value={ *weight.Pilot }
+                                }
+                                name="pilot"
+                                class="shadow-sm appearance-none border rounded-sm w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline"
+                                required></div>
+                        <div class="mb-4 w-1/2 ml-1">
+                            <label for="pilot-seat" class="uppercase block text-gray-700 font-bold mb-2">Stoel Positie</label>
+                            <select id="pilot-seat" name="pilot_seat"
+                                    class="custom-select shadow-sm appearance-none border rounded-sm w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline cursor-pointer"
+                                    required>
+                                <option value="b" selected?={ equalsPointer(weight.PilotSeat, "b") }>Achter</option>
+                                <option value="m" selected?={ equalsPointer(weight.PilotSeat, "m") }>Midden</option>
+                                <option value="f" selected?={ equalsPointer(weight.PilotSeat, "f") }>Voor</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="w-full flex">
+                        <div class="mb-4 w-1/2 mr-1">
+                            <label for="passagier-gewicht" class="uppercase block text-gray-700 font-bold mb-2">Passagier
+                                (kg)</label>
+                            <input type="number" min="0" placeholder="Gewicht passagier in kg" id="passagier-gewicht"
+                                 if weight.Passenger != nil {
+                                    value={ *weight.Passenger }
+                                 }
+                                 name="passenger"
+                                 class="shadow-sm appearance-none border rounded-sm w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline"></div>
+                        <div class="mb-4 w-1/2 ml-1"> <label for="passenger-seat"
+                                                             class="uppercase block text-gray-700 font-bold mb-2">Stoel Positie</label>
+                            <select id="passenger-seat" name="passenger_seat"
+                                    class="custom-select shadow-sm appearance-none border rounded-sm w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline cursor-pointer"
+                                    required>
+                                <option value="b" selected?={ equalsPointer(weight.PassengerSeat, "b") }>Achter</option>
+                                <option value="m" selected?={ equalsPointer(weight.PassengerSeat, "m") }>Midden</option>
+                                <option value="f" selected?={ equalsPointer(weight.PassengerSeat, "f") }>Voor</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="bagage-gewicht" class="uppercase block text-gray-700 font-bold mb-2">bagage (kg, max.
+                            40)</label>
+                        <input type="number" min="0" max="40" placeholder="Gewicht bagage in kg" id="bagage-gewicht"
+                         if weight.Baggage != nil {
+                             value={ *weight.Baggage }
+                         }
+                         name="baggage"
+                         required
+                         class="shadow-sm appearance-none border rounded-sm w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline">
+                    </div>
+               </div>
+
+                <div class="w-full flex flex-col sm:ml-2">
+                    <div class="mb-4">
+                        <label for="oat" class="uppercase block text-gray-700 font-bold mb-2">Buitentemperatuur
+                            (&deg;C)</label>
+                        <input type="number" min="-30" max="40" placeholder="Buitentemperatuur in &deg;C" min="0" id="oat"
+                               name="oat"
+                               if weight.OutsideAirTemperature != nil {
+                                    value={ *weight.OutsideAirTemperature }
+                               }
+                               class="shadow-sm appearance-none border rounded-sm w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline"
+                               required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="pressure-altitude" class="uppercase block text-gray-700 font-bold mb-2">Drukhoogte
+                            (Voeten)</label>
+                        <input type="number" min="0" max="8000" placeholder="Drukhoogte in voeten" id="pressure-altitude"
+                            if weight.PressureAltitude != nil {
+                                value={ *weight.PressureAltitude }
+                            }
+                            name="pressure_altitude"
+                            required
+                            class="shadow-sm appearance-none border rounded-sm w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline">
+                    </div>
+
+                    @WeightAndBalanceWindOption(models.WindOption{
+                        Wind: weight.Wind,
+                        WindDirection: weight.WindDirection,
+                    })
+                </div>
+            </div>
+            <div class="mt-4 flex items-center justify-between">
+                <div hx-trigger="click" hx-get="/" hx-target="#content-container" hx-swap="outerHTML"
+                     class="cursor-pointer mr-1 text-center w-full bg-gray-200 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-sm focus:outline-hidden focus:shadow-outline">Vorige</div>
+                <input name="submit" value="Volgende" type="submit"
+                       class="cursor-pointer w-full bg-indigo-600 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded-sm focus:outline-hidden focus:shadow-outline">
+            </div>
+        </form>
+    </div>
+}

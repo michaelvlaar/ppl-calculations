@@ -1,0 +1,53 @@
+package templates
+
+import "ppl-calculations/ports/templates/models"
+
+templ OverviewNoExports() {
+    <p class="text-gray-500 text-center col-span-full">Geen berekeningen gevonden.</p>
+}
+
+templ Overview(exports []models.ExportData) {
+    <div class="w-full flex flex-col space-y-4" id="content-container">
+        <div class="flex justify-between items-center">
+            <h2 class="text-2xl font-bold text-indigo-600">Recente</h2>
+            <a hx-get="/load" hx-target="#content-container" hx-swap="outerHTML scroll:top"
+               class="cursor-pointer inline-flex items-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition">
+                <span class="material-icons mr-2">add</span> Berekening
+            </a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            if len(exports) > 0 {
+                for _, export := range exports {
+                    <div class="relative p-4 bg-white shadow-md rounded-lg border border-gray-300 flex flex-col">
+                        <form hx-delete="/" hx-trigger="click" hx-swap="outerHTML" hx-target="closest div" hx-confirm="Weet u zeker dat u deze berekening wilt verwijderen?">
+                            <input type="hidden" name="id" value={ export.ID }>
+                            <button type="submit"
+                                    class="absolute top-2 right-2 text-gray-500 hover:text-red-500 focus:outline-hidden">
+                                <span class="material-icons text-xl">close</span>
+                            </button>
+                        </form>
+
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-indigo-700">{ export.Name }</h3>
+                            <p class="text-gray-600 text-sm">{ export.CreatedAt }</p>
+                        </div>
+
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <button hx-get={ export.ViewUrl } hx-target="#content-container" hx-push-url={ export.ViewUrl } hx-swap="outerHTML"
+                               class="flex-1 min-w-[120px] inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
+                                <span class="material-icons mr-2">open_in_new</span> Openen
+                            </button>
+
+                            <button data-download-url={ export.DownloadUrl } data-download-name={ export.Name + ".pdf" }
+                                    class="flex-1 min-w-[120px] inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
+                                <span class="material-icons mr-2">file_download</span> Download
+                            </button>
+                        </div>
+                    </div>
+                }
+            } else  {
+                @OverviewNoExports()
+            }
+        </div>
+    </div>
+}

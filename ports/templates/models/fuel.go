@@ -7,8 +7,6 @@ import (
 )
 
 type Fuel struct {
-	Base
-
 	FuelType          string
 	FuelVolumeUnit    string
 	TripDuration      *string
@@ -23,7 +21,7 @@ type FuelOption struct {
 	FuelMax        bool
 }
 
-func FuelOptionFromRequest(r *http.Request) interface{} {
+func FuelOptionFromRequest(r *http.Request) FuelOption {
 	fs := FuelOption{}
 
 	fs.FuelMax = r.URL.Query().Get("fuel_max") == "max"
@@ -33,12 +31,8 @@ func FuelOptionFromRequest(r *http.Request) interface{} {
 	return fs
 }
 
-func FuelFromFuelSheet(csrf string, s queries.FuelSheetResponse) interface{} {
+func FuelFromFuelSheet(s queries.FuelSheetResponse) Fuel {
 	fs := Fuel{
-		Base: Base{
-			Step: string(StepFuel),
-			CSRF: csrf,
-		},
 		FuelType:       "mogas",
 		FuelVolumeUnit: "liter",
 		FuelMax:        false,
@@ -61,11 +55,11 @@ func FuelFromFuelSheet(csrf string, s queries.FuelSheetResponse) interface{} {
 	}
 
 	if s.TripDuration != nil {
-		fs.TripDuration = StringPointer(fmt.Sprintf("%d:%d", int(s.TripDuration.Hours()), int(s.TripDuration.Minutes())%60))
+		fs.TripDuration = StringPointer(fmt.Sprintf("%02d%02d", int(s.TripDuration.Hours()), int(s.TripDuration.Minutes())%60))
 	}
 
 	if s.AlternateDuration != nil {
-		fs.AlternateDuration = StringPointer(fmt.Sprintf("%d:%d", int(s.AlternateDuration.Hours()), int(s.AlternateDuration.Minutes())%60))
+		fs.AlternateDuration = StringPointer(fmt.Sprintf("%02d%02d", int(s.AlternateDuration.Hours()), int(s.AlternateDuration.Minutes())%60))
 	}
 
 	return fs

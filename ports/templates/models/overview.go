@@ -24,14 +24,8 @@ type ExportData struct {
 	CreatedAt   string
 }
 
-func OverviewFromExports(csrf string, ex []export.Export) interface{} {
-	fs := Overview{
-		Base: Base{
-			Step: string(StepOverview),
-			CSRF: csrf,
-		},
-		Exports: []ExportData{},
-	}
+func OverviewFromExports(ex []export.Export) []ExportData {
+	exs := make([]ExportData, 0)
 
 	for _, e := range ex {
 		var buf bytes.Buffer
@@ -55,7 +49,7 @@ func OverviewFromExports(csrf string, ex []export.Export) interface{} {
 			continue
 		}
 
-		fs.Exports = append(fs.Exports, ExportData{
+		exs = append(exs, ExportData{
 			ID:          e.ID.String(),
 			Name:        e.Name.String(),
 			CreatedAt:   e.CreatedAt.Format("15:04:05 02-01-2006"),
@@ -64,5 +58,5 @@ func OverviewFromExports(csrf string, ex []export.Export) interface{} {
 		})
 	}
 
-	return fs
+	return exs
 }

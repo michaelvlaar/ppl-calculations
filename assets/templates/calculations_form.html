@@ -1,9 +1,0 @@
-{{ define "calculations_form" }}
-<div id="content-container" class="w-full flex flex-col">
-    {{ block "stepper" . }}{{ end }}
-    <form hx-post="/stats" id="main-form" hx-swap="outerHTML show:#content-container:top" hx-target="#content-container"
-          class="w-full flex flex-col">
-        {{ block "calculations" . }}{{ end }}
-    </form>
-</div>
-{{ end }}

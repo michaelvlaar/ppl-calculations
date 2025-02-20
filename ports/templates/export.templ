@@ -1,0 +1,28 @@
+package templates
+
+import "ppl-calculations/ports/templates/models"
+
+templ Export(export models.Export) {
+    <div id="content-container" class="w-full flex flex-col">
+        @Stepper(StepperStepExport)
+        <form hx-post="/export" hx-swap="outerHTML" hx-target="#content-container" id="main-form" class="w-full">
+            <div class="text-center mt-2">
+                <h1 class="text-2xl uppercase font-bold">Opslaan</h1>
+            </div>
+            <div class="mb-4 w-full mt-4">
+                <label for="export-name" class="uppercase block text-gray-700 font-bold mb-2">Document Referentie</label>
+                <input type="text" id="export-name" required
+                       value={ export.Name }
+                       pattern="[A-Za-z0-9 ]*"
+                       placeholder="Document referentie" name="name" class="shadow-sm appearance-none border rounded-sm w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline">
+            </div>
+
+            <div class="mt-4 flex items-center justify-between">
+                <div hx-trigger="click" hx-get="/stats" hx-target="#content-container" hx-swap="outerHTML"
+                     class="cursor-pointer mr-1 text-center w-full bg-gray-200 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-sm focus:outline-hidden focus:shadow-outline">Vorige</div>
+                <input type="submit" value="Opslaan"
+                   class="cursor-pointer text-center w-full bg-indigo-600 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded-sm focus:outline-hidden focus:shadow-outline" />
+            </div>
+        </form>
+    </div>
+}

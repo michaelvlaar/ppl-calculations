@@ -37,11 +37,10 @@ type View struct {
 	WeightAndBalanceLanding WeightAndBalanceState
 }
 
-func ViewFromExport(csrf string, statsSheet queries.StatsSheetResponse, e export.Export) interface{} {
+func ViewFromExport(statsSheet queries.StatsSheetResponse, e export.Export) View {
 	template := View{
 		Base: Base{
 			Step: string(StepView),
-			CSRF: csrf,
 		},
 		Name: e.Name.String(),
 		Date: e.CreatedAt.Format("15:04:05 02-01-2006"),

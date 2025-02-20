@@ -7,11 +7,10 @@ type Export struct {
 	Name string
 }
 
-func ExportFromExportSheet(csrf string, sheet queries.ExportSheetResponse) interface{} {
+func ExportFromExportSheet(sheet queries.ExportSheetResponse) Export {
 	template := Export{
 		Base: Base{
 			Step: string(StepExport),
-			CSRF: csrf,
 		},
 	}
 

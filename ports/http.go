@@ -10,15 +10,12 @@ import (
 	"fmt"
 	"github.com/gorilla/csrf"
 	"github.com/sirupsen/logrus"
-	"html/template"
 	"io"
 	"io/fs"
 	"log"
 	"net/http"
 	"os"
 	"ppl-calculations/adapters"
-	"ppl-calculations/adapters/templator/models"
-	"ppl-calculations/adapters/templator/parsing"
 	"ppl-calculations/app"
 	"ppl-calculations/app/commands"
 	"ppl-calculations/app/queries"
@@ -29,6 +26,9 @@ import (
 	"ppl-calculations/domain/temperature"
 	"ppl-calculations/domain/weight_balance"
 	"ppl-calculations/domain/wind"
+	"ppl-calculations/ports/templates"
+	"ppl-calculations/ports/templates/models"
+	"ppl-calculations/ports/templates/parsing"
 	"strconv"
 	"sync"
 	"time"
@@ -43,32 +43,24 @@ func derefString(s *string) string {
 
 func cacheHeaders(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "public, max-age=86400")
+		if os.Getenv("CACHE_DISABLED") != "true" {
+			w.Header().Set("Cache-Control", "public, max-age=86400")
+		}
 		h.ServeHTTP(w, r)
 	})
 }
 
+func cacheHeadersFunc(h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if os.Getenv("CACHE_DISABLED") != "true" {
+			w.Header().Set("Cache-Control", "public, max-age=86400")
+		}
+		h.ServeHTTP(w, r)
+	}
+}
+
 func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Application, assets fs.FS, version string) {
 	mux := http.NewServeMux()
-
-	templatesFS, err := fs.Sub(assets, "assets/templates")
-	if err != nil {
-		logrus.WithError(err).Fatal("cannot open asset templates")
-	}
-
-	tmpl, err := template.New("base").Funcs(template.FuncMap{
-		"derefString": derefString,
-		"version": func() string {
-			return version
-		},
-		"mod": func(i, j int) bool {
-			return i%j != 0
-		},
-	}).ParseFS(templatesFS, "*.html")
-
-	if err != nil {
-		logrus.WithError(err).Fatal("cannot parse asset templates")
-	}
 
 	cssFs, err := fs.Sub(assets, "assets/css")
 	if err != nil {
@@ -99,7 +91,73 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 		w.WriteHeader(http.StatusNoContent)
 	})
 
-	mux.HandleFunc("/aquila-wb", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+
+		stateService, err := adapters.NewCookieStateService(w, r)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		switch r.Method {
+		case http.MethodDelete:
+			if r.Header.Get("HX-Request") != "true" {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+
+			err := r.ParseForm()
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+
+			id, err := export.NewIDFromString(r.Form.Get("id"))
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+
+			if err = app.Commands.DeleteExportSheet.Handle(r.Context(), stateService, commands.DeleteExportSheetRequest{
+				ID: id,
+			}); err != nil {
+				logrus.WithError(err).Error("delete export")
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			ex, err := app.Queries.Exports.Handle(r.Context(), stateService)
+			if len(ex.Exports) == 0 {
+				if err = templates.OverviewNoExports().Render(r.Context(), w); err != nil {
+					logrus.WithError(err).Error("executing template")
+				}
+			}
+			return
+		case http.MethodGet:
+			respEx, err := app.Queries.Exports.Handle(r.Context(), stateService)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			tmpl := templates.Overview(models.OverviewFromExports(respEx.Exports))
+			if r.Header.Get("HX-Request") == "true" {
+				w.Header().Set("HX-Push-Url", "/")
+				if err = tmpl.Render(r.Context(), w); err != nil {
+					logrus.WithError(err).Error("executing template")
+				}
+			} else {
+				if err = templates.Index(tmpl).Render(r.Context(), w); err != nil {
+					logrus.WithError(err).Error("executing template")
+				}
+			}
+		default:
+			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		}
+	})
+
+	mux.HandleFunc("/aquila-wb", cacheHeadersFunc(func(w http.ResponseWriter, r *http.Request) {
 		urlTakeOffMass := r.URL.Query().Get("takeoff-mass")
 		urlTakeOffMassMoment := r.URL.Query().Get("takeoff-mass-moment")
 		urlLandingMass := r.URL.Query().Get("landing-mass")
@@ -161,9 +219,9 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 		if err != nil {
 			logrus.WithError(err).Error("writing chart")
 		}
-	})
+	}))
 
-	mux.HandleFunc("/aquila-tdr", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/aquila-tdr", cacheHeadersFunc(func(w http.ResponseWriter, r *http.Request) {
 		urlPa := r.URL.Query().Get("pressure_altitude")
 		urlOAT := r.URL.Query().Get("oat")
 		urlMTOW := r.URL.Query().Get("mtow")
@@ -231,9 +289,9 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 		if err != nil {
 			logrus.WithError(err).Error("writing chart")
 		}
-	})
+	}))
 
-	mux.HandleFunc("/aquila-ldr", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/aquila-ldr", cacheHeadersFunc(func(w http.ResponseWriter, r *http.Request) {
 		urlPa := r.URL.Query().Get("pressure_altitude")
 		urlOAT := r.URL.Query().Get("oat")
 		urlMTOW := r.URL.Query().Get("mtow")
@@ -301,7 +359,7 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 		if err != nil {
 			logrus.WithError(err).Error("writing chart")
 		}
-	})
+	}))
 
 	mux.HandleFunc("/load", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
@@ -347,7 +405,7 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 
 			w.Header().Set("HX-Push-Url", "/fuel")
 
-			if err = tmpl.ExecuteTemplate(w, "fuel_form", models.FuelFromFuelSheet(csrf.Token(r), fuelSheet)); err != nil {
+			if err = templates.Fuel(models.FuelFromFuelSheet(fuelSheet)).Render(r.Context(), w); err != nil {
 				logrus.WithError(err).Error("executing template")
 			}
 		case http.MethodGet:
@@ -357,79 +415,14 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-
+			templ := templates.WeightAndBalanceForm(models.WeightFromLoadSheet(csrf.Token(r), loadSheet))
 			if r.Header.Get("HX-Request") == "true" {
 				w.Header().Set("HX-Push-Url", "/load")
-				if err = tmpl.ExecuteTemplate(w, "wb_form", models.WeightFromLoadSheet(csrf.Token(r), loadSheet)); err != nil {
+				if err = templ.Render(r.Context(), w); err != nil {
 					logrus.WithError(err).Error("executing template")
 				}
 			} else {
-				if err = tmpl.ExecuteTemplate(w, "index.html", models.WeightFromLoadSheet(csrf.Token(r), loadSheet)); err != nil {
-					logrus.WithError(err).Error("executing template")
-				}
-			}
-		default:
-			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-		}
-	})
-
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html")
-
-		stateService, err := adapters.NewCookieStateService(w, r)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		switch r.Method {
-		case http.MethodDelete:
-			if r.Header.Get("HX-Request") != "true" {
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
-
-			err := r.ParseForm()
-			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
-
-			id, err := export.NewIDFromString(r.Form.Get("id"))
-			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
-
-			if err = app.Commands.DeleteExportSheet.Handle(r.Context(), stateService, commands.DeleteExportSheetRequest{
-				ID: id,
-			}); err != nil {
-				logrus.WithError(err).Error("delete export")
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			ex, err := app.Queries.Exports.Handle(r.Context(), stateService)
-			if len(ex.Exports) == 0 {
-				if err = tmpl.ExecuteTemplate(w, "no_items", nil); err != nil {
-					logrus.WithError(err).Error("executing template")
-				}
-			}
-			return
-		case http.MethodGet:
-			respEx, err := app.Queries.Exports.Handle(r.Context(), stateService)
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			if r.Header.Get("HX-Request") == "true" {
-				w.Header().Set("HX-Push-Url", "/")
-				if err = tmpl.ExecuteTemplate(w, "overview", models.OverviewFromExports(csrf.Token(r), respEx.Exports)); err != nil {
-					logrus.WithError(err).Error("executing template")
-				}
-			} else {
-				if err = tmpl.ExecuteTemplate(w, "index.html", models.OverviewFromExports(csrf.Token(r), respEx.Exports)); err != nil {
+				if err = templates.Index(templ).Render(r.Context(), w); err != nil {
 					logrus.WithError(err).Error("executing template")
 				}
 			}
@@ -481,23 +474,24 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 			}
 
 			w.Header().Set("HX-Push-Url", "/stats")
-			if err = tmpl.ExecuteTemplate(w, "calculations_form", models.StatsFromStatsSheet(csrf.Token(r), statsSheet)); err != nil {
+			if err = templates.CalculationsForm(models.StatsFromStatsSheet(statsSheet)).Render(r.Context(), w); err != nil {
 				logrus.WithError(err).Error("executing template")
 			}
 		case http.MethodGet:
 			fuelSheet, err := app.Queries.FuelSheet.Handle(r.Context(), stateService)
 			if err != nil {
-				http.Redirect(w, r, "/", http.StatusSeeOther)
+				http.Redirect(w, r, "/load", http.StatusSeeOther)
 				return
 			}
 
+			templ := templates.Fuel(models.FuelFromFuelSheet(fuelSheet))
 			if r.Header.Get("HX-Request") == "true" {
 				w.Header().Set("HX-Push-Url", "/fuel")
-				if err = tmpl.ExecuteTemplate(w, "fuel_form", models.FuelFromFuelSheet(csrf.Token(r), fuelSheet)); err != nil {
+				if err = templ.Render(r.Context(), w); err != nil {
 					logrus.WithError(err).Error("executing template")
 				}
 			} else {
-				if err = tmpl.ExecuteTemplate(w, "index.html", models.FuelFromFuelSheet(csrf.Token(r), fuelSheet)); err != nil {
+				if err = templates.Index(templ).Render(r.Context(), w); err != nil {
 					logrus.WithError(err).Error("parsing template")
 				}
 			}
@@ -551,12 +545,13 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 				return
 			}
 
+			templ := templates.CalculationsView(models.ViewFromExport(statsSheet, e))
 			if r.Header.Get("HX-Request") == "true" {
-				if err = tmpl.ExecuteTemplate(w, "calculations_view", models.ViewFromExport(csrf.Token(r), statsSheet, e)); err != nil {
+				if err = templ.Render(r.Context(), w); err != nil {
 					logrus.WithError(err).Error("executing template")
 				}
 			} else {
-				if err = tmpl.ExecuteTemplate(w, "index.html", models.ViewFromExport(csrf.Token(r), statsSheet, e)); err != nil {
+				if err = templates.Index(templ).Render(r.Context(), w); err != nil {
 					logrus.WithError(err).Error("executing template")
 				}
 			}
@@ -595,7 +590,7 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 			}
 
 			w.Header().Set("HX-Push-Url", "/export")
-			if err = tmpl.ExecuteTemplate(w, "export_form", models.ExportFromExportSheet(csrf.Token(r), sheet)); err != nil {
+			if err = templates.Export(models.ExportFromExportSheet(sheet)).Render(r.Context(), w); err != nil {
 				logrus.WithError(err).Error("executing template")
 			}
 
@@ -606,13 +601,14 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 				return
 			}
 
+			templ := templates.CalculationsForm(models.StatsFromStatsSheet(statsSheet))
 			if r.Header.Get("HX-Request") == "true" {
 				w.Header().Set("HX-Push-Url", "/stats")
-				if err = tmpl.ExecuteTemplate(w, "calculations_form", models.StatsFromStatsSheet(csrf.Token(r), statsSheet)); err != nil {
+				if err = templ.Render(r.Context(), w); err != nil {
 					logrus.WithError(err).Error("executing template")
 				}
 			} else {
-				if err = tmpl.ExecuteTemplate(w, "index.html", models.StatsFromStatsSheet(csrf.Token(r), statsSheet)); err != nil {
+				if err = templates.Index(templ).Render(r.Context(), w); err != nil {
 					logrus.WithError(err).Error("executing template")
 				}
 			}
@@ -624,121 +620,55 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 	mux.HandleFunc("/download", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 
-		stateService, err := adapters.NewCookieStateService(w, r)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
 		switch r.Method {
-		case http.MethodPost:
-			if r.Header.Get("HX-Request") != "true" {
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
-
-			err := r.ParseForm()
-			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
-
-			id, err := export.NewIDFromString(r.Form.Get("id"))
-			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
-
-			ex, err := app.Queries.Export.Handle(r.Context(), stateService, queries.ExportHandlerRequest{
-				ID: id,
-			})
-			if err != nil {
-				logrus.WithError(err).Error("loading exportsheet")
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			if ex == nil {
-				w.WriteHeader(http.StatusNotFound)
-				return
-			}
-
-			var buf bytes.Buffer
-			enc := gob.NewEncoder(&buf)
-
-			if err := enc.Encode(ex); err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			exBase64 := base64.URLEncoding.EncodeToString(buf.Bytes())
-
-			data := make(map[string]string)
-			data["Url"] = fmt.Sprintf("/download?d=%s", exBase64)
-			data["Name"] = ex.Name.String()
-			data["ID"] = ex.ID.String()
-
-			if err = tmpl.ExecuteTemplate(w, "generate_download", data); err != nil {
-				logrus.WithError(err).Error("executing template")
-			}
 		case http.MethodGet:
-			if r.Header.Get("HX-Request") == "true" {
-				data := make(map[string]string)
+			d := r.URL.Query().Get("d")
+			b, err := base64.URLEncoding.DecodeString(d)
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
 
-				data["ID"] = r.URL.Query().Get("id")
-				w.Header().Set("HX-Push-Url", "/")
-				if err = tmpl.ExecuteTemplate(w, "download", data); err != nil {
-					logrus.WithError(err).Error("executing template")
-				}
-			} else {
-				d := r.URL.Query().Get("d")
-				b, err := base64.URLEncoding.DecodeString(d)
-				if err != nil {
-					w.WriteHeader(http.StatusBadRequest)
-					return
-				}
+			gzReader, err := gzip.NewReader(bytes.NewReader(b))
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
 
-				gzReader, err := gzip.NewReader(bytes.NewReader(b))
-				if err != nil {
-					w.WriteHeader(http.StatusBadRequest)
-					return
-				}
+			gzBytes, err := io.ReadAll(gzReader)
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
 
-				gzBytes, err := io.ReadAll(gzReader)
-				if err != nil {
-					w.WriteHeader(http.StatusBadRequest)
-					return
-				}
+			err = gzReader.Close()
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
 
-				err = gzReader.Close()
-				if err != nil {
-					w.WriteHeader(http.StatusBadRequest)
-					return
-				}
+			buf := bytes.NewBuffer(gzBytes)
+			dec := gob.NewDecoder(buf)
 
-				buf := bytes.NewBuffer(gzBytes)
-				dec := gob.NewDecoder(buf)
+			var e export.Export
+			if err := dec.Decode(&e); err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
 
-				var e export.Export
-				if err := dec.Decode(&e); err != nil {
-					w.WriteHeader(http.StatusBadRequest)
-					return
-				}
+			pdf, err := app.Queries.PdfExport.Handle(r.Context(), e)
+			if err != nil {
+				logrus.WithError(err).Error("creating pdf")
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
 
-				pdf, err := app.Queries.PdfExport.Handle(r.Context(), e)
-				if err != nil {
-					logrus.WithError(err).Error("creating pdf")
-					w.WriteHeader(http.StatusInternalServerError)
-					return
-				}
+			w.Header().Set("Content-Type", "application/pdf")
+			w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", e.Name.String()))
 
-				w.Header().Set("Content-Type", "application/pdf")
-				w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", e.Name.String()))
-
-				_, err = io.Copy(w, pdf)
-				if err != nil {
-					logrus.WithError(err).Error("writing attachment")
-				}
+			_, err = io.Copy(w, pdf)
+			if err != nil {
+				logrus.WithError(err).Error("writing attachment")
 			}
 		default:
 			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
@@ -793,7 +723,7 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 			}
 
 			w.Header().Set("HX-Push-Url", "/")
-			if err = tmpl.ExecuteTemplate(w, "overview", models.OverviewFromExports(csrf.Token(r), respEx.Exports)); err != nil {
+			if err = templates.Overview(models.OverviewFromExports(respEx.Exports)).Render(r.Context(), w); err != nil {
 				logrus.WithError(err).Error("executing template")
 			}
 		case http.MethodGet:
@@ -804,8 +734,16 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 				return
 			}
 
-			if err = tmpl.ExecuteTemplate(w, "index.html", models.ExportFromExportSheet(csrf.Token(r), sheet)); err != nil {
-				logrus.WithError(err).Error("executing template")
+			templ := templates.Export(models.ExportFromExportSheet(sheet))
+			if r.Header.Get("HX-Request") == "true" {
+				w.Header().Set("HX-Push-Url", "/export")
+				if err = templ.Render(r.Context(), w); err != nil {
+					logrus.WithError(err).Error("executing template")
+				}
+			} else {
+				if err = templates.Index(templ).Render(r.Context(), w); err != nil {
+					logrus.WithError(err).Error("executing template")
+				}
 			}
 		default:
 			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
@@ -816,7 +754,7 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 		w.Header().Set("Content-Type", "text/html")
 		switch r.Method {
 		case http.MethodGet:
-			if err = tmpl.ExecuteTemplate(w, "wb_form_wind_option", models.WindOptionsFromRequest(r)); err != nil {
+			if err := templates.WeightAndBalanceWindOption(models.WindOptionsFromRequest(r)).Render(r.Context(), w); err != nil {
 				logrus.WithError(err).Error("executing template")
 			}
 		default:
@@ -828,7 +766,7 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 		w.Header().Set("Content-Type", "text/html")
 		switch r.Method {
 		case http.MethodGet:
-			if err = tmpl.ExecuteTemplate(w, "fuel_form_max_fuel_option", models.FuelOptionFromRequest(r)); err != nil {
+			if err = templates.FuelMaxFuel(models.FuelOptionFromRequest(r)).Render(r.Context(), w); err != nil {
 				logrus.WithError(err).Error("executing template")
 			}
 		default:
@@ -844,7 +782,7 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 	CSRF := csrf.Protect([]byte(os.Getenv("CSRF_KEY")), csrf.CookieName(cookieName), csrf.SameSite(csrf.SameSiteStrictMode), csrf.Path("/"), csrf.HttpOnly(true))
 	server := &http.Server{
 		Addr:    ":" + os.Getenv("PORT"),
-		Handler: SecurityHeaders(CSRF(mux)),
+		Handler: SecurityHeaders(CSRF(templates.HttpMiddleware(mux, version))),
 	}
 
 	wg.Add(1)

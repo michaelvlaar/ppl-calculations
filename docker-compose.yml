@@ -1,0 +1,16 @@
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    environment:
+      - PORT=8080
+      - CSRF_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      - SECURE_COOKIE=false
+      - SESSION_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      - TMP_PATH=/tmp/
+#      - CACHE_DISABLED=true
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"

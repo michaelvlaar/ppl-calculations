@@ -25,7 +25,7 @@ type WindOption struct {
 	WindDirection *string
 }
 
-func WindOptionsFromRequest(r *http.Request) interface{} {
+func WindOptionsFromRequest(r *http.Request) WindOption {
 	is := WindOption{}
 
 	is.Wind = StringPointer(r.URL.Query().Get("wind"))
@@ -34,7 +34,7 @@ func WindOptionsFromRequest(r *http.Request) interface{} {
 	return is
 }
 
-func WeightFromLoadSheet(csrf string, loadSheet queries.LoadSheetResponse) interface{} {
+func WeightFromLoadSheet(csrf string, loadSheet queries.LoadSheetResponse) Weight {
 	is := Weight{
 		Base: Base{
 			Step: string(StepWeight),
