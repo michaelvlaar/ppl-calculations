@@ -10,24 +10,9 @@ an aeroclub fleet. By integrating a reliable Go-based HTTP backend with a respon
 enables pilots to perform quick and accurate weight and balance calculations. The project aims to enhance operational
 safety and efficiency within aeroclubs and welcomes community contributions.
 
-## Features
+## TODOS 
 
-### ✅ Completed
-
-- ✅ Save calculations as PDF on device with date and time
-- ✅ Display calculations table
-- ✅ Automatic take-off and landing distance calculations
-- ✅ Seat position indicator to select proper arm momentum
-- ✅ Fuel planning and endurance calculations based on trip and alternate distance
-- ✅ Save form input values
-
-### ⬜ Upcoming
-
-- ⬜ Calculation information as title / subtitle when sharing via e.g. WhatsApp
-- ⬜ Server-side error messages for form validation (currently not functioning properly on Firefox)
-- ⬜ Support for Negative PA in performance calculations
-- ⬜ Support for PA calculation with and QNH and QFE
-- ⬜ KNMI weatherbulletin and weather charts
+- ⬜ Update PDF latex engine to https://github.com/go-pdf/fpdf
 
 ## Installation
 
@@ -85,15 +70,19 @@ docker run -d \
   ppl-calculations:latest
 ```
 
-## Usage
+## Development Environment
 
-Once the application is running, navigate to http://localhost:8080 (or the appropriate port) to access the frontend
-interface. From there, you can:
+This repository includes a Docker container that simplifies development by automating key tasks. The environment automatically refreshes the Golang backend, processes Tailwind CSS, and regenerates templates using [air](https://github.com/cosmtrek/air).
 
-- Input aircraft details and load configurations.
-- Perform weight and balance calculations.
-- Generate and download PDFs of your calculations.
-- Save and manage calculation records for future reference.
+### Getting Started
+
+To launch the development environment, simply run:
+
+```bash
+docker compose up
+```
+
+Once started, any changes to your code or configuration will trigger an automatic refresh, ensuring a smooth and efficient development workflow.
 
 ## Changelog
 
