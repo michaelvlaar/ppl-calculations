@@ -9,13 +9,10 @@ templ Index(page templ.Component) {
 			<meta name="csrf" content={ GetCSRF(ctx) }/>
 			<title>Berekeningen Aquila A210</title>
 			<script src="js/htmx.min.js"></script>
-			<script src="js/download.js"></script>
 			<link
 				rel="icon"
 				href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%221em%22 font-size=%2280%22>🛫</text></svg>"
 			/>
-			<link rel="stylesheet" href="css/material-icons.css"/>
-			<link rel="stylesheet" href="css/flatpickr.min.css"/>
 			<link href="css/style.min.css" rel="stylesheet"/>
 		</head>
 		<body class="bg-white">
@@ -53,6 +50,8 @@ templ Index(page templ.Component) {
 					&copy; 2024 Michael Vlaar
 				</div>
 			</footer>
+
+			<script src="js/download.js"></script>
 			<script src="js/csrf.js"></script>
 		</body>
 	</html>

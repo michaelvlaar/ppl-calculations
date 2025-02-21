@@ -42,7 +42,7 @@ func Index(page templ.Component) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><title>Berekeningen Aquila A210</title><script src=\"js/htmx.min.js\"></script><script src=\"js/flatpickr.js\"></script><script src=\"js/download.js\"></script><link rel=\"icon\" href=\"data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22&gt;&lt;text y=%221em%22 font-size=%2280%22&gt;🛫&lt;/text&gt;&lt;/svg&gt;\"><link rel=\"stylesheet\" href=\"css/material-icons.css\"><link rel=\"stylesheet\" href=\"css/flatpickr.min.css\"><link href=\"css/style.min.css\" rel=\"stylesheet\"></head><body class=\"bg-white\"><header class=\"bg-indigo-600 text-white fixed w-full top-0 z-50\"><div class=\"max-w-7xl mx-auto px-2\"><div class=\"flex justify-between h-16\"><div class=\"flex\"><div class=\"ml-2 flex items-center\"><span hx-trigger=\"click\" hx-get=\"/\" hx-target=\"#content-container\" hx-swap=\"outerHTML\" class=\"cursor-pointer text-lg font-semibold uppercase\">&#128747; Berekeningen</span></div></div><div class=\"flex items-center\"><a target=\"_blank\" href=\"https://www.pay.nl/doneren/SL-8940-9333/0Lc03af/?amount_min=100&amp;amount=500\" class=\"flex items-center bg-indigo-500 text-white font-semibold py-2 px-4 rounded-sm hover:bg-indigo-400 transition duration-300 ease-in-out no-print\"><span class=\"material-icons mr-2\">favorite</span>Doneer</a></div></div></div></header><main class=\"max-w-7xl mx-auto mt-16 p-4 pb-20\"><div class=\"flex flex-col lg:items-stretch w-full\" id=\"#main\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><title>Berekeningen Aquila A210</title><script src=\"js/htmx.min.js\"></script><link rel=\"icon\" href=\"data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22&gt;&lt;text y=%221em%22 font-size=%2280%22&gt;🛫&lt;/text&gt;&lt;/svg&gt;\"><link href=\"css/style.min.css\" rel=\"stylesheet\"></head><body class=\"bg-white\"><header class=\"bg-indigo-600 text-white fixed w-full top-0 z-50\"><div class=\"max-w-7xl mx-auto px-2\"><div class=\"flex justify-between h-16\"><div class=\"flex\"><div class=\"ml-2 flex items-center\"><span hx-trigger=\"click\" hx-get=\"/\" hx-target=\"#content-container\" hx-swap=\"outerHTML\" class=\"cursor-pointer text-lg font-semibold uppercase\">&#128747; Berekeningen</span></div></div><div class=\"flex items-center\"><a target=\"_blank\" href=\"https://www.pay.nl/doneren/SL-8940-9333/0Lc03af/?amount_min=100&amp;amount=500\" class=\"flex items-center bg-indigo-500 text-white font-semibold py-2 px-4 rounded-sm hover:bg-indigo-400 transition duration-300 ease-in-out no-print\"><span class=\"material-icons mr-2\">favorite</span>Doneer</a></div></div></div></header><main class=\"max-w-7xl mx-auto mt-16 p-4 pb-20\"><div class=\"flex flex-col lg:items-stretch w-full\" id=\"#main\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -57,13 +57,13 @@ func Index(page templ.Component) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(GetVersion(ctx))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ports/templates/index.templ`, Line: 51, Col: 59}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ports/templates/index.templ`, Line: 47, Col: 59}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, ")</span></a><div class=\"mt-1\">&copy; 2024 Michael Vlaar</div></footer><script src=\"js/csrf.js\"></script></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, ")</span></a><div class=\"mt-1\">&copy; 2024 Michael Vlaar</div></footer><script src=\"js/download.js\"></script><script src=\"js/csrf.js\"></script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
