@@ -21,8 +21,6 @@ type WeightAndBalanceState struct {
 }
 
 type Stats struct {
-	Base
-
 	FuelTaxi        string
 	FuelTrip        string
 	FuelAlternate   string
@@ -51,11 +49,7 @@ func parseNumber(number string) string {
 }
 
 func StatsFromStatsSheet(statsSheet queries.StatsSheetResponse) Stats {
-	template := Stats{
-		Base: Base{
-			Step: string(StepStats),
-		},
-	}
+	template := Stats{}
 
 	template.FuelSufficient = statsSheet.Calculations.FuelPlanning.Sufficient
 	template.FuelTaxi = parseNumber(statsSheet.Calculations.FuelPlanning.Taxi.Volume.String(statsSheet.Calculations.FuelPlanning.VolumeType))

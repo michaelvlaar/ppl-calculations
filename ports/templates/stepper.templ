@@ -3,139 +3,163 @@ package templates
 type StepperStep int
 
 const (
-    StepperStepWeight StepperStep = iota
-    StepperStepFuel
-    StepperStepCalculations
-    StepperStepExport
+	StepperStepWeight StepperStep = iota
+	StepperStepFuel
+	StepperStepCalculations
+	StepperStepExport
 )
 
 templ Stepper(step StepperStep) {
-    <div id="stepper" class="flex w-full mb-4">
-        <div class="flex w-full">
-            <ul class="w-full relative flex flex-row">
-                <li class="flex items-center gap-x-2 shrink basis-0 flex-1 group">
-                    <div class="min-h-7 inline-flex justify-center items-center text-xs align-middle">
-                        switch step {
-                            case StepperStepWeight:
-                                <span
-                                        class="bg-indigo-600 flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full text-white">
-                                    <span class="material-icons text-white p-2">create</span>
-                                </span>
-                                <span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
-                                    Invoeren
-                                </span>
-                            default:
-                                <form class="flex w-full" hx-get="/load" hx-target="#content-container"
-                                      hx-swap="outerHTML scroll:top">
-                                    <input type="hidden" name="submit" value="weight" />
-                                    <button id="stepper-back-weight" type="submit"
-                                            class="cursor-pointer bg-indigo-600 flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full text-white">
-                                        <span class="material-icons text-white p-2">create</span>
-                                    </button>
-                                    <button type="submit"
-                                            class="cursor-pointer ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
-                                        Invoeren
-                                    </button>
-                                </form>
-                        }
-                    </div>
-                    <div class="mr-2 w-full h-px flex-1 bg-gray-400 group-last:hidden"></div>
-                </li>
-                <li class="flex items-center gap-x-2 shrink basis-0 flex-1 group">
-                    <div class="min-w-7 min-h-7 inline-flex justify-center items-center text-xs align-middle">
-                        switch step {
-                            case StepperStepWeight:
-                                <span class="flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full">
-                                    <span class="material-icons p-2">local_gas_station</span>
-                                </span>
-                                <span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
-                                    Brandstof
-                                </span>
-                            case StepperStepFuel:
-                                <span class="bg-indigo-600 flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full">
-                                    <span class="text-white material-icons p-2">local_gas_station</span>
-                                </span>
-                                <span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
-                                    Brandstof
-                                </span>
-                            default:
-                                <form class="flex w-full" hx-get="/fuel" hx-target="#content-container"
-                                      hx-swap="outerHTML scroll:top">
-                                    <input type="hidden" name="submit" value="fuel" />
-                                    <button type="submit" id="stepper-back-fuel"
-                                            class="cursor-pointer bg-indigo-600 flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full">
-                                        <span class="material-icons text-white p-2">local_gas_station</span>
-                                    </button>
-                                    <button type="submit"
-                                            class="cursor-pointer ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
-                                        Brandstof
-                                    </button>
-                                </form>
-                        }
-                    </div>
-                    <div class="mr-2 w-full h-px flex-1 bg-gray-400 group-last:hidden"></div>
-                </li>
-                <li class="flex items-center gap-x-2 shrink basis-0 flex-1 group">
-                    <div class="min-w-7 min-h-7 inline-flex justify-center items-center text-xs align-middle">
-                        switch step {
-                            case StepperStepWeight:
-                                <span class="flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full">
-                                    <span class="material-icons p-2">bar_chart</span>
-                                </span>
-                                <span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
-                                    Berekeningen
-                                </span>
-                            case StepperStepFuel:
-                                <span class="flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full">
-                                    <span class="material-icons p-2">bar_chart</span>
-                                </span>
-                                <span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
-                                    Berekeningen
-                                </span>
-                            case StepperStepCalculations:
-                                <span class="bg-indigo-600 flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full">
-                                    <span class="text-white material-icons p-2">bar_chart</span>
-                                </span>
-                                <span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
-                                    Berekeningen
-                                </span>
-                            case StepperStepExport:
-                                <form class="flex w-full" hx-get="/stats" hx-target="#content-container" hx-swap="outerHTML scroll:top">
-                                    <input type="hidden" name="submit" value="stats" />
-                                    <button type="submit" id="stepper-back-stats"
-                                            class="cursor-pointer bg-indigo-600 flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full">
-                                        <span class="material-icons text-white p-2">bar_chart</span>
-                                    </button>
-                                    <button type="submit"
-                                            class="cursor-pointer ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
-                                        Berekeningen
-                                    </button>
-                                </form>
-                        }
-                    </div>
-                    <div class="mr-2 w-full h-px flex-1 bg-gray-400 group-last:hidden dark:bg-neutral-700"></div>
-                </li>
-                <li class="flex items-center shrink basis-0 group">
-                    <div class="min-w-7 min-h-7 inline-flex justify-center items-center text-xs align-middle">
-                        switch step {
-                            case StepperStepExport:
-                                <span class="bg-indigo-600 flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full">
-                                    <span class="material-icons p-2 text-white">save_alt</span>
-                                </span>
-                                <span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
-                                    Opslaan
-                                </span>
-                            default:
-                                <span class="flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full">
-                                    <span class="material-icons p-2">save_alt</span>
-                                </span>
-                                <span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
-                                    Opslaan
-                                </span>
-                        }
-                    </div>
-                </li>
-            </ul>
-        </div>
-    </div>
+	<div id="stepper" class="flex w-full mb-4">
+		<div class="flex w-full">
+			<ul class="w-full relative flex flex-row">
+				<li class="flex items-center gap-x-2 shrink basis-0 flex-1 group">
+					<div class="min-h-7 inline-flex justify-center items-center text-xs align-middle">
+						switch step {
+							case StepperStepWeight:
+								<span
+									class="bg-indigo-600 flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full text-white"
+								>
+									<span class="material-icons text-white p-2">create</span>
+								</span>
+								<span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
+									Invoeren
+								</span>
+							default:
+								<form
+									class="flex w-full"
+									hx-get="/load"
+									hx-target="#content-container"
+									hx-swap="outerHTML scroll:top"
+								>
+									<input type="hidden" name="submit" value="weight"/>
+									<button
+										id="stepper-back-weight"
+										type="submit"
+										class="cursor-pointer bg-indigo-600 flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full text-white"
+									>
+										<span class="material-icons text-white p-2">create</span>
+									</button>
+									<button
+										type="submit"
+										class="cursor-pointer ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800"
+									>
+										Invoeren
+									</button>
+								</form>
+						}
+					</div>
+					<div class="mr-2 w-full h-px flex-1 bg-gray-400 group-last:hidden"></div>
+				</li>
+				<li class="flex items-center gap-x-2 shrink basis-0 flex-1 group">
+					<div class="min-w-7 min-h-7 inline-flex justify-center items-center text-xs align-middle">
+						switch step {
+							case StepperStepWeight:
+								<span class="flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full">
+									<span class="material-icons p-2">local_gas_station</span>
+								</span>
+								<span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
+									Brandstof
+								</span>
+							case StepperStepFuel:
+								<span class="bg-indigo-600 flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full">
+									<span class="text-white material-icons p-2">local_gas_station</span>
+								</span>
+								<span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
+									Brandstof
+								</span>
+							default:
+								<form
+									class="flex w-full"
+									hx-get="/fuel"
+									hx-target="#content-container"
+									hx-swap="outerHTML scroll:top"
+								>
+									<input type="hidden" name="submit" value="fuel"/>
+									<button
+										type="submit"
+										id="stepper-back-fuel"
+										class="cursor-pointer bg-indigo-600 flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full"
+									>
+										<span class="material-icons text-white p-2">local_gas_station</span>
+									</button>
+									<button
+										type="submit"
+										class="cursor-pointer ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800"
+									>
+										Brandstof
+									</button>
+								</form>
+						}
+					</div>
+					<div class="mr-2 w-full h-px flex-1 bg-gray-400 group-last:hidden"></div>
+				</li>
+				<li class="flex items-center gap-x-2 shrink basis-0 flex-1 group">
+					<div class="min-w-7 min-h-7 inline-flex justify-center items-center text-xs align-middle">
+						switch step {
+							case StepperStepWeight:
+								<span class="flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full">
+									<span class="material-icons p-2">bar_chart</span>
+								</span>
+								<span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
+									Berekeningen
+								</span>
+							case StepperStepFuel:
+								<span class="flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full">
+									<span class="material-icons p-2">bar_chart</span>
+								</span>
+								<span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
+									Berekeningen
+								</span>
+							case StepperStepCalculations:
+								<span class="bg-indigo-600 flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full">
+									<span class="text-white material-icons p-2">bar_chart</span>
+								</span>
+								<span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
+									Berekeningen
+								</span>
+							case StepperStepExport:
+								<form class="flex w-full" hx-get="/stats" hx-target="#content-container" hx-swap="outerHTML scroll:top">
+									<input type="hidden" name="submit" value="stats"/>
+									<button
+										type="submit"
+										id="stepper-back-stats"
+										class="cursor-pointer bg-indigo-600 flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full"
+									>
+										<span class="material-icons text-white p-2">bar_chart</span>
+									</button>
+									<button
+										type="submit"
+										class="cursor-pointer ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800"
+									>
+										Berekeningen
+									</button>
+								</form>
+						}
+					</div>
+					<div class="mr-2 w-full h-px flex-1 bg-gray-400 group-last:hidden dark:bg-neutral-700"></div>
+				</li>
+				<li class="flex items-center shrink basis-0 group">
+					<div class="min-w-7 min-h-7 inline-flex justify-center items-center text-xs align-middle">
+						switch step {
+							case StepperStepExport:
+								<span class="bg-indigo-600 flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full">
+									<span class="material-icons p-2 text-white">save_alt</span>
+								</span>
+								<span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
+									Opslaan
+								</span>
+							default:
+								<span class="flex justify-center items-center shrink-0 border border-gray-400 font-medium text-gray-800 rounded-full">
+									<span class="material-icons p-2">save_alt</span>
+								</span>
+								<span class="ml-2 ms-2 hidden sm:block text-sm font-medium text-gray-800">
+									Opslaan
+								</span>
+						}
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
 }

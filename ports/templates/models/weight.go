@@ -6,8 +6,6 @@ import (
 )
 
 type Weight struct {
-	Base
-
 	CallSign              *string
 	Pilot                 *string
 	PilotSeat             *string
@@ -34,13 +32,8 @@ func WindOptionsFromRequest(r *http.Request) WindOption {
 	return is
 }
 
-func WeightFromLoadSheet(csrf string, loadSheet queries.LoadSheetResponse) Weight {
-	is := Weight{
-		Base: Base{
-			Step: string(StepWeight),
-			CSRF: csrf,
-		},
-	}
+func WeightFromLoadSheet(loadSheet queries.LoadSheetResponse) Weight {
+	is := Weight{}
 
 	if loadSheet.CallSign != nil {
 		is.CallSign = StringPointer(loadSheet.CallSign.String())

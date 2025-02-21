@@ -5,20 +5,20 @@ info:
   repository_url: https://github.com/michaelvlaar/ppl-calculations
 options:
   commits:
-    # filters:
-    #   Type:
-    #     - feat
-    #     - fix
-    #     - perf
-    #     - refactor
+  # filters:
+  #   Type:
+  #     - feat
+  #     - fix
+  #     - perf
+  #     - refactor
   commit_groups:
-     title_maps:
-       feat: 🚀 Features
-       fix: 🐛 Bug Fixes
-       perf: ⚡️ Performance Improvements
-       refactor: ♻️ Code Refactoring
-       chore: 🧰 Maintenance
-       docs: 📚 Documentation
+    title_maps:
+      feat: 🚀 Features
+      fix: 🐛 Bug Fixes
+      perf: ⚡️ Performance Improvements
+      refactor: ♻️ Code Refactoring
+      chore: 🧰 Maintenance
+      docs: 📚 Documentation
   header:
     pattern: "^(\\w*)\\:\\s(.*)$"
     pattern_maps:

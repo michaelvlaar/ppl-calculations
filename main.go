@@ -11,7 +11,7 @@ import (
 	"ppl-calculations/app"
 	"ppl-calculations/app/commands"
 	"ppl-calculations/app/queries"
-	"ppl-calculations/ports"
+	"ppl-calculations/ports/http"
 	"sync"
 )
 
@@ -66,7 +66,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		ports.NewHTTPListener(ctx, &wg, a, assets, version)
+		http.NewHTTPListener(ctx, &wg, a, assets, version)
 	}()
 
 	<-stop

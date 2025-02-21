@@ -1,54 +1,60 @@
 package templates
 
 templ Index(page templ.Component) {
-    <!DOCTYPE html>
-    <html lang="nl">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0">
-        <meta name="csrf" content={ GetCSRF(ctx) }>
-        <title>Berekeningen Aquila A210</title>
-        <script src="js/htmx.min.js"></script>
-        <script src="js/flatpickr.js"></script>
-        <script src="js/download.js"></script>
-        <link rel="icon"
-            href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%221em%22 font-size=%2280%22>&#128747;</text></svg>">
-        <link rel="stylesheet" href="css/material-icons.css">
-        <link rel="stylesheet" href="css/flatpickr.min.css">
-        <link href="css/style.min.css" rel="stylesheet" >
-    </head>
-    <body class="bg-white">
-        <header class="bg-indigo-600 text-white fixed w-full top-0 z-50">
-            <div class="max-w-7xl mx-auto px-2">
-                <div class="flex justify-between h-16">
-                    <div class="flex">
-                        <div class="ml-2 flex items-center">
-                            <span hx-trigger="click" hx-get="/" hx-target="#content-container" hx-swap="outerHTML" class="cursor-pointer text-lg font-semibold uppercase">&#128747; Berekeningen</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center">
-                        <a target="_blank" href="https://www.pay.nl/doneren/SL-8940-9333/0Lc03af/?amount_min=100&amount=500"
-                           class="flex items-center bg-indigo-500 text-white font-semibold py-2 px-4 rounded-sm hover:bg-indigo-400 transition duration-300 ease-in-out no-print">
-                            <span class="material-icons mr-2">favorite</span>Doneer</a>
-                    </div>
-                </div>
-            </div>
-        </header>
-        <main class="max-w-7xl mx-auto mt-16 p-4 pb-20">
-            <div class="flex flex-col lg:items-stretch w-full" id="#main">
-                @page
-            </div>
-        </main>
-        <footer class="fixed bottom-0 left-0 w-full text-center py-2 bg-gray-100 text-gray-600 text-sm">
-            <a href="https://github.com/michaelvlaar/ppl-calculations" target="_blank" class="hover:text-gray-800 inline-flex items-center space-x-2">
-                <img alt="github" src="images/github-mark.svg" width="15px" height="15px" />
-                <span>michaelvlaar/ppl-calculations ({ GetVersion(ctx) })</span>
-            </a>
-            <div class="mt-1">
-                &copy; 2024 Michael Vlaar
-            </div>
-        </footer>
-        <script src="js/csrf.js"></script>
-    </body>
-    </html>
+	<!DOCTYPE html>
+	<html lang="nl">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0"/>
+			<meta name="csrf" content={ GetCSRF(ctx) }/>
+			<title>Berekeningen Aquila A210</title>
+			<script src="js/htmx.min.js"></script>
+			<script src="js/flatpickr.js"></script>
+			<script src="js/download.js"></script>
+			<link
+				rel="icon"
+				href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%221em%22 font-size=%2280%22>🛫</text></svg>"
+			/>
+			<link rel="stylesheet" href="css/material-icons.css"/>
+			<link rel="stylesheet" href="css/flatpickr.min.css"/>
+			<link href="css/style.min.css" rel="stylesheet"/>
+		</head>
+		<body class="bg-white">
+			<header class="bg-indigo-600 text-white fixed w-full top-0 z-50">
+				<div class="max-w-7xl mx-auto px-2">
+					<div class="flex justify-between h-16">
+						<div class="flex">
+							<div class="ml-2 flex items-center">
+								<span hx-trigger="click" hx-get="/" hx-target="#content-container" hx-swap="outerHTML" class="cursor-pointer text-lg font-semibold uppercase">&#128747; Berekeningen</span>
+							</div>
+						</div>
+						<div class="flex items-center">
+							<a
+								target="_blank"
+								href="https://www.pay.nl/doneren/SL-8940-9333/0Lc03af/?amount_min=100&amount=500"
+								class="flex items-center bg-indigo-500 text-white font-semibold py-2 px-4 rounded-sm hover:bg-indigo-400 transition duration-300 ease-in-out no-print"
+							>
+								<span class="material-icons mr-2">favorite</span>Doneer
+							</a>
+						</div>
+					</div>
+				</div>
+			</header>
+			<main class="max-w-7xl mx-auto mt-16 p-4 pb-20">
+				<div class="flex flex-col lg:items-stretch w-full" id="#main">
+					@page
+				</div>
+			</main>
+			<footer class="fixed bottom-0 left-0 w-full text-center py-2 bg-gray-100 text-gray-600 text-sm">
+				<a href="https://github.com/michaelvlaar/ppl-calculations" target="_blank" class="hover:text-gray-800 inline-flex items-center space-x-2">
+					<img alt="github" src="images/github-mark.svg" width="15px" height="15px"/>
+					<span>michaelvlaar/ppl-calculations ({ GetVersion(ctx) })</span>
+				</a>
+				<div class="mt-1">
+					&copy; 2024 Michael Vlaar
+				</div>
+			</footer>
+			<script src="js/csrf.js"></script>
+		</body>
+	</html>
 }

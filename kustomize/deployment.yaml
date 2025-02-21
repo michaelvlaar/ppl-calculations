@@ -23,7 +23,7 @@ spec:
         fsGroup: 30001
       volumes:
         - name: cache-folder
-          emptyDir: {}
+          emptyDir: { }
       containers:
         - name: ppl-calculations
           image: ghcr.io/michaelvlaar/ppl-calculations:v1.2.16

@@ -1,13 +1,13 @@
-
 <a name="v1.2.16"></a>
+
 ## [v1.2.16](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.15...v1.2.16) (2025-02-19)
 
 ### 🐛 Bug Fixes
 
 * TDR / LDR images now scale properly
 
-
 <a name="v1.2.15"></a>
+
 ## [v1.2.15](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.14...v1.2.15) (2025-02-19)
 
 ### ⚡️ Performance Improvements
@@ -21,8 +21,8 @@
 * removed unused folder
 * update changelog for 1.2.14
 
-
 <a name="v1.2.14"></a>
+
 ## [v1.2.14](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.13...v1.2.14) (2025-02-16)
 
 ### 🐛 Bug Fixes
@@ -33,8 +33,8 @@
 
 * update changelog for 1.2.13
 
-
 <a name="v1.2.13"></a>
+
 ## [v1.2.13](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.12...v1.2.13) (2025-01-16)
 
 ### 🧰 Maintenance
@@ -42,8 +42,8 @@
 * improved kubernetes deployment
 * update changelog for 1.2.12
 
-
 <a name="v1.2.12"></a>
+
 ## [v1.2.12](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.11...v1.2.12) (2025-01-16)
 
 ### 🧰 Maintenance
@@ -51,8 +51,8 @@
 * improved kubernetes deployment security
 * update changelog for 1.2.11
 
-
 <a name="v1.2.11"></a>
+
 ## [v1.2.11](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.10...v1.2.11) (2025-01-16)
 
 ### 🧰 Maintenance
@@ -61,8 +61,8 @@
 * updated dependencies to fix known security issues
 * update changelog for 1.2.10
 
-
 <a name="v1.2.10"></a>
+
 ## [v1.2.10](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.9...v1.2.10) (2024-12-26)
 
 ### ♻️ Code Refactoring
@@ -73,8 +73,8 @@
 
 * update changelog for 1.2.9
 
-
 <a name="v1.2.9"></a>
+
 ## [v1.2.9](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.8...v1.2.9) (2024-12-26)
 
 ### 🐛 Bug Fixes
@@ -86,8 +86,8 @@
 * updated dependencies
 * update changelog for 1.2.8
 
-
 <a name="v1.2.8"></a>
+
 ## [v1.2.8](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.7...v1.2.8) (2024-12-26)
 
 ### 🐛 Bug Fixes
@@ -99,8 +99,8 @@
 * updated to use secure cookie prefix
 * update changelog for 1.2.7
 
-
 <a name="v1.2.7"></a>
+
 ## [v1.2.7](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.6...v1.2.7) (2024-12-26)
 
 ### 🐛 Bug Fixes
@@ -112,8 +112,8 @@
 
 * update changelog for 1.2.6
 
-
 <a name="v1.2.6"></a>
+
 ## [v1.2.6](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.5...v1.2.6) (2024-12-23)
 
 ### 🐛 Bug Fixes
@@ -124,16 +124,16 @@
 
 * update changelog for 1.2.5
 
-
 <a name="v1.2.5"></a>
+
 ## [v1.2.5](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.4...v1.2.5) (2024-12-23)
 
 ### 🧰 Maintenance
 
 * update changelog for 1.2.4
 
-
 <a name="v1.2.4"></a>
+
 ## [v1.2.4](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.3...v1.2.4) (2024-12-23)
 
 ### 🐛 Bug Fixes
@@ -144,8 +144,8 @@
 
 * update changelog for 1.2.3
 
-
 <a name="v1.2.3"></a>
+
 ## [v1.2.3](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.2...v1.2.3) (2024-12-23)
 
 ### 🐛 Bug Fixes
@@ -156,8 +156,8 @@
 
 * update changelog for 1.2.2
 
-
 <a name="v1.2.2"></a>
+
 ## [v1.2.2](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.1...v1.2.2) (2024-12-23)
 
 ### 🐛 Bug Fixes
@@ -168,8 +168,8 @@
 
 * update changelog for 1.2.1
 
-
 <a name="v1.2.1"></a>
+
 ## [v1.2.1](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.0...v1.2.1) (2024-12-23)
 
 ### 📚 Documentation
@@ -181,8 +181,8 @@
 
 * cookie security improvements
 
-
 <a name="v1.2.0"></a>
+
 ## [v1.2.0](https://github.com/michaelvlaar/ppl-calculations/compare/v1.1.2...v1.2.0) (2024-12-15)
 
 ### 📚 Documentation
@@ -199,11 +199,10 @@
 
 ### BREAKING CHANGE
 
-
 This is an breaking change!
 
-
 <a name="v1.1.2"></a>
+
 ## [v1.1.2](https://github.com/michaelvlaar/ppl-calculations/compare/v1.1.1...v1.1.2) (2024-12-15)
 
 ### 🧰 Maintenance
@@ -213,8 +212,8 @@ This is an breaking change!
 * implemented git-chglog
 * update changelog for 1.1.1
 
-
 <a name="v1.1.1"></a>
+
 ## [v1.1.1](https://github.com/michaelvlaar/ppl-calculations/compare/v1.1.0...v1.1.1) (2024-12-15)
 
 ### 🐛 Bug Fixes
@@ -225,8 +224,8 @@ This is an breaking change!
 
 * update changelog for 1.1.0
 
-
 <a name="v1.1.0"></a>
+
 ## [v1.1.0](https://github.com/michaelvlaar/ppl-calculations/compare/v1.0.8...v1.1.0) (2024-12-15)
 
 ### 🚀 Features
@@ -237,8 +236,8 @@ This is an breaking change!
 
 * update changelog for 1.0.8
 
-
 <a name="v1.0.8"></a>
+
 ## [v1.0.8](https://github.com/michaelvlaar/ppl-calculations/compare/v1.0.7...v1.0.8) (2024-12-14)
 
 ### 🚀 Features
@@ -249,8 +248,8 @@ This is an breaking change!
 
 * update changelog for 1.0.7
 
-
 <a name="v1.0.7"></a>
+
 ## [v1.0.7](https://github.com/michaelvlaar/ppl-calculations/compare/v1.0.6...v1.0.7) (2024-12-14)
 
 ### 🐛 Bug Fixes
@@ -265,8 +264,8 @@ This is an breaking change!
 
 * update changelog for 1.0.6
 
-
 <a name="v1.0.6"></a>
+
 ## [v1.0.6](https://github.com/michaelvlaar/ppl-calculations/compare/v1.0.5...v1.0.6) (2024-12-14)
 
 ### 🐛 Bug Fixes
@@ -288,8 +287,8 @@ This is an breaking change!
 * CI/CD
 * LICENSE created
 
-
 <a name="v1.0.5"></a>
+
 ## [v1.0.5](https://github.com/michaelvlaar/ppl-calculations/compare/v1.0.3...v1.0.5) (2024-12-05)
 
 ### 🐛 Bug Fixes
@@ -304,8 +303,8 @@ This is an breaking change!
 
 * update kustomize version to 1.0.5
 
-
 <a name="v1.0.3"></a>
+
 ## [v1.0.3](https://github.com/michaelvlaar/ppl-calculations/compare/v1.0.0...v1.0.3) (2024-12-03)
 
 ### 🐛 Bug Fixes
@@ -333,7 +332,7 @@ This is an breaking change!
 * deployment port update
 * kustomization
 
-
 <a name="v1.0.0"></a>
+
 ## v1.0.0 (2024-12-02)
 

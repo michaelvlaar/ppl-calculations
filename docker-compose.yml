@@ -9,7 +9,7 @@ services:
       - SECURE_COOKIE=false
       - SESSION_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
       - TMP_PATH=/tmp/
-#      - CACHE_DISABLED=true
+    #      - CACHE_DISABLED=true
     volumes:
       - .:/app
     ports:

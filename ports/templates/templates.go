@@ -36,10 +36,12 @@ func equalsPointer(a *string, b string) bool {
 	return false
 }
 
-func HttpMiddleware(next http.Handler, version string) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		r = r.WithContext(context.WithValue(r.Context(), TemplateVersionKey, version))
-		r = r.WithContext(context.WithValue(r.Context(), TemplateCSRFKey, csrf.Token(r)))
-		next.ServeHTTP(w, r)
-	})
+func HttpMiddleware(version string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			r = r.WithContext(context.WithValue(r.Context(), TemplateVersionKey, version))
+			r = r.WithContext(context.WithValue(r.Context(), TemplateCSRFKey, csrf.Token(r)))
+			next.ServeHTTP(w, r)
+		})
+	}
 }

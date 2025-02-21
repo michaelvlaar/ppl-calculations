@@ -55,7 +55,7 @@ function handleDownloadClick(event) {
     }).catch((err) => console.error(err));
 }
 
-document.addEventListener('click', function(event) {
+document.addEventListener('click', function (event) {
     if (event.target.hasAttribute('data-download-url')) {
         handleDownloadClick(event);
     }

@@ -11,10 +11,10 @@
 \usepackage{svg}
 
 \titleformat{\section}
-  {\normalfont\Large\bfseries\filcenter} % Center-align
-  {}
-  {0pt}
-  {}
+{\normalfont\Large\bfseries\filcenter} % Center-align
+{}
+{0pt}
+{}
 
 \pagestyle{fancy}
 \fancyhf{}
@@ -28,60 +28,60 @@
 
 \begin{document}
 
-\section*{Gewicht en Balans}
+    \section*{Gewicht en Balans}
 
-{{ if not .WeightAndBalanceTakeOff.WithinLimits }}
-{\small
-\noindent
-\colorbox{red!80}{%
-    \parbox{\textwidth}{%
+    {{ if not .WeightAndBalanceTakeOff.WithinLimits }}
+    {\small
+    \noindent
+    \colorbox{red!80}{%
+        \parbox{\textwidth}{%
+            \centering
+            {\textcolor{white}{\textbf{De huidige gewichts- en balansberekening geeft aan dat de belading van het vliegtuig buiten de
+            toegestane limieten valt. Controleer en herbereken de gewichts- en balansverdeling zorgvuldig om te
+            voldoen aan de veiligheidsvoorschriften.}}}%
+        }%
+    }
+    }
+    {{ end }}
+
+    \begin{figure}[H]
         \centering
-        {\textcolor{white}{\textbf{De huidige gewichts- en balansberekening geeft aan dat de belading van het vliegtuig buiten de
-        toegestane limieten valt. Controleer en herbereken de gewichts- en balansverdeling zorgvuldig om te
-        voldoen aan de veiligheidsvoorschriften.}}}%
-    }%
-}
-}
-{{ end }}
+        \includegraphics[width=0.6\textwidth]{wb.png}
+    \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{wb.png}
-\end{figure}
-
-{\small
-\begin{table}[H]
-    \centering
-    \renewcommand{\arraystretch}{1.2}
-    \setlength{\tabcolsep}{5pt}
-    \caption*{\textbf{Take-off}}
-    \begin{tabular}{|l|c|c|c|}
-        \hline
-        \rowcolor[HTML]{AAAAAA}
-        \textbf{NAME} & \textbf{ARM [M]} & \textbf{MASS [KG]} & \textbf{MASS MOMENT [KG M]} \\ \hline
-        {{ range $index, $item := .WeightAndBalanceTakeOff.Items }}
+    {\small
+    \begin{table}[H]
+        \centering
+        \renewcommand{\arraystretch}{1.2}
+        \setlength{\tabcolsep}{5pt}
+        \caption*{\textbf{Take-off}}
+        \begin{tabular}{|l|c|c|c|}
+            \hline
+            \rowcolor[HTML]{AAAAAA}
+            \textbf{NAME} & \textbf{ARM [M]} & \textbf{MASS [KG]} & \textbf{MASS MOMENT [KG M]} \\ \hline
+            {{ range $index, $item := .WeightAndBalanceTakeOff.Items }}
             {{ $item.Name }} & {{ $item.LeverArm }} & {{ $item.Mass }} & {{ $item.MassMoment }} \\ \hline
-        {{ end }}
-        \rowcolor[HTML]{AAAAAA}
-        \textbf{TOTAL} & \textbf{ {{ .WeightAndBalanceTakeOff.Total.LeverArm }} } & \textbf{ {{ .WeightAndBalanceTakeOff.Total.Mass }} } & \textbf{ {{ .WeightAndBalanceTakeOff.Total.MassMoment }} } \\ \hline
-    \end{tabular}
+{{ end }}
+\rowcolor[HTML]{AAAAAA}
+\textbf{TOTAL} & \textbf{ {{ .WeightAndBalanceTakeOff.Total.LeverArm }} } & \textbf{ {{ .WeightAndBalanceTakeOff.Total.Mass }} } & \textbf{ {{ .WeightAndBalanceTakeOff.Total.MassMoment }} } \\ \hline
+\end{tabular}
 \end{table}
 
 \begin{table}[H]
-    \centering
-    \renewcommand{\arraystretch}{1.2}
-    \setlength{\tabcolsep}{5pt}
-    \caption*{\textbf{Landing}}
-    \begin{tabular}{|l|c|c|c|}
-        \hline
-        \rowcolor[HTML]{AAAAAA}
-        \textbf{NAME} & \textbf{ARM [M]} & \textbf{MASS [KG]} & \textbf{MASS MOMENT [KG M]} \\ \hline
-        {{ range $index, $item := .WeightAndBalanceLanding.Items }}
-            {{ $item.Name }} & {{ $item.LeverArm }} & {{ $item.Mass }} & {{ $item.MassMoment }} \\ \hline
-        {{ end }}
-        \rowcolor[HTML]{AAAAAA}
-        \textbf{TOTAL} & \textbf{ {{ .WeightAndBalanceLanding.Total.LeverArm }} } & \textbf{ {{ .WeightAndBalanceLanding.Total.Mass }} } & \textbf{ {{ .WeightAndBalanceLanding.Total.MassMoment }} } \\ \hline
-    \end{tabular}
+\centering
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{5pt}
+\caption*{\textbf{Landing}}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\rowcolor[HTML]{AAAAAA}
+\textbf{NAME} & \textbf{ARM [M]} & \textbf{MASS [KG]} & \textbf{MASS MOMENT [KG M]} \\ \hline
+{{ range $index, $item := .WeightAndBalanceLanding.Items }}
+{{ $item.Name }} & {{ $item.LeverArm }} & {{ $item.Mass }} & {{ $item.MassMoment }} \\ \hline
+{{ end }}
+\rowcolor[HTML]{AAAAAA}
+\textbf{TOTAL} & \textbf{ {{ .WeightAndBalanceLanding.Total.LeverArm }} } & \textbf{ {{ .WeightAndBalanceLanding.Total.Mass }} } & \textbf{ {{ .WeightAndBalanceLanding.Total.MassMoment }} } \\ \hline
+\end{tabular}
 \end{table}
 }
 
@@ -107,22 +107,22 @@ aan de veiligheidsvoorschriften.
 
 {\small
 \begin{table}[H]
-    \centering
-    \renewcommand{\arraystretch}{1.5}
-    \setlength{\tabcolsep}{10pt}
-    \begin{tabular}{|l|c|}
-        \hline
-        \rowcolor[HTML]{AAAAAA}
-        \textbf{Branstofcategorie} & \textbf{Hoeveelheid} \\ \hline
-        Taxi Brandstof & {{ .FuelTaxi }}           \\ \hline
-        Reisbrandstof (17L/H) & {{ .FuelTrip }}           \\ \hline
-        Onvoorziene brandstof (10\%) & {{ .FuelContingency }}           \\ \hline
-        Brandstof alternatieve luchthaven & {{ .FuelAlternate }}           \\ \hline
-        Eindreservebrandstof (45 minuten) & {{ .FuelReserve }}           \\ \hline
-        Extra brandstof & {{ .FuelExtra }}           \\ \hline
-        \rowcolor[HTML]{AAAAAA}
-        \textbf{Totaal} & \textbf{ {{ .FuelTotal }} } \\ \hline
-    \end{tabular}
+\centering
+\renewcommand{\arraystretch}{1.5}
+\setlength{\tabcolsep}{10pt}
+\begin{tabular}{|l|c|}
+\hline
+\rowcolor[HTML]{AAAAAA}
+\textbf{Branstofcategorie} & \textbf{Hoeveelheid} \\ \hline
+Taxi Brandstof & {{ .FuelTaxi }}           \\ \hline
+Reisbrandstof (17L/H) & {{ .FuelTrip }}           \\ \hline
+Onvoorziene brandstof (10\%) & {{ .FuelContingency }}           \\ \hline
+Brandstof alternatieve luchthaven & {{ .FuelAlternate }}           \\ \hline
+Eindreservebrandstof (45 minuten) & {{ .FuelReserve }}           \\ \hline
+Extra brandstof & {{ .FuelExtra }}           \\ \hline
+\rowcolor[HTML]{AAAAAA}
+\textbf{Totaal} & \textbf{ {{ .FuelTotal }} } \\ \hline
+\end{tabular}
 \end{table}
 }
 
@@ -132,41 +132,41 @@ aan de veiligheidsvoorschriften.
 {\small
 \noindent
 \colorbox{red!80}{%
-    \parbox{\textwidth}{%
-        \centering
-        {\textcolor{white}{\textbf{
+\parbox{\textwidth}{%
+\centering
+{\textcolor{white}{\textbf{
 De prestaties kunnen niet worden berekend omdat de huidige gewichts- en balansberekening aangeeft dat de belading van het vliegtuig buiten de toegestane limieten valt. Controleer en herbereken de gewichts- en balansverdeling zorgvuldig om te voldoen aan de veiligheidsvoorschriften
 }}}%
-    }%
+}%
 }
 }
 {{ else }}
 {\small
 \begin{table}[H]
-    \centering
-    \renewcommand{\arraystretch}{1.5}
-    \setlength{\tabcolsep}{10pt}
-    \begin{tabular}{|l|c|}
-        \hline
-        \rowcolor[HTML]{AAAAAA}
-        \textbf{Name} & \textbf{Distance [m]} \\ \hline
-        Take-off Run Required (Ground Roll) & {{ .TakeOffRunRequired }} \\ \hline
-        Take-off Distance Required & {{ .TakeOffDistanceRequired }} \\ \hline
-        Landing Distance Required & {{ .LandingDistanceRequired }} \\ \hline
-        Landing Ground Roll Required & {{ .LandingGroundRollRequired }} \\ \hline
-    \end{tabular}
+\centering
+\renewcommand{\arraystretch}{1.5}
+\setlength{\tabcolsep}{10pt}
+\begin{tabular}{|l|c|}
+\hline
+\rowcolor[HTML]{AAAAAA}
+\textbf{Name} & \textbf{Distance [m]} \\ \hline
+Take-off Run Required (Ground Roll) & {{ .TakeOffRunRequired }} \\ \hline
+Take-off Distance Required & {{ .TakeOffDistanceRequired }} \\ \hline
+Landing Distance Required & {{ .LandingDistanceRequired }} \\ \hline
+Landing Ground Roll Required & {{ .LandingGroundRollRequired }} \\ \hline
+\end{tabular}
 \end{table}
 }
 
 \newpage
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{tdr.png}
+\centering
+\includegraphics[width=1\textwidth]{tdr.png}
 \end{figure}
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{ldr.png}
+\centering
+\includegraphics[width=1\textwidth]{ldr.png}
 \end{figure}
 {{ end }}
 

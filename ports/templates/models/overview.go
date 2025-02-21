@@ -10,12 +10,6 @@ import (
 	"ppl-calculations/domain/export"
 )
 
-type Overview struct {
-	Base
-
-	Exports []ExportData
-}
-
 type ExportData struct {
 	ID          string
 	Name        string
