@@ -20,6 +20,11 @@ import (
 
 func RegisterOverviewRoutes(mux *http.ServeMux, app app.Application) {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
+
 		w.Header().Set("Content-Type", "text/html")
 
 		stateService, err := adapters.NewCookieStateService(w, r)

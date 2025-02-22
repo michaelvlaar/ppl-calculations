@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"errors"
+	"github.com/nanmu42/gzip"
 	"github.com/sirupsen/logrus"
 	"io/fs"
 	"net/http"
@@ -26,7 +27,7 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 
 	server := &http.Server{
 		Addr:    ":" + os.Getenv("PORT"),
-		Handler: middleware.Chain(mux, middleware.SecurityHeaders, templates.HttpMiddleware(version), middleware.CSRF),
+		Handler: middleware.Chain(gzip.DefaultHandler().WrapHandler(mux), middleware.SecurityHeaders, templates.HttpMiddleware(version), middleware.CSRF),
 	}
 
 	wg.Add(1)
