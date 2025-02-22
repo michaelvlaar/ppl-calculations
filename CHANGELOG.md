@@ -1,4 +1,13 @@
 
+<a name="v1.3.0"></a>
+
+## [v1.3.0](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.20...v1.3.0) (2025-02-22)
+
+### ⚡️ Performance Improvements
+
+* gzip HTTP response
+  
+  
 <a name="v1.2.20"></a>
 
 ## [v1.2.20](https://github.com/michaelvlaar/ppl-calculations/compare/v1.2.19...v1.2.20) (2025-02-21)
