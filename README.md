@@ -12,7 +12,7 @@ safety and efficiency within aeroclubs and welcomes community contributions.
 
 ## TODOS 
 
-- ⬜ Update PDF latex engine to https://github.com/go-pdf/fpdf
+- ⬜ Replace PDF latex engine with https://github.com/go-pdf/fpdf
 
 ## Installation
 
