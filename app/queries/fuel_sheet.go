@@ -14,10 +14,13 @@ var (
 )
 
 type FuelSheetHandler struct {
+	stateProvider state.Provider
 }
 
-func NewFuelSheetHandler() FuelSheetHandler {
-	return FuelSheetHandler{}
+func NewFuelSheetHandler(stateProvider state.Provider) FuelSheetHandler {
+	return FuelSheetHandler{
+		stateProvider: stateProvider,
+	}
 }
 
 type FuelSheetResponse struct {
@@ -29,7 +32,12 @@ type FuelSheetResponse struct {
 	AlternateDuration *time.Duration
 }
 
-func (handler FuelSheetHandler) Handle(ctx context.Context, stateService state.Service) (FuelSheetResponse, error) {
+func (handler FuelSheetHandler) Handle(ctx context.Context) (FuelSheetResponse, error) {
+	stateService, err := handler.stateProvider.ServiceFrom(ctx)
+	if err != nil {
+		return FuelSheetResponse{}, err
+	}
+
 	s, err := stateService.State(ctx)
 	if err != nil {
 		return FuelSheetResponse{}, err

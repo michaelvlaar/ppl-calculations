@@ -10,10 +10,13 @@ import (
 )
 
 type UpdateFuelSheetHandler struct {
+	stateProvider state.Provider
 }
 
-func NewUpdateFuelSheetHandler() UpdateFuelSheetHandler {
-	return UpdateFuelSheetHandler{}
+func NewUpdateFuelSheetHandler(stateProvider state.Provider) UpdateFuelSheetHandler {
+	return UpdateFuelSheetHandler{
+		stateProvider: stateProvider,
+	}
 }
 
 type UpdateFuelSheetRequest struct {
@@ -25,7 +28,12 @@ type UpdateFuelSheetRequest struct {
 	AlternateDuration *time.Duration
 }
 
-func (handler UpdateFuelSheetHandler) Handle(ctx context.Context, stateService state.Service, request UpdateFuelSheetRequest) error {
+func (handler UpdateFuelSheetHandler) Handle(ctx context.Context, request UpdateFuelSheetRequest) error {
+	stateService, err := handler.stateProvider.ServiceFrom(ctx)
+	if err != nil {
+		return err
+	}
+
 	s, err := stateService.State(ctx)
 	if err != nil {
 		return err

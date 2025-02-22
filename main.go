@@ -12,6 +12,8 @@ import (
 	"ppl-calculations/app/commands"
 	"ppl-calculations/app/queries"
 	"ppl-calculations/ports/http"
+	"ppl-calculations/ports/http/middleware"
+	"ppl-calculations/ports/templates"
 	"sync"
 )
 
@@ -35,6 +37,7 @@ func main() {
 	}
 
 	calculationsService := adapters.MustNewCalculationsService(chartsFS, adapters.MustNewImageService())
+	stateServiceProvider := adapters.NewCookieStateServiceProvider()
 
 	exportFS, err := fs.Sub(assets, "assets/export")
 	if err != nil {
@@ -43,20 +46,19 @@ func main() {
 
 	a := app.Application{
 		Commands: app.Commands{
-			UpdateLoadSheet:   commands.NewUpdateLoadSheetHandler(),
-			UpdateFuelSheet:   commands.NewUpdateFuelSheetHandler(),
-			UpdateExportSheet: commands.NewUpdateExportSheetHandler(),
-			DeleteExportSheet: commands.NewDeleteExportSheetHandler(),
-			ClearSheet:        commands.NewClearSheetHandler(),
+			UpdateLoadSheet:   commands.NewUpdateLoadSheetHandler(stateServiceProvider),
+			UpdateFuelSheet:   commands.NewUpdateFuelSheetHandler(stateServiceProvider),
+			UpdateExportSheet: commands.NewUpdateExportSheetHandler(stateServiceProvider),
+			DeleteExportSheet: commands.NewDeleteExportSheetHandler(stateServiceProvider),
+			ClearSheet:        commands.NewClearSheetHandler(stateServiceProvider),
 		},
 		Queries: app.Queries{
 			WBChart:     queries.NewWBChartHandler(calculationsService),
-			LoadSheet:   queries.NewLoadSheetHandler(),
-			FuelSheet:   queries.NewFuelSheetHandler(),
-			StatsSheet:  queries.NewStatsSheetHandler(calculationsService),
-			ExportSheet: queries.NewExportSheetHandler(),
-			Export:      queries.NewExportHandler(),
-			Exports:     queries.NewExportsHandler(),
+			LoadSheet:   queries.NewLoadSheetHandler(stateServiceProvider),
+			FuelSheet:   queries.NewFuelSheetHandler(stateServiceProvider),
+			StatsSheet:  queries.NewStatsSheetHandler(stateServiceProvider, calculationsService),
+			ExportSheet: queries.NewExportSheetHandler(stateServiceProvider),
+			Exports:     queries.NewExportsHandler(stateServiceProvider),
 			LdrChart:    queries.NewLdrChartHandler(calculationsService),
 			TodChart:    queries.NewTodChartHandler(calculationsService),
 			PdfExport:   queries.NewPdfExportHandler(exportFS, calculationsService),
@@ -66,7 +68,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		http.NewHTTPListener(ctx, &wg, a, assets, version)
+		http.NewHTTPListener(ctx, &wg, a, assets, middleware.SecurityHeaders, templates.HttpMiddleware(version), adapters.HttpMiddleware(stateServiceProvider))
 	}()
 
 	<-stop

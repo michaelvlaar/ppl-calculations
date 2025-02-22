@@ -7,16 +7,24 @@ import (
 )
 
 type DeleteExportSheetHandler struct {
+	stateProvider state.Provider
 }
 
-func NewDeleteExportSheetHandler() DeleteExportSheetHandler {
-	return DeleteExportSheetHandler{}
+func NewDeleteExportSheetHandler(stateProvider state.Provider) DeleteExportSheetHandler {
+	return DeleteExportSheetHandler{
+		stateProvider: stateProvider,
+	}
 }
 
 type DeleteExportSheetRequest struct {
 	ID export.ID
 }
 
-func (handler DeleteExportSheetHandler) Handle(ctx context.Context, stateService state.Service, request DeleteExportSheetRequest) error {
+func (handler DeleteExportSheetHandler) Handle(ctx context.Context, request DeleteExportSheetRequest) error {
+	stateService, err := handler.stateProvider.ServiceFrom(ctx)
+	if err != nil {
+		return err
+	}
+
 	return stateService.DeleteExport(ctx, request.ID)
 }

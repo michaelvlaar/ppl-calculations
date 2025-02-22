@@ -7,18 +7,26 @@ import (
 )
 
 type ExportSheetHandler struct {
+	stateProvider state.Provider
 }
 
-func NewExportSheetHandler() ExportSheetHandler {
-	return ExportSheetHandler{}
+func NewExportSheetHandler(stateProvider state.Provider) ExportSheetHandler {
+	return ExportSheetHandler{
+		stateProvider: stateProvider,
+	}
 }
 
 type ExportSheetResponse struct {
 	Name *export.Name
 }
 
-func (handler ExportSheetHandler) Handle(ctx context.Context, stateService state.Service) (ExportSheetResponse, error) {
+func (handler ExportSheetHandler) Handle(ctx context.Context) (ExportSheetResponse, error) {
 	sheet := ExportSheetResponse{}
+
+	stateService, err := handler.stateProvider.ServiceFrom(ctx)
+	if err != nil {
+		return sheet, err
+	}
 
 	s, err := stateService.State(ctx)
 	if err != nil {

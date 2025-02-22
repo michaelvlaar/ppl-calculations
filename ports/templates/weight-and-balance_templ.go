@@ -126,7 +126,7 @@ func WeightAndBalanceForm(weight models.Weight) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<form class=\"w-full mb-2 flex flex-col\" id=\"main-form\" hx-post=\"/load\" hx-target=\"#content-container\" hx-swap=\"outerHTML show:top\"><div class=\"flex flex-col sm:flex-row\"><div class=\"w-full flex flex-col sm:mr-2\"><div class=\"mb-4\"><label for=\"callsign\" class=\"uppercase block text-gray-700 font-bold mb-2\">Vliegtuig</label> <select id=\"callsign\" name=\"callsign\" class=\"custom-select shadow-sm appearance-none border rounded-sm w-full py-1 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline cursor-pointer\" required><option value=\"PHDHA\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<form class=\"w-full mb-2 flex flex-col\" id=\"main-form\" hx-post=\"/load\" hx-target=\"#content-container\" hx-swap=\"outerHTML show:top\"><div class=\"flex flex-col sm:flex-row\"><div class=\"w-full flex flex-col sm:mr-2\"><div class=\"mb-4\"><label for=\"callsign\" class=\"uppercase block text-gray-700 font-bold mb-2\">Vliegtuig</label> <select id=\"callsign\" name=\"callsign\" class=\"custom-select shadow-sm appearance-none border rounded-sm w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:shadow-outline cursor-pointer\" required><option value=\"PHDHA\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

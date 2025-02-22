@@ -8,10 +8,13 @@ import (
 )
 
 type UpdateExportSheetHandler struct {
+	stateProvider state.Provider
 }
 
-func NewUpdateExportSheetHandler() UpdateExportSheetHandler {
-	return UpdateExportSheetHandler{}
+func NewUpdateExportSheetHandler(stateProvider state.Provider) UpdateExportSheetHandler {
+	return UpdateExportSheetHandler{
+		stateProvider: stateProvider,
+	}
 }
 
 type UpdateExportSheetRequest struct {
@@ -19,7 +22,12 @@ type UpdateExportSheetRequest struct {
 	Name export.Name
 }
 
-func (handler UpdateExportSheetHandler) Handle(ctx context.Context, stateService state.Service, request UpdateExportSheetRequest) error {
+func (handler UpdateExportSheetHandler) Handle(ctx context.Context, request UpdateExportSheetRequest) error {
+	stateService, err := handler.stateProvider.ServiceFrom(ctx)
+	if err != nil {
+		return err
+	}
+
 	s, err := stateService.State(ctx)
 	if err != nil {
 		return err

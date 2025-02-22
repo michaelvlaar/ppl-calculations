@@ -24,7 +24,6 @@ type Queries struct {
 	StatsSheet  queries.StatsSheetHandler
 	ExportSheet queries.ExportSheetHandler
 
-	Export  queries.ExportHandler
 	Exports queries.ExportsHandler
 
 	WBChart  queries.WBChartHandler

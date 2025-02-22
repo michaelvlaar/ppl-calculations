@@ -13,12 +13,14 @@ var (
 )
 
 type StatsSheetHandler struct {
-	calcService calculations.Service
+	calcService   calculations.Service
+	stateProvider state.Provider
 }
 
-func NewStatsSheetHandler(calcService calculations.Service) StatsSheetHandler {
+func NewStatsSheetHandler(stateProvider state.Provider, calcService calculations.Service) StatsSheetHandler {
 	return StatsSheetHandler{
-		calcService: calcService,
+		calcService:   calcService,
+		stateProvider: stateProvider,
 	}
 }
 
@@ -26,8 +28,13 @@ type StatsSheetResponse struct {
 	Calculations *calculations.Calculations
 }
 
-func (handler StatsSheetHandler) Handle(ctx context.Context, stateService state.Service) (StatsSheetResponse, error) {
+func (handler StatsSheetHandler) Handle(ctx context.Context) (StatsSheetResponse, error) {
 	sheet := StatsSheetResponse{}
+
+	stateService, err := handler.stateProvider.ServiceFrom(ctx)
+	if err != nil {
+		return sheet, err
+	}
 
 	s, err := stateService.State(ctx)
 	if err != nil {

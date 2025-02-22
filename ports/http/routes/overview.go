@@ -9,7 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
-	"ppl-calculations/adapters"
 	"ppl-calculations/app"
 	"ppl-calculations/app/commands"
 	"ppl-calculations/domain/export"
@@ -26,12 +25,6 @@ func RegisterOverviewRoutes(mux *http.ServeMux, app app.Application) {
 		}
 
 		w.Header().Set("Content-Type", "text/html")
-
-		stateService, err := adapters.NewCookieStateService(w, r)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
 
 		switch r.Method {
 		case http.MethodDelete:
@@ -52,7 +45,7 @@ func RegisterOverviewRoutes(mux *http.ServeMux, app app.Application) {
 				return
 			}
 
-			if err = app.Commands.DeleteExportSheet.Handle(r.Context(), stateService, commands.DeleteExportSheetRequest{
+			if err = app.Commands.DeleteExportSheet.Handle(r.Context(), commands.DeleteExportSheetRequest{
 				ID: id,
 			}); err != nil {
 				logrus.WithError(err).Error("delete export")
@@ -60,7 +53,7 @@ func RegisterOverviewRoutes(mux *http.ServeMux, app app.Application) {
 				return
 			}
 
-			ex, err := app.Queries.Exports.Handle(r.Context(), stateService)
+			ex, err := app.Queries.Exports.Handle(r.Context())
 			if len(ex.Exports) == 0 {
 				if err = templates.OverviewNoExports().Render(r.Context(), w); err != nil {
 					logrus.WithError(err).Error("executing template")
@@ -68,8 +61,9 @@ func RegisterOverviewRoutes(mux *http.ServeMux, app app.Application) {
 			}
 			return
 		case http.MethodGet:
-			respEx, err := app.Queries.Exports.Handle(r.Context(), stateService)
+			respEx, err := app.Queries.Exports.Handle(r.Context())
 			if err != nil {
+				logrus.WithError(err).Error("getting exports")
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}

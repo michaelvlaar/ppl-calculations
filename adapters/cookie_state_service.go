@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/gob"
 	"encoding/json"
+	"errors"
 	"github.com/gorilla/sessions"
 	"net/http"
 	"os"
@@ -18,8 +19,40 @@ const (
 	CookiePrefixSecure = "__Secure-"
 	CookieStateName    = "state"
 	CookieExportName   = "e_"
+
+	CookieStateServiceProviderContextKey = "CookieStateServiceProvider"
 )
 
+type CookieStateServiceProvider struct{}
+
+func NewCookieStateServiceProvider() *CookieStateServiceProvider {
+	return &CookieStateServiceProvider{}
+}
+
+func (provider *CookieStateServiceProvider) WithService(ctx context.Context, service state.Service) context.Context {
+	return context.WithValue(ctx, CookieStateServiceProviderContextKey, service)
+}
+
+func (provider *CookieStateServiceProvider) ServiceFrom(ctx context.Context) (state.Service, error) {
+	service, ok := ctx.Value(CookieStateServiceProviderContextKey).(state.Service)
+	if !ok {
+		return nil, errors.New("no service in context")
+	}
+
+	return service, nil
+}
+
+func HttpMiddleware(provider state.Provider) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			service, err := NewCookieStateService(w, r)
+			if err == nil {
+				r = r.WithContext(provider.WithService(r.Context(), service))
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
 func NewCookieStateService(w http.ResponseWriter, r *http.Request) (state.Service, error) {
 	store := sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 	store.Options.SameSite = http.SameSiteStrictMode

@@ -12,10 +12,13 @@ import (
 )
 
 type UpdateLoadSheetHandler struct {
+	stateProvider state.Provider
 }
 
-func NewUpdateLoadSheetHandler() UpdateLoadSheetHandler {
-	return UpdateLoadSheetHandler{}
+func NewUpdateLoadSheetHandler(stateProvider state.Provider) UpdateLoadSheetHandler {
+	return UpdateLoadSheetHandler{
+		stateProvider: stateProvider,
+	}
 }
 
 type UpdateLoadSheetRequest struct {
@@ -30,7 +33,12 @@ type UpdateLoadSheetRequest struct {
 	Wind                  *wind.Wind
 }
 
-func (handler UpdateLoadSheetHandler) Handle(ctx context.Context, stateService state.Service, request UpdateLoadSheetRequest) error {
+func (handler UpdateLoadSheetHandler) Handle(ctx context.Context, request UpdateLoadSheetRequest) error {
+	stateService, err := handler.stateProvider.ServiceFrom(ctx)
+	if err != nil {
+		return err
+	}
+
 	s, err := stateService.State(ctx)
 	if err != nil {
 		return err

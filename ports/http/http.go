@@ -11,12 +11,11 @@ import (
 	"ppl-calculations/app"
 	"ppl-calculations/ports/http/middleware"
 	"ppl-calculations/ports/http/routes"
-	"ppl-calculations/ports/templates"
 	"sync"
 	"time"
 )
 
-func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Application, assets fs.FS, version string) {
+func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Application, assets fs.FS, middlewares ...func(http.Handler) http.Handler) {
 	mux := http.NewServeMux()
 
 	routes.RegisterStaticRoutes(mux, assets)
@@ -25,9 +24,11 @@ func NewHTTPListener(ctx context.Context, wg *sync.WaitGroup, app app.Applicatio
 	routes.RegisterCalculationRoutes(mux, app)
 	routes.RegisterChartRoutes(mux, app)
 
+	middlewares = append(middlewares, middleware.CSRF)
+
 	server := &http.Server{
 		Addr:    ":" + os.Getenv("PORT"),
-		Handler: middleware.Chain(gzip.DefaultHandler().WrapHandler(mux), middleware.SecurityHeaders, templates.HttpMiddleware(version), middleware.CSRF),
+		Handler: middleware.Chain(gzip.DefaultHandler().WrapHandler(mux), middlewares...),
 	}
 
 	wg.Add(1)

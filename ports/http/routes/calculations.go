@@ -3,7 +3,6 @@ package routes
 import (
 	"github.com/sirupsen/logrus"
 	"net/http"
-	"ppl-calculations/adapters"
 	"ppl-calculations/app"
 	"ppl-calculations/ports/templates"
 	"ppl-calculations/ports/templates/models"
@@ -13,12 +12,6 @@ import (
 func RegisterCalculationRoutes(mux *http.ServeMux, app app.Application) {
 	mux.HandleFunc("/load", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
-
-		stateService, err := adapters.NewCookieStateService(w, r)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
 
 		switch r.Method {
 		case http.MethodPost:
@@ -40,13 +33,13 @@ func RegisterCalculationRoutes(mux *http.ServeMux, app app.Application) {
 				return
 			}
 
-			if err = app.Commands.UpdateLoadSheet.Handle(r.Context(), stateService, updateLoadSheetRequest); err != nil {
+			if err = app.Commands.UpdateLoadSheet.Handle(r.Context(), updateLoadSheetRequest); err != nil {
 				logrus.WithError(err).Error("update loadsheet")
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 
-			fuelSheet, err := app.Queries.FuelSheet.Handle(r.Context(), stateService)
+			fuelSheet, err := app.Queries.FuelSheet.Handle(r.Context())
 			if err != nil {
 				logrus.WithError(err).Error("reading fuelsheet")
 				w.WriteHeader(http.StatusInternalServerError)
@@ -59,7 +52,7 @@ func RegisterCalculationRoutes(mux *http.ServeMux, app app.Application) {
 				logrus.WithError(err).Error("executing template")
 			}
 		case http.MethodGet:
-			loadSheet, err := app.Queries.LoadSheet.Handle(r.Context(), stateService)
+			loadSheet, err := app.Queries.LoadSheet.Handle(r.Context())
 			if err != nil {
 				logrus.WithError(err).Error("reading loadsheet")
 				w.WriteHeader(http.StatusInternalServerError)
@@ -84,12 +77,6 @@ func RegisterCalculationRoutes(mux *http.ServeMux, app app.Application) {
 	mux.HandleFunc("/fuel", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 
-		stateService, err := adapters.NewCookieStateService(w, r)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
 		switch r.Method {
 		case http.MethodPost:
 			if r.Header.Get("HX-Request") != "true" {
@@ -110,13 +97,13 @@ func RegisterCalculationRoutes(mux *http.ServeMux, app app.Application) {
 				return
 			}
 
-			if err = app.Commands.UpdateFuelSheet.Handle(r.Context(), stateService, updateFuelSheetRequest); err != nil {
+			if err = app.Commands.UpdateFuelSheet.Handle(r.Context(), updateFuelSheetRequest); err != nil {
 				logrus.WithError(err).Error("update loadsheet")
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 
-			statsSheet, err := app.Queries.StatsSheet.Handle(r.Context(), stateService)
+			statsSheet, err := app.Queries.StatsSheet.Handle(r.Context())
 			if err != nil {
 				logrus.WithError(err).Error("update loadsheet")
 				w.WriteHeader(http.StatusInternalServerError)
@@ -128,7 +115,7 @@ func RegisterCalculationRoutes(mux *http.ServeMux, app app.Application) {
 				logrus.WithError(err).Error("executing template")
 			}
 		case http.MethodGet:
-			fuelSheet, err := app.Queries.FuelSheet.Handle(r.Context(), stateService)
+			fuelSheet, err := app.Queries.FuelSheet.Handle(r.Context())
 			if err != nil {
 				http.Redirect(w, r, "/load", http.StatusSeeOther)
 				return
@@ -153,12 +140,6 @@ func RegisterCalculationRoutes(mux *http.ServeMux, app app.Application) {
 	mux.HandleFunc("/stats", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 
-		stateService, err := adapters.NewCookieStateService(w, r)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
 		switch r.Method {
 		case http.MethodPost:
 			if r.Header.Get("HX-Request") != "true" {
@@ -172,7 +153,7 @@ func RegisterCalculationRoutes(mux *http.ServeMux, app app.Application) {
 				return
 			}
 
-			sheet, err := app.Queries.ExportSheet.Handle(r.Context(), stateService)
+			sheet, err := app.Queries.ExportSheet.Handle(r.Context())
 			if err != nil {
 				logrus.WithError(err).Error("loading exportsheet")
 				w.WriteHeader(http.StatusInternalServerError)
@@ -185,7 +166,7 @@ func RegisterCalculationRoutes(mux *http.ServeMux, app app.Application) {
 			}
 
 		case http.MethodGet:
-			statsSheet, err := app.Queries.StatsSheet.Handle(r.Context(), stateService)
+			statsSheet, err := app.Queries.StatsSheet.Handle(r.Context())
 			if err != nil {
 				http.Redirect(w, r, "/fuel", http.StatusSeeOther)
 				return
@@ -210,12 +191,6 @@ func RegisterCalculationRoutes(mux *http.ServeMux, app app.Application) {
 	mux.HandleFunc("/export", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 
-		stateService, err := adapters.NewCookieStateService(w, r)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
 		switch r.Method {
 		case http.MethodPost:
 			if r.Header.Get("HX-Request") != "true" {
@@ -236,19 +211,19 @@ func RegisterCalculationRoutes(mux *http.ServeMux, app app.Application) {
 				return
 			}
 
-			if err = app.Commands.UpdateExportSheet.Handle(r.Context(), stateService, updateExportSheetRequest); err != nil {
+			if err = app.Commands.UpdateExportSheet.Handle(r.Context(), updateExportSheetRequest); err != nil {
 				logrus.WithError(err).Error("update exportsheet")
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 
-			if err = app.Commands.ClearSheet.Handle(r.Context(), stateService); err != nil {
+			if err = app.Commands.ClearSheet.Handle(r.Context()); err != nil {
 				logrus.WithError(err).Error("clear sheet")
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 
-			respEx, err := app.Queries.Exports.Handle(r.Context(), stateService)
+			respEx, err := app.Queries.Exports.Handle(r.Context())
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				return
@@ -259,7 +234,7 @@ func RegisterCalculationRoutes(mux *http.ServeMux, app app.Application) {
 				logrus.WithError(err).Error("executing template")
 			}
 		case http.MethodGet:
-			sheet, err := app.Queries.ExportSheet.Handle(r.Context(), stateService)
+			sheet, err := app.Queries.ExportSheet.Handle(r.Context())
 			if err != nil {
 				logrus.WithError(err).Error("creating pdf")
 				w.WriteHeader(http.StatusInternalServerError)
