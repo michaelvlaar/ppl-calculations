@@ -2,10 +2,10 @@ package queries
 
 import (
 	"context"
+	"github.com/michaelvlaar/ppl-calculations/domain/calculations"
+	"github.com/michaelvlaar/ppl-calculations/domain/callsign"
+	"github.com/michaelvlaar/ppl-calculations/domain/weight_balance"
 	"io"
-	"ppl-calculations/domain/calculations"
-	"ppl-calculations/domain/callsign"
-	"ppl-calculations/domain/weight_balance"
 )
 
 type WBChartHandler struct {

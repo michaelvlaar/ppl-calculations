@@ -4,25 +4,29 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/michaelvlaar/ppl-calculations/domain/calculations"
+	"github.com/michaelvlaar/ppl-calculations/domain/export"
+	"github.com/michaelvlaar/ppl-calculations/domain/fuel"
+	"github.com/phpdave11/gofpdf"
 	"github.com/sirupsen/logrus"
-	"html/template"
 	"io"
 	"io/fs"
 	"os"
-	"os/exec"
 	"path"
-	"path/filepath"
-	"ppl-calculations/domain/calculations"
-	"ppl-calculations/domain/export"
-	"ppl-calculations/domain/fuel"
 	"strings"
 	"time"
+)
+
+const (
+	TitleFontSize       = 14
+	TableHeaderFontSize = 12
 )
 
 type PdfExportHandler struct {
 	template    bytes.Buffer
 	calcService calculations.Service
 	tmpFolder   string
+	version     string
 }
 
 type WeightAndBalanceItem struct {
@@ -66,7 +70,7 @@ type ExportData struct {
 	WeightAndBalanceLanding WeightAndBalanceState
 }
 
-func NewPdfExportHandler(assets fs.FS, calcService calculations.Service) PdfExportHandler {
+func NewPdfExportHandler(version string, assets fs.FS, calcService calculations.Service) PdfExportHandler {
 	e, err := assets.Open("export.tex")
 	if err != nil {
 		logrus.WithError(err).Fatal("export template not found")
@@ -86,6 +90,7 @@ func NewPdfExportHandler(assets fs.FS, calcService calculations.Service) PdfExpo
 		calcService: calcService,
 		tmpFolder:   os.Getenv("TMP_PATH"),
 		template:    exportBuf,
+		version:     version,
 	}
 }
 
@@ -157,132 +162,240 @@ func (h PdfExportHandler) Handle(_ context.Context, e export.Export) (io.Reader,
 		}
 	}()
 
-	err = os.WriteFile(path.Join(tempDir, "tdr.png"), tdrBytes, 0644)
+	wbImgPath := path.Join(tempDir, "wb.png")
+	err = os.WriteFile(wbImgPath, wbBytes, 0644)
 	if err != nil {
 		return nil, err
 	}
 
-	err = os.WriteFile(path.Join(tempDir, "ldr.png"), ldrBytes, 0644)
+	ldrImgPath := path.Join(tempDir, "ldr.png")
+	err = os.WriteFile(ldrImgPath, ldrBytes, 0644)
 	if err != nil {
 		return nil, err
 	}
 
-	err = os.WriteFile(path.Join(tempDir, "wb.png"), wbBytes, 0644)
+	tdrImgPath := path.Join(tempDir, "tdr.png")
+	err = os.WriteFile(tdrImgPath, tdrBytes, 0644)
 	if err != nil {
 		return nil, err
 	}
 
-	tmpl, err := template.New("pdfTemplate").Parse(h.template.String())
-	if err != nil {
-		return nil, err
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.SetHeaderFuncMode(func() {
+		pdf.SetFillColor(78, 65, 246)
+		pdf.Rect(0, 0, 210, 15, "F")
+		pdf.SetY(5)
+		pdf.SetFont("Arial", "B", 10)
+		pdf.SetTextColor(255, 255, 255)
+		pdf.SetX(25)
+		pdf.CellFormat(160/3, 5, e.CallSign.String(), "", 0, "L", false, 0, "")
+		pdf.CellFormat(160/3, 5, e.Name.String(), "", 0, "C", false, 0, "")
+		pdf.CellFormat(160/3, 5, time.Now().Format("15:04 02-01-2006"), "", 0, "R", false, 0, "")
+	}, true)
+
+	pdf.SetTextColor(0, 0, 0)
+	pdf.AliasNbPages("{nb}")
+	pdf.SetFooterFunc(func() {
+		pdf.SetY(-12)
+		pdf.SetFillColor(240, 240, 240)
+		pdf.Rect(0, 282, 210, 15, "F")
+		pdf.SetFont("Arial", "I", 10)
+		pdf.SetX(25)
+		pdf.SetFillColor(240, 240, 240)
+		pdf.CellFormat(100, 10, fmt.Sprintf("Gegenereerd door github.com/michaelvlaar/ppl-calculations (%s)", h.version), "", 0, "L", false, 0, "https://github.com/michaelvlaar/ppl-calculations")
+		pdf.CellFormat(60, 10, "Pagina "+fmt.Sprint(pdf.PageNo())+" van {nb}", "", 0, "R", false, 0, "")
+	})
+
+	pdf.SetMargins(20, 20, 20)
+	pdf.AddPage()
+	pdf.SetFont("Arial", "B", TitleFontSize)
+	pdf.CellFormat(0, 10, "Gewicht en Balans", "", 1, "C", false, 0, "")
+
+	if !takeOffWeightAndBalance.WithinLimits {
+		pdf.SetFillColor(200, 0, 0)
+		pdf.SetTextColor(255, 255, 255)
+		pdf.SetFont("Arial", "B", 10)
+		pdf.SetX(25)
+		pdf.MultiCell(160, 6, "De huidige gewichts- en balansberekening geeft aan dat de belading van het vliegtuig buiten de toegestane limieten valt. Controleer en herbereken de gewichts- en balansverdeling zorgvuldig om te voldoen aan de veiligheidsvoorschriften.", "1", "C", true)
+		pdf.SetTextColor(0, 0, 0)
 	}
 
-	exData := ExportData{}
+	pdf.Ln(5)
 
-	exData.CallSign = e.CallSign.String()
-	exData.Generated = time.Now().Format("15:04:05 02-01-2006")
-	exData.Reference = e.Name.String()
+	pdf.Image(wbImgPath, 55, pdf.GetY(), 100, 0, false, "", 0, "")
+	pdf.Ln(105)
 
-	exData.FuelSufficient = fuelPlanning.Sufficient
-	exData.FuelTaxi = parseNumber(fuelPlanning.Taxi.Volume.String(fuelPlanning.VolumeType))
-	exData.FuelTrip = parseNumber(fuelPlanning.Trip.Volume.String(fuelPlanning.VolumeType))
-	exData.FuelAlternate = parseNumber(fuelPlanning.Alternate.Volume.String(fuelPlanning.VolumeType))
-	exData.FuelContingency = parseNumber(fuelPlanning.Contingency.Volume.String(fuelPlanning.VolumeType))
-	exData.FuelReserve = parseNumber(fuelPlanning.Reserve.Volume.String(fuelPlanning.VolumeType))
-	exData.FuelTotal = parseNumber(fuelPlanning.Total.Volume.String(fuelPlanning.VolumeType))
-	exData.FuelExtra = parseNumber(fuelPlanning.Extra.Volume.String(fuelPlanning.VolumeType))
-	exData.FuelExtraAbs = parseNumber(fuelPlanning.Extra.Volume.Abs().String(fuelPlanning.VolumeType))
+	pdf.SetFont("Arial", "B", TitleFontSize)
+	pdf.CellFormat(0, 10, "Take-off", "", 1, "C", false, 0, "")
+	pdf.Ln(1)
 
-	wbState := WeightAndBalanceState{}
-	for _, i := range takeOffWeightAndBalance.Moments {
-		m := parseNumber(fmt.Sprintf("%.2f", i.Mass.Kilo()))
-		if strings.HasPrefix(i.Name, "Fuel") {
-			m = fmt.Sprintf("(%s) %s", exData.FuelTotal, m)
+	headers := []string{"NAME", "ARM [M]", "MASS [KG]", "MASS MOMENT [KG M]"}
+	colWidths := []float64{50, 30, 30, 50}
+
+	pdf.SetFont("Arial", "B", TableHeaderFontSize)
+	pdf.SetFillColor(170, 170, 170)
+	pdf.SetX((210 - (colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3])) / 2)
+	for i, h := range headers {
+		align := "C"
+		if i == 0 {
+			align = "L"
 		}
-
-		wbState.Items = append(wbState.Items, WeightAndBalanceItem{
-			Name:       parseNumber(i.Name),
-			LeverArm:   parseNumber(fmt.Sprintf("%.4f", i.Arm)),
-			Mass:       m,
-			MassMoment: parseNumber(fmt.Sprintf("%.2f", i.KGM())),
-		})
+		pdf.CellFormat(colWidths[i], 6, h, "1", 0, align, true, 0, "")
+	}
+	pdf.Ln(-1)
+	pdf.SetFont("Arial", "", TableHeaderFontSize)
+	for _, i := range takeOffWeightAndBalance.Moments {
+		pdf.SetX((210 - (colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3])) / 2)
+		mass := strings.ReplaceAll(fmt.Sprintf("%.2f", i.Mass.Kilo()), ".", ",")
+		if i.Name == "Fuel" {
+			mass = fmt.Sprintf("(%s) %s", parseNumber(fuelPlanning.Total.Volume.Subtract(fuelPlanning.Trip.Volume).String(fuelPlanning.VolumeType)), mass)
+		}
+		pdf.CellFormat(colWidths[0], 6, strings.ReplaceAll(i.Name, ".", ","), "1", 0, "", false, 0, "")
+		pdf.CellFormat(colWidths[1], 6, strings.ReplaceAll(fmt.Sprintf("%.4f", i.Arm), ".", ","), "1", 0, "C", false, 0, "")
+		pdf.CellFormat(colWidths[2], 6, strings.ReplaceAll(mass, ".", ","), "1", 0, "C", false, 0, "")
+		pdf.CellFormat(colWidths[3], 6, strings.ReplaceAll(fmt.Sprintf("%.2f", i.KGM()), ".", ","), "1", 0, "C", false, 0, "")
+		pdf.Ln(-1)
 	}
 
-	wbState.Total = WeightAndBalanceItem{
-		Name:       parseNumber(takeOffWeightAndBalance.Total.Name),
-		LeverArm:   parseNumber(fmt.Sprintf("%.4f", takeOffWeightAndBalance.Total.Arm)),
-		Mass:       parseNumber(fmt.Sprintf("%.2f", takeOffWeightAndBalance.Total.Mass.Kilo())),
-		MassMoment: parseNumber(fmt.Sprintf("%.2f", takeOffWeightAndBalance.Total.KGM())),
+	total := takeOffWeightAndBalance.Total
+	pdf.SetFont("Arial", "B", TableHeaderFontSize)
+	pdf.SetFillColor(170, 170, 170)
+	pdf.SetX((210 - (colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3])) / 2)
+	pdf.CellFormat(colWidths[0], 6, "TOTAL", "1", 0, "", true, 0, "")
+	pdf.CellFormat(colWidths[1], 6, strings.ReplaceAll(fmt.Sprintf("%.4f", total.Arm), ".", ","), "1", 0, "C", true, 0, "")
+	pdf.CellFormat(colWidths[2], 6, strings.ReplaceAll(fmt.Sprintf("%.2f", total.Mass.Kilo()), ".", ","), "1", 0, "C", true, 0, "")
+	pdf.CellFormat(colWidths[3], 6, strings.ReplaceAll(fmt.Sprintf("%.2f", total.KGM()), ".", ","), "1", 0, "C", true, 0, "")
+	pdf.Ln(10)
+
+	pdf.SetFont("Arial", "B", TitleFontSize)
+	pdf.CellFormat(0, 10, "Landing", "", 1, "C", false, 0, "")
+	pdf.Ln(1)
+
+	pdf.SetFont("Arial", "B", TableHeaderFontSize)
+	pdf.SetFillColor(170, 170, 170)
+	pdf.SetX((210 - (colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3])) / 2)
+	for i, h := range headers {
+		align := "C"
+		if i == 0 {
+			align = "L"
+		}
+		pdf.CellFormat(colWidths[i], 6, h, "1", 0, align, true, 0, "")
 	}
-
-	wbState.WithinLimits = takeOffWeightAndBalance.WithinLimits
-
-	wbLandingState := WeightAndBalanceState{}
+	pdf.Ln(-1)
+	pdf.SetFont("Arial", "", TableHeaderFontSize)
 
 	for _, i := range landingWeightAndBalance.Moments {
-		m := parseNumber(fmt.Sprintf("%.2f", i.Mass.Kilo()))
-		if strings.HasPrefix(i.Name, "Fuel") {
-			m = fmt.Sprintf("(%s) %s", parseNumber(fuelPlanning.Total.Volume.Subtract(fuelPlanning.Trip.Volume).String(fuelPlanning.VolumeType)), m)
+		pdf.SetX((210 - (colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3])) / 2)
+		mass := strings.ReplaceAll(fmt.Sprintf("%.2f", i.Mass.Kilo()), ".", ",")
+		if i.Name == "Fuel" {
+			mass = fmt.Sprintf("(%s) %s", parseNumber(fuelPlanning.Total.Volume.Subtract(fuelPlanning.Trip.Volume).String(fuelPlanning.VolumeType)), mass)
 		}
-
-		wbLandingState.Items = append(wbLandingState.Items, WeightAndBalanceItem{
-			Name:       parseNumber(i.Name),
-			LeverArm:   parseNumber(fmt.Sprintf("%.4f", i.Arm)),
-			Mass:       m,
-			MassMoment: parseNumber(fmt.Sprintf("%.2f", i.KGM())),
-		})
+		pdf.CellFormat(colWidths[0], 6, strings.ReplaceAll(i.Name, ".", ","), "1", 0, "", false, 0, "")
+		pdf.CellFormat(colWidths[1], 6, strings.ReplaceAll(fmt.Sprintf("%.4f", i.Arm), ".", ","), "1", 0, "C", false, 0, "")
+		pdf.CellFormat(colWidths[2], 6, strings.ReplaceAll(mass, ".", ","), "1", 0, "C", false, 0, "")
+		pdf.CellFormat(colWidths[3], 6, strings.ReplaceAll(fmt.Sprintf("%.2f", i.KGM()), ".", ","), "1", 0, "C", false, 0, "")
+		pdf.Ln(-1)
 	}
 
-	wbLandingState.Total = WeightAndBalanceItem{
-		Name:       parseNumber(landingWeightAndBalance.Total.Name),
-		LeverArm:   parseNumber(fmt.Sprintf("%.4f", landingWeightAndBalance.Total.Arm)),
-		Mass:       parseNumber(fmt.Sprintf("%.2f", landingWeightAndBalance.Total.Mass.Kilo())),
-		MassMoment: parseNumber(fmt.Sprintf("%.2f", landingWeightAndBalance.Total.KGM())),
+	totalLanding := landingWeightAndBalance.Total
+	pdf.SetFont("Arial", "B", TableHeaderFontSize)
+	pdf.SetFillColor(170, 170, 170)
+	pdf.SetX((210 - (colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3])) / 2)
+	pdf.CellFormat(colWidths[0], 6, "TOTAL", "1", 0, "", true, 0, "")
+	pdf.CellFormat(colWidths[1], 6, strings.ReplaceAll(fmt.Sprintf("%.4f", totalLanding.Arm), ".", ","), "1", 0, "C", true, 0, "")
+	pdf.CellFormat(colWidths[2], 6, strings.ReplaceAll(fmt.Sprintf("%.2f", totalLanding.Mass.Kilo()), ".", ","), "1", 0, "C", true, 0, "")
+	pdf.CellFormat(colWidths[3], 6, strings.ReplaceAll(fmt.Sprintf("%.2f", totalLanding.KGM()), ".", ","), "1", 0, "C", true, 0, "")
+
+	pdf.AddPage()
+	pdf.SetFont("Arial", "B", TitleFontSize)
+	pdf.CellFormat(0, TableHeaderFontSize, "Brandstofplanning", "", 1, "C", false, 0, "")
+	pdf.Ln(1)
+
+	if !fuelPlanning.Sufficient {
+		pdf.SetFont("Arial", "B", 10)
+		pdf.SetFillColor(200, 0, 0)
+		pdf.SetTextColor(255, 255, 255)
+		pdf.SetX(25)
+		pdf.MultiCell(160, 6, "De huidige brandstofvoorraad van "+parseNumber(fuelPlanning.Total.Volume.String(fuelPlanning.VolumeType))+" is onvoldoende om de geplande vlucht veilig uit te voeren. Er moet minimaal "+parseNumber(fuelPlanning.Extra.Volume.Abs().String(fuelPlanning.VolumeType))+" extra brandstof worden bijgetankt om te voldoen aan de veiligheidsvoorschriften.", "1", "C", true)
+		pdf.SetTextColor(0, 0, 0)
+		pdf.Ln(5)
 	}
 
-	wbLandingState.WithinLimits = takeOffWeightAndBalance.WithinLimits
+	fuelRows := []struct {
+		label string
+		value string
+	}{
+		{"Taxi Brandstof", parseNumber(fuelPlanning.Taxi.Volume.String(fuelPlanning.VolumeType))},
+		{"Reisbrandstof (17L/H)", parseNumber(fuelPlanning.Trip.Volume.String(fuelPlanning.VolumeType))},
+		{"Onvoorziene brandstof (10%)", parseNumber(fuelPlanning.Contingency.Volume.String(fuelPlanning.VolumeType))},
+		{"Brandstof alternatieve luchthaven", parseNumber(fuelPlanning.Alternate.Volume.String(fuelPlanning.VolumeType))},
+		{"Eindreservebrandstof (45 minuten)", parseNumber(fuelPlanning.Reserve.Volume.String(fuelPlanning.VolumeType))},
+		{"Extra brandstof", parseNumber(fuelPlanning.Extra.Volume.String(fuelPlanning.VolumeType))},
+	}
 
-	exData.TakeOffDistanceRequired = fmt.Sprintf("%.0f", performance.TakeOffDistanceRequired)
-	exData.TakeOffRunRequired = fmt.Sprintf("%.0f", performance.TakeOffRunRequired)
-	exData.LandingDistanceRequired = fmt.Sprintf("%.0f", performance.LandingDistanceRequired)
-	exData.LandingGroundRollRequired = fmt.Sprintf("%.0f", performance.LandingGroundRollRequired)
+	pdf.SetFont("Arial", "B", TableHeaderFontSize)
+	pdf.SetFillColor(170, 170, 170)
+	pdf.SetX((210 - 160) / 2)
+	pdf.CellFormat(120, 6, "Brandstofcategorie", "1", 0, "L", true, 0, "")
+	pdf.CellFormat(40, 6, "Hoeveelheid", "1", 0, "C", true, 0, "")
+	pdf.Ln(-1)
+	pdf.SetFont("Arial", "", TableHeaderFontSize)
+	for _, row := range fuelRows {
+		pdf.SetX((210 - 160) / 2)
+		pdf.CellFormat(120, 6, row.label, "1", 0, "L", false, 0, "")
+		pdf.CellFormat(40, 6, row.value, "1", 0, "C", false, 0, "")
+		pdf.Ln(-1)
+	}
+	pdf.SetFillColor(170, 170, 170)
+	pdf.SetFont("Arial", "B", TableHeaderFontSize)
+	pdf.SetX((210 - 160) / 2)
+	pdf.CellFormat(120, 6, "Totaal", "1", 0, "L", true, 0, "")
+	pdf.CellFormat(40, 6, parseNumber(fuelPlanning.Total.Volume.String(fuelPlanning.VolumeType)), "1", 0, "C", true, 0, "")
 
-	exData.WeightAndBalanceTakeOff = wbState
-	exData.WeightAndBalanceLanding = wbLandingState
+	pdf.Ln(10)
 
-	var output bytes.Buffer
-	err = tmpl.Execute(&output, exData)
+	pdf.SetFont("Arial", "B", TitleFontSize)
+	pdf.CellFormat(0, 10, "Prestaties", "", 1, "C", false, 0, "")
+	pdf.Ln(2)
+
+	if !takeOffWeightAndBalance.WithinLimits {
+		pdf.SetFillColor(200, 0, 0)
+		pdf.SetTextColor(255, 255, 255)
+		pdf.SetFont("Arial", "B", 10)
+		pdf.SetX(25)
+		pdf.MultiCell(160, 4, "De prestaties kunnen niet worden berekend omdat de huidige gewichts- en balansberekening aangeeft dat de belading van het vliegtuig buiten de toegestane limieten valt. Controleer en herbereken de gewichts- en balansverdeling zorgvuldig om te voldoen aan de veiligheidsvoorschriften", "1", "C", true)
+		pdf.SetTextColor(0, 0, 0)
+	} else {
+		pdf.SetFont("Arial", "B", TableHeaderFontSize)
+		pdf.SetFillColor(170, 170, 170)
+		pdf.SetX((210 - 160) / 2)
+		pdf.CellFormat(120, 6, "Name", "1", 0, "L", true, 0, "")
+		pdf.CellFormat(40, 6, "Distance [m]", "1", 0, "C", true, 0, "")
+		pdf.Ln(-1)
+		pdf.SetFont("Arial", "", TableHeaderFontSize)
+		table := []struct{ Label, Value string }{
+			{"Take-off Run Required (Ground Roll)", fmt.Sprintf("%s", strings.ReplaceAll(fmt.Sprintf("%.0f", performance.TakeOffRunRequired), ".", ","))},
+			{"Take-off Distance Required", fmt.Sprintf("%s", strings.ReplaceAll(fmt.Sprintf("%.0f", performance.TakeOffDistanceRequired), ".", ","))},
+			{"Landing Distance Required", fmt.Sprintf("%s", strings.ReplaceAll(fmt.Sprintf("%.0f", performance.LandingDistanceRequired), ".", ","))},
+			{"Landing Ground Roll Required", fmt.Sprintf("%s", strings.ReplaceAll(fmt.Sprintf("%.0f", performance.LandingGroundRollRequired), ".", ","))},
+		}
+		for _, row := range table {
+			pdf.SetX((210 - 160) / 2)
+			pdf.CellFormat(120, 6, row.Label, "1", 0, "L", false, 0, "")
+			pdf.CellFormat(40, 6, row.Value, "1", 0, "C", false, 0, "")
+			pdf.Ln(-1)
+		}
+		pdf.AddPage()
+		pdf.Ln(10)
+		pdf.Image(tdrImgPath, 25, pdf.GetY(), 160, 0, false, "", 0, "")
+		pdf.Ln(130)
+		pdf.Image(ldrImgPath, 25, pdf.GetY(), 160, 0, false, "", 0, "")
+	}
+	var buf bytes.Buffer
+	err = pdf.Output(&buf)
 	if err != nil {
 		return nil, err
 	}
 
-	err = os.WriteFile(path.Join(tempDir, "export.tex"), output.Bytes(), 0644)
-	if err != nil {
-		return nil, err
-	}
-
-	cmd := exec.Command("xelatex", "-halt-on-error", "-interaction=nonstopmode", "export.tex")
-	cmd.Dir = tempDir
-
-	var stdoutBuf, stderrBuf bytes.Buffer
-	cmd.Stdout = &stdoutBuf
-	cmd.Stderr = &stderrBuf
-
-	err = cmd.Run()
-	if err != nil {
-		logrus.WithError(err).WithFields(logrus.Fields{
-			"stdout": stdoutBuf.String(),
-			"stderr": stderrBuf.String(),
-		}).Error("executing xelatex")
-		return nil, err
-	}
-
-	pdfPath := filepath.Join(tempDir, "export.pdf")
-
-	pdfData, err := os.ReadFile(pdfPath)
-	if err != nil {
-		return nil, err
-	}
-
-	return bytes.NewBufferString(string(pdfData)), nil
+	return &buf, nil
 }

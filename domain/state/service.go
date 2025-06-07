@@ -2,7 +2,7 @@ package state
 
 import (
 	"context"
-	"ppl-calculations/domain/export"
+	"github.com/michaelvlaar/ppl-calculations/domain/export"
 )
 
 type Service interface {

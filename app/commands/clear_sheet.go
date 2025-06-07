@@ -2,7 +2,7 @@ package commands
 
 import (
 	"context"
-	"ppl-calculations/domain/state"
+	"github.com/michaelvlaar/ppl-calculations/domain/state"
 )
 
 type ClearSheetHandler struct {

@@ -1,18 +1,18 @@
 package routes
 
 import (
+	"github.com/michaelvlaar/ppl-calculations/app"
+	"github.com/michaelvlaar/ppl-calculations/app/queries"
+	"github.com/michaelvlaar/ppl-calculations/domain/calculations"
+	"github.com/michaelvlaar/ppl-calculations/domain/callsign"
+	"github.com/michaelvlaar/ppl-calculations/domain/pressure"
+	"github.com/michaelvlaar/ppl-calculations/domain/temperature"
+	"github.com/michaelvlaar/ppl-calculations/domain/weight_balance"
+	"github.com/michaelvlaar/ppl-calculations/domain/wind"
+	"github.com/michaelvlaar/ppl-calculations/ports/http/middleware"
 	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
-	"ppl-calculations/app"
-	"ppl-calculations/app/queries"
-	"ppl-calculations/domain/calculations"
-	"ppl-calculations/domain/callsign"
-	"ppl-calculations/domain/pressure"
-	"ppl-calculations/domain/temperature"
-	"ppl-calculations/domain/weight_balance"
-	"ppl-calculations/domain/wind"
-	"ppl-calculations/ports/http/middleware"
 	"strconv"
 )
 

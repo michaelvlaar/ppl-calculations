@@ -8,7 +8,7 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "ppl-calculations/ports/templates/models"
+import "github.com/michaelvlaar/ppl-calculations/ports/templates/models"
 
 func FuelMaxFuel(fuelOption models.FuelOption) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {

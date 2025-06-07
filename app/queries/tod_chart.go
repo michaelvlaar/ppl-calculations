@@ -2,12 +2,12 @@ package queries
 
 import (
 	"context"
+	"github.com/michaelvlaar/ppl-calculations/domain/calculations"
+	"github.com/michaelvlaar/ppl-calculations/domain/pressure"
+	"github.com/michaelvlaar/ppl-calculations/domain/temperature"
+	"github.com/michaelvlaar/ppl-calculations/domain/weight_balance"
+	"github.com/michaelvlaar/ppl-calculations/domain/wind"
 	"io"
-	"ppl-calculations/domain/calculations"
-	"ppl-calculations/domain/pressure"
-	"ppl-calculations/domain/temperature"
-	"ppl-calculations/domain/weight_balance"
-	"ppl-calculations/domain/wind"
 )
 
 type TodChartRequest struct {

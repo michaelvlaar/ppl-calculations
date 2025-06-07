@@ -5,16 +5,15 @@ import (
 	"compress/gzip"
 	"encoding/base64"
 	"encoding/gob"
-	"fmt"
+	"github.com/michaelvlaar/ppl-calculations/app"
+	"github.com/michaelvlaar/ppl-calculations/app/commands"
+	"github.com/michaelvlaar/ppl-calculations/domain/export"
+	"github.com/michaelvlaar/ppl-calculations/ports/http/middleware"
+	"github.com/michaelvlaar/ppl-calculations/ports/templates"
+	"github.com/michaelvlaar/ppl-calculations/ports/templates/models"
 	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
-	"ppl-calculations/app"
-	"ppl-calculations/app/commands"
-	"ppl-calculations/domain/export"
-	"ppl-calculations/ports/http/middleware"
-	"ppl-calculations/ports/templates"
-	"ppl-calculations/ports/templates/models"
 )
 
 func RegisterOverviewRoutes(mux *http.ServeMux, app app.Application) {
@@ -191,7 +190,7 @@ func RegisterOverviewRoutes(mux *http.ServeMux, app app.Application) {
 			}
 
 			w.Header().Set("Content-Type", "application/pdf")
-			w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", e.Name.String()))
+			//w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", e.Name.String()))
 
 			_, err = io.Copy(w, pdf)
 			if err != nil {

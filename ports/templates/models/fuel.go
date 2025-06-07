@@ -2,8 +2,8 @@ package models
 
 import (
 	"fmt"
+	"github.com/michaelvlaar/ppl-calculations/app/queries"
 	"net/http"
-	"ppl-calculations/app/queries"
 )
 
 type Fuel struct {

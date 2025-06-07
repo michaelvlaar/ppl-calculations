@@ -30,6 +30,7 @@ safety and efficiency within aeroclubs and welcomes community contributions.
 The application requires the following environment variables to function correctly. Below are example values:
 
 ```env
+TRUSTED_ORIGINS=localhost:8080,xxxx
 CSRF_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 PORT=8080
 SESSION_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

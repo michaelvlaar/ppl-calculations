@@ -1,6 +1,6 @@
 package models
 
-import "ppl-calculations/app/queries"
+import "github.com/michaelvlaar/ppl-calculations/app/queries"
 
 type Export struct {
 	Name string

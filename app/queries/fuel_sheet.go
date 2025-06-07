@@ -3,9 +3,9 @@ package queries
 import (
 	"context"
 	"errors"
-	"ppl-calculations/domain/fuel"
-	"ppl-calculations/domain/state"
-	"ppl-calculations/domain/volume"
+	"github.com/michaelvlaar/ppl-calculations/domain/fuel"
+	"github.com/michaelvlaar/ppl-calculations/domain/state"
+	"github.com/michaelvlaar/ppl-calculations/domain/volume"
 	"time"
 )
 

@@ -2,8 +2,8 @@ package models
 
 import (
 	"fmt"
-	"ppl-calculations/app/queries"
-	"ppl-calculations/domain/wind"
+	"github.com/michaelvlaar/ppl-calculations/app/queries"
+	"github.com/michaelvlaar/ppl-calculations/domain/wind"
 	"strings"
 )
 

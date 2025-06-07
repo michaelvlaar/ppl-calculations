@@ -1,13 +1,13 @@
 package export
 
 import (
-	"ppl-calculations/domain/callsign"
-	"ppl-calculations/domain/fuel"
-	"ppl-calculations/domain/pressure"
-	"ppl-calculations/domain/seat"
-	"ppl-calculations/domain/temperature"
-	"ppl-calculations/domain/weight_balance"
-	"ppl-calculations/domain/wind"
+	"github.com/michaelvlaar/ppl-calculations/domain/callsign"
+	"github.com/michaelvlaar/ppl-calculations/domain/fuel"
+	"github.com/michaelvlaar/ppl-calculations/domain/pressure"
+	"github.com/michaelvlaar/ppl-calculations/domain/seat"
+	"github.com/michaelvlaar/ppl-calculations/domain/temperature"
+	"github.com/michaelvlaar/ppl-calculations/domain/weight_balance"
+	"github.com/michaelvlaar/ppl-calculations/domain/wind"
 	"time"
 )
 

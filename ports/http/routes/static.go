@@ -1,10 +1,10 @@
 package routes
 
 import (
+	"github.com/michaelvlaar/ppl-calculations/ports/http/middleware"
 	"io/fs"
 	"log"
 	"net/http"
-	"ppl-calculations/ports/http/middleware"
 )
 
 func RegisterStaticRoutes(mux *http.ServeMux, assets fs.FS) {

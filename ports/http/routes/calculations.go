@@ -1,12 +1,12 @@
 package routes
 
 import (
+	"github.com/michaelvlaar/ppl-calculations/app"
+	"github.com/michaelvlaar/ppl-calculations/ports/templates"
+	"github.com/michaelvlaar/ppl-calculations/ports/templates/models"
+	"github.com/michaelvlaar/ppl-calculations/ports/templates/parsing"
 	"github.com/sirupsen/logrus"
 	"net/http"
-	"ppl-calculations/app"
-	"ppl-calculations/ports/templates"
-	"ppl-calculations/ports/templates/models"
-	"ppl-calculations/ports/templates/parsing"
 )
 
 func RegisterCalculationRoutes(mux *http.ServeMux, app app.Application) {

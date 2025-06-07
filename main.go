@@ -3,17 +3,17 @@ package main
 import (
 	"context"
 	"embed"
+	"github.com/michaelvlaar/ppl-calculations/adapters"
+	"github.com/michaelvlaar/ppl-calculations/app"
+	"github.com/michaelvlaar/ppl-calculations/app/commands"
+	"github.com/michaelvlaar/ppl-calculations/app/queries"
+	"github.com/michaelvlaar/ppl-calculations/ports/http"
+	"github.com/michaelvlaar/ppl-calculations/ports/http/middleware"
+	"github.com/michaelvlaar/ppl-calculations/ports/templates"
 	"github.com/sirupsen/logrus"
 	"io/fs"
 	"os"
 	"os/signal"
-	"ppl-calculations/adapters"
-	"ppl-calculations/app"
-	"ppl-calculations/app/commands"
-	"ppl-calculations/app/queries"
-	"ppl-calculations/ports/http"
-	"ppl-calculations/ports/http/middleware"
-	"ppl-calculations/ports/templates"
 	"sync"
 )
 
@@ -61,7 +61,7 @@ func main() {
 			Exports:     queries.NewExportsHandler(stateServiceProvider),
 			LdrChart:    queries.NewLdrChartHandler(calculationsService),
 			TodChart:    queries.NewTodChartHandler(calculationsService),
-			PdfExport:   queries.NewPdfExportHandler(exportFS, calculationsService),
+			PdfExport:   queries.NewPdfExportHandler(version, exportFS, calculationsService),
 		},
 	}
 

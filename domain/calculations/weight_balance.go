@@ -2,11 +2,11 @@ package calculations
 
 import (
 	"fmt"
-	"ppl-calculations/domain/callsign"
-	"ppl-calculations/domain/fuel"
-	"ppl-calculations/domain/seat"
-	"ppl-calculations/domain/volume"
-	"ppl-calculations/domain/weight_balance"
+	"github.com/michaelvlaar/ppl-calculations/domain/callsign"
+	"github.com/michaelvlaar/ppl-calculations/domain/fuel"
+	"github.com/michaelvlaar/ppl-calculations/domain/seat"
+	"github.com/michaelvlaar/ppl-calculations/domain/volume"
+	"github.com/michaelvlaar/ppl-calculations/domain/weight_balance"
 )
 
 const (

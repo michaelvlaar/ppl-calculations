@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/csrf"
 	"net/http"
 	"os"
+	"strings"
 )
 
 func CSRF(next http.Handler) http.Handler {
@@ -12,5 +13,5 @@ func CSRF(next http.Handler) http.Handler {
 		cookieName = "__Secure-" + cookieName
 	}
 
-	return csrf.Protect([]byte(os.Getenv("CSRF_KEY")), csrf.CookieName(cookieName), csrf.SameSite(csrf.SameSiteStrictMode), csrf.Path("/"), csrf.HttpOnly(true))(next)
+	return csrf.Protect([]byte(os.Getenv("CSRF_KEY")), csrf.TrustedOrigins(strings.Split(os.Getenv("TRUSTED_ORIGINS"), ",")), csrf.CookieName(cookieName), csrf.SameSite(csrf.SameSiteStrictMode), csrf.Path("/"), csrf.HttpOnly(true))(next)
 }

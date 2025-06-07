@@ -3,14 +3,14 @@ package http
 import (
 	"context"
 	"errors"
+	"github.com/michaelvlaar/ppl-calculations/app"
+	"github.com/michaelvlaar/ppl-calculations/ports/http/middleware"
+	"github.com/michaelvlaar/ppl-calculations/ports/http/routes"
 	"github.com/nanmu42/gzip"
 	"github.com/sirupsen/logrus"
 	"io/fs"
 	"net/http"
 	"os"
-	"ppl-calculations/app"
-	"ppl-calculations/ports/http/middleware"
-	"ppl-calculations/ports/http/routes"
 	"sync"
 	"time"
 )

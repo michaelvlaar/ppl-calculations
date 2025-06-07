@@ -2,8 +2,8 @@ package commands
 
 import (
 	"context"
-	"ppl-calculations/domain/export"
-	"ppl-calculations/domain/state"
+	"github.com/michaelvlaar/ppl-calculations/domain/export"
+	"github.com/michaelvlaar/ppl-calculations/domain/state"
 )
 
 type DeleteExportSheetHandler struct {

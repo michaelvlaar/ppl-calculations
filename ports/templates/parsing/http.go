@@ -1,17 +1,17 @@
 package parsing
 
 import (
+	"github.com/michaelvlaar/ppl-calculations/app/commands"
+	"github.com/michaelvlaar/ppl-calculations/domain/callsign"
+	"github.com/michaelvlaar/ppl-calculations/domain/export"
+	"github.com/michaelvlaar/ppl-calculations/domain/fuel"
+	"github.com/michaelvlaar/ppl-calculations/domain/pressure"
+	"github.com/michaelvlaar/ppl-calculations/domain/seat"
+	"github.com/michaelvlaar/ppl-calculations/domain/temperature"
+	"github.com/michaelvlaar/ppl-calculations/domain/volume"
+	"github.com/michaelvlaar/ppl-calculations/domain/weight_balance"
+	"github.com/michaelvlaar/ppl-calculations/domain/wind"
 	"net/http"
-	"ppl-calculations/app/commands"
-	"ppl-calculations/domain/callsign"
-	"ppl-calculations/domain/export"
-	"ppl-calculations/domain/fuel"
-	"ppl-calculations/domain/pressure"
-	"ppl-calculations/domain/seat"
-	"ppl-calculations/domain/temperature"
-	"ppl-calculations/domain/volume"
-	"ppl-calculations/domain/weight_balance"
-	"ppl-calculations/domain/wind"
 	"strconv"
 )
 

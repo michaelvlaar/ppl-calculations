@@ -1,10 +1,10 @@
 package calculations
 
 import (
-	"ppl-calculations/domain/callsign"
-	"ppl-calculations/domain/pressure"
-	"ppl-calculations/domain/temperature"
-	"ppl-calculations/domain/wind"
+	"github.com/michaelvlaar/ppl-calculations/domain/callsign"
+	"github.com/michaelvlaar/ppl-calculations/domain/pressure"
+	"github.com/michaelvlaar/ppl-calculations/domain/temperature"
+	"github.com/michaelvlaar/ppl-calculations/domain/wind"
 )
 
 type Calculations struct {

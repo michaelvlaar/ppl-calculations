@@ -6,8 +6,8 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 	"fmt"
+	"github.com/michaelvlaar/ppl-calculations/domain/export"
 	"github.com/sirupsen/logrus"
-	"ppl-calculations/domain/export"
 )
 
 type ExportData struct {

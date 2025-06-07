@@ -1,6 +1,6 @@
 package fuel
 
-import "ppl-calculations/domain/volume"
+import "github.com/michaelvlaar/ppl-calculations/domain/volume"
 
 type Fuel struct {
 	Volume volume.Volume `json:"volume"`

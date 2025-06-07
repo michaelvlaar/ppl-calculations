@@ -1,8 +1,8 @@
 package models
 
 import (
+	"github.com/michaelvlaar/ppl-calculations/app/queries"
 	"net/http"
-	"ppl-calculations/app/queries"
 )
 
 type Weight struct {

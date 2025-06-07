@@ -1,8 +1,8 @@
 package app
 
 import (
-	"ppl-calculations/app/commands"
-	"ppl-calculations/app/queries"
+	"github.com/michaelvlaar/ppl-calculations/app/commands"
+	"github.com/michaelvlaar/ppl-calculations/app/queries"
 )
 
 type Application struct {
