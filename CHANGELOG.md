@@ -1,4 +1,26 @@
 
+<a name="v1.4.0"></a>
+
+## [v1.4.0](https://github.com/michaelvlaar/ppl-calculations/compare/v1.3.1...v1.4.0) (2025-06-09)
+
+### Refactoring
+
+* removed unused assets
+  
+  ### ♻️ Code Refactoring
+
+* cleaned up unused files
+  
+  ### 🐛 Bug Fixes
+
+* use correct arm passenger seat
+  
+  ### 🚀 Features
+
+* internal PDF generation
+  * replaced Latex with PDF generator
+  
+  
 <a name="v1.3.1"></a>
 
 ## [v1.3.1](https://github.com/michaelvlaar/ppl-calculations/compare/v1.3.0...v1.3.1) (2025-02-22)
