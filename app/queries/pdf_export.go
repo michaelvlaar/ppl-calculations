@@ -8,11 +8,8 @@ import (
 	"github.com/michaelvlaar/ppl-calculations/domain/export"
 	"github.com/michaelvlaar/ppl-calculations/domain/fuel"
 	"github.com/phpdave11/gofpdf"
-	"github.com/sirupsen/logrus"
 	"io"
 	"io/fs"
-	"os"
-	"path"
 	"strings"
 	"time"
 )
@@ -23,9 +20,10 @@ const (
 )
 
 type PdfExportHandler struct {
-	template    bytes.Buffer
 	calcService calculations.Service
-	tmpFolder   string
+	fontRegular []byte
+	fontBold    []byte
+	fontItalic  []byte
 	version     string
 }
 
@@ -71,25 +69,26 @@ type ExportData struct {
 }
 
 func NewPdfExportHandler(version string, assets fs.FS, calcService calculations.Service) PdfExportHandler {
-	e, err := assets.Open("export.tex")
+	robotoRegular, err := fs.ReadFile(assets, "assets/fonts/Roboto-Regular.ttf")
 	if err != nil {
-		logrus.WithError(err).Fatal("export template not found")
+		panic(err)
 	}
 
-	var exportBuf bytes.Buffer
-	_, err = io.Copy(&exportBuf, e)
+	robotoBold, err := fs.ReadFile(assets, "assets/fonts/Roboto-Bold.ttf")
 	if err != nil {
-		logrus.WithError(err).Fatal("export template copy")
+		panic(err)
 	}
 
-	if err := e.Close(); err != nil {
-		logrus.WithError(err).Fatal("export template closing")
+	robotoItalic, err := fs.ReadFile(assets, "assets/fonts/Roboto-Italic.ttf")
+	if err != nil {
+		panic(err)
 	}
 
 	return PdfExportHandler{
+		fontRegular: robotoRegular,
+		fontBold:    robotoBold,
+		fontItalic:  robotoItalic,
 		calcService: calcService,
-		tmpFolder:   os.Getenv("TMP_PATH"),
-		template:    exportBuf,
 		version:     version,
 	}
 }
@@ -136,56 +135,25 @@ func (h PdfExportHandler) Handle(_ context.Context, e export.Export) (io.Reader,
 		LandingGroundRollRequired: ldrGR,
 	}
 
-	tdrBytes, err := io.ReadAll(tdrChart)
-	if err != nil {
-		return nil, err
-	}
-
-	ldrBytes, err := io.ReadAll(ldrChart)
-	if err != nil {
-		return nil, err
-	}
-
-	wbBytes, err := io.ReadAll(wbChart)
-	if err != nil {
-		return nil, err
-	}
-
-	tempDir, err := os.MkdirTemp(h.tmpFolder, "download.*")
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		err := os.RemoveAll(tempDir)
-		if err != nil {
-			logrus.WithError(err).Error("removing temporary directory")
-		}
-	}()
-
-	wbImgPath := path.Join(tempDir, "wb.png")
-	err = os.WriteFile(wbImgPath, wbBytes, 0644)
-	if err != nil {
-		return nil, err
-	}
-
-	ldrImgPath := path.Join(tempDir, "ldr.png")
-	err = os.WriteFile(ldrImgPath, ldrBytes, 0644)
-	if err != nil {
-		return nil, err
-	}
-
-	tdrImgPath := path.Join(tempDir, "tdr.png")
-	err = os.WriteFile(tdrImgPath, tdrBytes, 0644)
-	if err != nil {
-		return nil, err
-	}
-
 	pdf := gofpdf.New("P", "mm", "A4", "")
+
+	wbImageOptions := gofpdf.ImageOptions{ImageType: "PNG", ReadDpi: true}
+	tdrImageOptions := gofpdf.ImageOptions{ImageType: "PNG", ReadDpi: true}
+	ldrImageOptions := gofpdf.ImageOptions{ImageType: "PNG", ReadDpi: true}
+
+	pdf.RegisterImageOptionsReader("wb", wbImageOptions, wbChart)
+	pdf.RegisterImageOptionsReader("tdr", tdrImageOptions, tdrChart)
+	pdf.RegisterImageOptionsReader("ldr", ldrImageOptions, ldrChart)
+
+	pdf.AddUTF8FontFromBytes("Roboto", "", h.fontRegular)
+	pdf.AddUTF8FontFromBytes("Roboto", "B", h.fontBold)
+	pdf.AddUTF8FontFromBytes("Roboto", "I", h.fontItalic)
+
 	pdf.SetHeaderFuncMode(func() {
 		pdf.SetFillColor(78, 65, 246)
 		pdf.Rect(0, 0, 210, 15, "F")
 		pdf.SetY(5)
-		pdf.SetFont("Arial", "B", 10)
+		pdf.SetFont("Roboto", "B", 10)
 		pdf.SetTextColor(255, 255, 255)
 		pdf.SetX(25)
 		pdf.CellFormat(160/3, 5, e.CallSign.String(), "", 0, "L", false, 0, "")
@@ -199,7 +167,7 @@ func (h PdfExportHandler) Handle(_ context.Context, e export.Export) (io.Reader,
 		pdf.SetY(-12)
 		pdf.SetFillColor(240, 240, 240)
 		pdf.Rect(0, 282, 210, 15, "F")
-		pdf.SetFont("Arial", "I", 10)
+		pdf.SetFont("Roboto", "I", 10)
 		pdf.SetX(25)
 		pdf.SetFillColor(240, 240, 240)
 		pdf.CellFormat(100, 10, fmt.Sprintf("Gegenereerd door github.com/michaelvlaar/ppl-calculations (%s)", h.version), "", 0, "L", false, 0, "https://github.com/michaelvlaar/ppl-calculations")
@@ -208,13 +176,13 @@ func (h PdfExportHandler) Handle(_ context.Context, e export.Export) (io.Reader,
 
 	pdf.SetMargins(20, 20, 20)
 	pdf.AddPage()
-	pdf.SetFont("Arial", "B", TitleFontSize)
+	pdf.SetFont("Roboto", "B", TitleFontSize)
 	pdf.CellFormat(0, 10, "Gewicht en Balans", "", 1, "C", false, 0, "")
 
 	if !takeOffWeightAndBalance.WithinLimits {
 		pdf.SetFillColor(200, 0, 0)
 		pdf.SetTextColor(255, 255, 255)
-		pdf.SetFont("Arial", "B", 10)
+		pdf.SetFont("Roboto", "B", 10)
 		pdf.SetX(25)
 		pdf.MultiCell(160, 6, "De huidige gewichts- en balansberekening geeft aan dat de belading van het vliegtuig buiten de toegestane limieten valt. Controleer en herbereken de gewichts- en balansverdeling zorgvuldig om te voldoen aan de veiligheidsvoorschriften.", "1", "C", true)
 		pdf.SetTextColor(0, 0, 0)
@@ -222,17 +190,17 @@ func (h PdfExportHandler) Handle(_ context.Context, e export.Export) (io.Reader,
 
 	pdf.Ln(5)
 
-	pdf.Image(wbImgPath, 55, pdf.GetY(), 100, 0, false, "", 0, "")
+	pdf.ImageOptions("wb", 55, pdf.GetY(), 100, 0, false, wbImageOptions, 0, "")
 	pdf.Ln(105)
 
-	pdf.SetFont("Arial", "B", TitleFontSize)
+	pdf.SetFont("Roboto", "B", TitleFontSize)
 	pdf.CellFormat(0, 10, "Take-off", "", 1, "C", false, 0, "")
 	pdf.Ln(1)
 
 	headers := []string{"NAME", "ARM [M]", "MASS [KG]", "MASS MOMENT [KG M]"}
 	colWidths := []float64{50, 30, 30, 50}
 
-	pdf.SetFont("Arial", "B", TableHeaderFontSize)
+	pdf.SetFont("Roboto", "B", TableHeaderFontSize)
 	pdf.SetFillColor(170, 170, 170)
 	pdf.SetX((210 - (colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3])) / 2)
 	for i, h := range headers {
@@ -243,7 +211,7 @@ func (h PdfExportHandler) Handle(_ context.Context, e export.Export) (io.Reader,
 		pdf.CellFormat(colWidths[i], 6, h, "1", 0, align, true, 0, "")
 	}
 	pdf.Ln(-1)
-	pdf.SetFont("Arial", "", TableHeaderFontSize)
+	pdf.SetFont("Roboto", "", TableHeaderFontSize)
 	for _, i := range takeOffWeightAndBalance.Moments {
 		pdf.SetX((210 - (colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3])) / 2)
 		mass := strings.ReplaceAll(fmt.Sprintf("%.2f", i.Mass.Kilo()), ".", ",")
@@ -258,7 +226,7 @@ func (h PdfExportHandler) Handle(_ context.Context, e export.Export) (io.Reader,
 	}
 
 	total := takeOffWeightAndBalance.Total
-	pdf.SetFont("Arial", "B", TableHeaderFontSize)
+	pdf.SetFont("Roboto", "B", TableHeaderFontSize)
 	pdf.SetFillColor(170, 170, 170)
 	pdf.SetX((210 - (colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3])) / 2)
 	pdf.CellFormat(colWidths[0], 6, "TOTAL", "1", 0, "", true, 0, "")
@@ -267,11 +235,11 @@ func (h PdfExportHandler) Handle(_ context.Context, e export.Export) (io.Reader,
 	pdf.CellFormat(colWidths[3], 6, strings.ReplaceAll(fmt.Sprintf("%.2f", total.KGM()), ".", ","), "1", 0, "C", true, 0, "")
 	pdf.Ln(10)
 
-	pdf.SetFont("Arial", "B", TitleFontSize)
+	pdf.SetFont("Roboto", "B", TitleFontSize)
 	pdf.CellFormat(0, 10, "Landing", "", 1, "C", false, 0, "")
 	pdf.Ln(1)
 
-	pdf.SetFont("Arial", "B", TableHeaderFontSize)
+	pdf.SetFont("Roboto", "B", TableHeaderFontSize)
 	pdf.SetFillColor(170, 170, 170)
 	pdf.SetX((210 - (colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3])) / 2)
 	for i, h := range headers {
@@ -282,7 +250,7 @@ func (h PdfExportHandler) Handle(_ context.Context, e export.Export) (io.Reader,
 		pdf.CellFormat(colWidths[i], 6, h, "1", 0, align, true, 0, "")
 	}
 	pdf.Ln(-1)
-	pdf.SetFont("Arial", "", TableHeaderFontSize)
+	pdf.SetFont("Roboto", "", TableHeaderFontSize)
 
 	for _, i := range landingWeightAndBalance.Moments {
 		pdf.SetX((210 - (colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3])) / 2)
@@ -298,7 +266,7 @@ func (h PdfExportHandler) Handle(_ context.Context, e export.Export) (io.Reader,
 	}
 
 	totalLanding := landingWeightAndBalance.Total
-	pdf.SetFont("Arial", "B", TableHeaderFontSize)
+	pdf.SetFont("Roboto", "B", TableHeaderFontSize)
 	pdf.SetFillColor(170, 170, 170)
 	pdf.SetX((210 - (colWidths[0] + colWidths[1] + colWidths[2] + colWidths[3])) / 2)
 	pdf.CellFormat(colWidths[0], 6, "TOTAL", "1", 0, "", true, 0, "")
@@ -307,12 +275,12 @@ func (h PdfExportHandler) Handle(_ context.Context, e export.Export) (io.Reader,
 	pdf.CellFormat(colWidths[3], 6, strings.ReplaceAll(fmt.Sprintf("%.2f", totalLanding.KGM()), ".", ","), "1", 0, "C", true, 0, "")
 
 	pdf.AddPage()
-	pdf.SetFont("Arial", "B", TitleFontSize)
+	pdf.SetFont("Roboto", "B", TitleFontSize)
 	pdf.CellFormat(0, TableHeaderFontSize, "Brandstofplanning", "", 1, "C", false, 0, "")
 	pdf.Ln(1)
 
 	if !fuelPlanning.Sufficient {
-		pdf.SetFont("Arial", "B", 10)
+		pdf.SetFont("Roboto", "B", 10)
 		pdf.SetFillColor(200, 0, 0)
 		pdf.SetTextColor(255, 255, 255)
 		pdf.SetX(25)
@@ -333,13 +301,13 @@ func (h PdfExportHandler) Handle(_ context.Context, e export.Export) (io.Reader,
 		{"Extra brandstof", parseNumber(fuelPlanning.Extra.Volume.String(fuelPlanning.VolumeType))},
 	}
 
-	pdf.SetFont("Arial", "B", TableHeaderFontSize)
+	pdf.SetFont("Roboto", "B", TableHeaderFontSize)
 	pdf.SetFillColor(170, 170, 170)
 	pdf.SetX((210 - 160) / 2)
 	pdf.CellFormat(120, 6, "Brandstofcategorie", "1", 0, "L", true, 0, "")
 	pdf.CellFormat(40, 6, "Hoeveelheid", "1", 0, "C", true, 0, "")
 	pdf.Ln(-1)
-	pdf.SetFont("Arial", "", TableHeaderFontSize)
+	pdf.SetFont("Roboto", "", TableHeaderFontSize)
 	for _, row := range fuelRows {
 		pdf.SetX((210 - 160) / 2)
 		pdf.CellFormat(120, 6, row.label, "1", 0, "L", false, 0, "")
@@ -347,32 +315,32 @@ func (h PdfExportHandler) Handle(_ context.Context, e export.Export) (io.Reader,
 		pdf.Ln(-1)
 	}
 	pdf.SetFillColor(170, 170, 170)
-	pdf.SetFont("Arial", "B", TableHeaderFontSize)
+	pdf.SetFont("Roboto", "B", TableHeaderFontSize)
 	pdf.SetX((210 - 160) / 2)
 	pdf.CellFormat(120, 6, "Totaal", "1", 0, "L", true, 0, "")
 	pdf.CellFormat(40, 6, parseNumber(fuelPlanning.Total.Volume.String(fuelPlanning.VolumeType)), "1", 0, "C", true, 0, "")
 
 	pdf.Ln(10)
 
-	pdf.SetFont("Arial", "B", TitleFontSize)
+	pdf.SetFont("Roboto", "B", TitleFontSize)
 	pdf.CellFormat(0, 10, "Prestaties", "", 1, "C", false, 0, "")
 	pdf.Ln(2)
 
 	if !takeOffWeightAndBalance.WithinLimits {
 		pdf.SetFillColor(200, 0, 0)
 		pdf.SetTextColor(255, 255, 255)
-		pdf.SetFont("Arial", "B", 10)
+		pdf.SetFont("Roboto", "B", 10)
 		pdf.SetX(25)
 		pdf.MultiCell(160, 4, "De prestaties kunnen niet worden berekend omdat de huidige gewichts- en balansberekening aangeeft dat de belading van het vliegtuig buiten de toegestane limieten valt. Controleer en herbereken de gewichts- en balansverdeling zorgvuldig om te voldoen aan de veiligheidsvoorschriften", "1", "C", true)
 		pdf.SetTextColor(0, 0, 0)
 	} else {
-		pdf.SetFont("Arial", "B", TableHeaderFontSize)
+		pdf.SetFont("Roboto", "B", TableHeaderFontSize)
 		pdf.SetFillColor(170, 170, 170)
 		pdf.SetX((210 - 160) / 2)
 		pdf.CellFormat(120, 6, "Name", "1", 0, "L", true, 0, "")
 		pdf.CellFormat(40, 6, "Distance [m]", "1", 0, "C", true, 0, "")
 		pdf.Ln(-1)
-		pdf.SetFont("Arial", "", TableHeaderFontSize)
+		pdf.SetFont("Roboto", "", TableHeaderFontSize)
 		table := []struct{ Label, Value string }{
 			{"Take-off Run Required (Ground Roll)", fmt.Sprintf("%s", strings.ReplaceAll(fmt.Sprintf("%.0f", performance.TakeOffRunRequired), ".", ","))},
 			{"Take-off Distance Required", fmt.Sprintf("%s", strings.ReplaceAll(fmt.Sprintf("%.0f", performance.TakeOffDistanceRequired), ".", ","))},
@@ -387,9 +355,9 @@ func (h PdfExportHandler) Handle(_ context.Context, e export.Export) (io.Reader,
 		}
 		pdf.AddPage()
 		pdf.Ln(10)
-		pdf.Image(tdrImgPath, 25, pdf.GetY(), 160, 0, false, "", 0, "")
+		pdf.ImageOptions("tdr", 25, pdf.GetY(), 160, 0, false, tdrImageOptions, 0, "")
 		pdf.Ln(130)
-		pdf.Image(ldrImgPath, 25, pdf.GetY(), 160, 0, false, "", 0, "")
+		pdf.ImageOptions("ldr", 25, pdf.GetY(), 160, 0, false, ldrImageOptions, 0, "")
 	}
 	var buf bytes.Buffer
 	err = pdf.Output(&buf)
