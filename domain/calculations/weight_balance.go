@@ -184,7 +184,7 @@ func NewWeightAndBalance(callSign callsign.CallSign, pilot weight_balance.Mass, 
 		wb.Moments = append(wb.Moments, weight_balance.NewMassMoment(PassengerMassName, pilotSeatMassArm, weight_balance.Mass(0)))
 	} else {
 		var passengerSeatMassArm float64
-		switch pilotSeat {
+		switch *passengerSeat {
 		case seat.PositionFront:
 			passengerSeatMassArm = AquilaSeatFrontMassArm
 		case seat.PositionMiddle:
