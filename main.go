@@ -39,11 +39,6 @@ func main() {
 	calculationsService := adapters.MustNewCalculationsService(chartsFS, adapters.MustNewImageService())
 	stateServiceProvider := adapters.NewCookieStateServiceProvider()
 
-	exportFS, err := fs.Sub(assets, "assets/export")
-	if err != nil {
-		logrus.WithError(err).Fatal("could not load export folder")
-	}
-
 	a := app.Application{
 		Commands: app.Commands{
 			UpdateLoadSheet:   commands.NewUpdateLoadSheetHandler(stateServiceProvider),
@@ -61,7 +56,7 @@ func main() {
 			Exports:     queries.NewExportsHandler(stateServiceProvider),
 			LdrChart:    queries.NewLdrChartHandler(calculationsService),
 			TodChart:    queries.NewTodChartHandler(calculationsService),
-			PdfExport:   queries.NewPdfExportHandler(version, exportFS, calculationsService),
+			PdfExport:   queries.NewPdfExportHandler(version, assets, calculationsService),
 		},
 	}
 
