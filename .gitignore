@@ -3,3 +3,6 @@ package.json
 package-lock.json
 ppl-calculations
 tmp
+.idea
+.env
+.tmp
