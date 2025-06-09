@@ -1,7 +1,6 @@
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://acm.vlaar.it/)
 [![Conventional Commits](https://img.shields.io/badge/commits-conventional-blue)](https://www.conventionalcommits.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmichaelvlaar%2Fppl-calculations.svg?type=shield&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmichaelvlaar%2Fppl-calculations?ref=badge_shield&issueType=license)
 
 # PPL Calculations
 
