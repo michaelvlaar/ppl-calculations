@@ -10,10 +10,6 @@ an aeroclub fleet. By integrating a reliable Go-based HTTP backend with a respon
 enables pilots to perform quick and accurate weight and balance calculations. The project aims to enhance operational
 safety and efficiency within aeroclubs and welcomes community contributions.
 
-## TODOS 
-
-- ⬜ Replace PDF latex engine with https://github.com/go-pdf/fpdf
-
 ## Installation
 
 ### Prerequisites
@@ -21,8 +17,7 @@ safety and efficiency within aeroclubs and welcomes community contributions.
 - [Docker](https://www.docker.com/get-started) installed on your machine
 - Kubernetes cluster (optional, for deployment using Kustomize and Flux)
 - **Dependencies:**
-    - `xelatex`: For generating PDFs from LaTeX.
-    - `librsvg2`: For rendering SVG images.
+    - `rsvg-convert`: For converting SVG images to PNGs.
     - **Roboto Font**: Required for consistent typography in PDFs.
 
 ### Environment Variables
@@ -34,7 +29,7 @@ TRUSTED_ORIGINS=localhost:8080,xxxx
 CSRF_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 PORT=8080
 SESSION_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-TMP_PATH=/tmp/
+TMPDIR=/tmp/
 ```
 
 ### Variable Descriptions:
@@ -42,7 +37,7 @@ TMP_PATH=/tmp/
 - **CSRF_KEY:** Used to encrypt and sign cookies and other secure parts of the application.
 - **PORT:** The port on which the HTTP server runs.
 - **SESSION_KEY:** Used for encrypting and signing session data.
-- **TMP_PATH:** Temporary directory path used to store files temporarily. This directory does not need to be persistent.
+- **TMPDIR:** Temporary directory path used to store files temporarily. This directory does not need to be persistent.
 
 ## Running with Docker
 
@@ -67,7 +62,7 @@ docker run -d \
   -e CSRF_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\
   -e PORT=8080 \
   -e SESSION_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX \
-  -e TMP_PATH=/tmp/ \
+  -e TMPDIR=/tmp/ \
   ppl-calculations:latest
 ```
 

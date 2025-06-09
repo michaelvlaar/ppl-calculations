@@ -32,6 +32,5 @@ func (s *ImageService) SvgToPng(svg io.Reader) (io.Reader, error) {
 		return nil, err
 	}
 
-	// Geef de PNG-output terug als io.Reader
 	return &out, nil
 }
