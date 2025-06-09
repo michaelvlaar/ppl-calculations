@@ -22,7 +22,7 @@ spec:
         runAsGroup: 30001
         fsGroup: 30001
       volumes:
-        - name: cache-folder
+        - name: tmp-folder
           emptyDir: { }
       containers:
         - name: ppl-calculations
@@ -35,15 +35,15 @@ spec:
               drop:
                 - ALL
           volumeMounts:
-            - mountPath: /cache/
-              name: cache-folder
+            - mountPath: /tmp/
+              name: tmp-folder
           env:
             - name: PORT
               value: "8080"
             - name: SECURE_COOKIE
               value: "true"
-            - name: TMP_PATH
-              value: "/cache/"
+            - name: TMPDIR
+              value: "/tmp/"
             - name: CSRF_KEY
               valueFrom:
                 secretKeyRef:
